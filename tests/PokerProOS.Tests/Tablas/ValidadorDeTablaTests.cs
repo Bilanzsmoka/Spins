@@ -116,6 +116,56 @@ public class ValidadorDeTablaTests : IDisposable
         Assert.Equal(Path.GetFileName(ruta), problema.Archivo);
     }
 
+    [Fact]
+    public void No_lanza_y_reporta_un_stack_sin_clave()
+    {
+        var ruta = Fabricar("""
+            {"situation":{"key":"S","label":"S"},"stacks":[{"minBB":5,"maxBB":5,
+            "spots":[{"key":"SB_OR","label":"SB OR","actions":{"FOLD":"REST"}}]}]}
+            """);
+        var resultado = _validador.Validar(ruta);
+        Assert.NotEmpty(resultado.Problemas);
+    }
+
+    [Fact]
+    public void No_lanza_y_reporta_un_spot_sin_clave()
+    {
+        var ruta = Fabricar("""
+            {"situation":{"key":"S","label":"S"},"stacks":[{"key":"5bb","minBB":5,"maxBB":5,
+            "spots":[{"label":"SB OR","actions":{"FOLD":"REST"}}]}]}
+            """);
+        var resultado = _validador.Validar(ruta);
+        Assert.NotEmpty(resultado.Problemas);
+    }
+
+    [Fact]
+    public void No_lanza_y_reporta_un_conteo_declarado_que_no_es_un_entero()
+    {
+        var ruta = Fabricar("""
+            {"situation":{"key":"S","label":"S"},"stacks":[{"key":"5bb","minBB":5,"maxBB":5,
+            "spots":[{"key":"SB_OR","label":"SB OR","actions":{"CALL":["AA"],"FOLD":"REST"},
+            "expectedCounts":{"CALL":"muchas","FOLD":168,"TOTAL":169}}]}]}
+            """);
+        var resultado = _validador.Validar(ruta);
+        Assert.NotEmpty(resultado.Problemas);
+    }
+
+    [Fact]
+    public void No_lanza_y_reporta_contenido_que_no_es_json()
+    {
+        var ruta = Fabricar("esto no es json en absoluto");
+        var resultado = _validador.Validar(ruta);
+        Assert.NotEmpty(resultado.Problemas);
+    }
+
+    [Fact]
+    public void No_lanza_y_reporta_un_archivo_sin_stacks()
+    {
+        var ruta = Fabricar("""{"situation":{"key":"S","label":"S"}}""");
+        var resultado = _validador.Validar(ruta);
+        Assert.NotEmpty(resultado.Problemas);
+    }
+
     private string Fabricar(string json)
     {
         var ruta = Path.Combine(Path.GetTempPath(), $"tabla-{Guid.NewGuid():N}.json");
