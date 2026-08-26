@@ -22,11 +22,16 @@ public class SincronizadorTests
     public async Task Sincroniza_todas_las_celdas_del_catalogo()
     {
         using var contexto = ContextoEnMemoria();
+        var catalogo = Catalogo();
         var escritas = await new SincronizadorDeCatalogo(contexto)
-            .SincronizarAsync(Catalogo(), CancellationToken.None);
+            .SincronizarAsync(catalogo, CancellationToken.None);
 
-        // 11 stacks: dos con 3 spots y nueve con 5, por 169 manos.
-        Assert.Equal((2 * 3 + 9 * 5) * 169, escritas);
+        // El total se deriva del catalogo, no se fija: cada tabla nueva lo cambia.
+        var esperadas = catalogo.Situaciones
+            .SelectMany(s => s.Stacks)
+            .SelectMany(t => t.Spots)
+            .Count() * 169;
+        Assert.Equal(esperadas, escritas);
         Assert.Equal(escritas, await contexto.ChartStrategyCells.CountAsync(
             CancellationToken.None));
     }

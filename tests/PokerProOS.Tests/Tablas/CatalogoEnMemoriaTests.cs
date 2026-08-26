@@ -17,23 +17,26 @@ public class CatalogoEnMemoriaTests
         => Assert.Empty(Catalogo().Problemas);
 
     [Fact]
-    public void Descubre_la_unica_situacion_existente()
+    public void Descubre_las_situaciones_de_los_archivos()
     {
         var situaciones = Catalogo().Situaciones;
-        Assert.Single(situaciones);
-        Assert.Equal("HU_SB_OR_FISH", situaciones[0].Clave);
+        Assert.NotEmpty(situaciones);
+        // La original tiene que seguir estando, cualquiera sea el resto.
+        Assert.Contains(situaciones, s => s.Clave == "HU_SB_OR_FISH");
+        Assert.All(situaciones, s => Assert.NotEmpty(s.Stacks));
     }
 
     [Fact]
-    public void Descubre_los_once_stacks()
+    public void Descubre_los_once_stacks_de_la_situacion_original()
         => Assert.Equal(11, Catalogo().Situacion("HU_SB_OR_FISH")!.Stacks.Count);
 
     [Fact]
     public void Cada_spot_cubre_las_169_manos()
     {
-        foreach (var stack in Catalogo().Situacion("HU_SB_OR_FISH")!.Stacks)
-            foreach (var spot in stack.Spots)
-                Assert.Equal(169, spot.Celdas.Count);
+        foreach (var situacion in Catalogo().Situaciones)
+            foreach (var stack in situacion.Stacks)
+                foreach (var spot in stack.Spots)
+                    Assert.Equal(169, spot.Celdas.Count);
     }
 
     [Theory]

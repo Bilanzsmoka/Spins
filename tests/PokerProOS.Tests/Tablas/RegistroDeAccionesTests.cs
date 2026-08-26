@@ -8,9 +8,25 @@ public class RegistroDeAccionesTests : IDisposable
     private static string Ruta => Rutas.Registro("acciones.json");
     private readonly List<string> _temporales = [];
 
+    // No se fija un numero: el registro crece cada vez que una tabla nueva
+    // trae una accion que no existia, y una prueba que cuente romperia con
+    // cada tabla agregada, que es exactamente lo que el proyecto busca que
+    // sea barato.
     [Fact]
-    public void Carga_las_cuatro_acciones_del_proyecto()
-        => Assert.Equal(4, RegistroDeAccionesJson.Cargar(Ruta).Todas.Count);
+    public void Carga_todas_las_acciones_declaradas_en_el_archivo()
+    {
+        var declaradas = System.Text.Json.JsonDocument
+            .Parse(File.ReadAllText(Ruta)).RootElement
+            .GetProperty("acciones").GetArrayLength();
+        Assert.Equal(declaradas, RegistroDeAccionesJson.Cargar(Ruta).Todas.Count);
+    }
+
+    [Fact]
+    public void No_repite_ninguna_clave()
+    {
+        var claves = RegistroDeAccionesJson.Cargar(Ruta).Todas.Select(a => a.Clave).ToList();
+        Assert.Equal(claves.Count, claves.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+    }
 
     [Theory]
     [InlineData("ALL-IN", "#43bf55")]
@@ -21,10 +37,10 @@ public class RegistroDeAccionesTests : IDisposable
         => Assert.Equal(color, RegistroDeAccionesJson.Cargar(Ruta).Obtener(clave).Color);
 
     [Fact]
-    public void Ordena_las_acciones_para_la_leyenda()
+    public void Ordena_las_acciones_por_su_orden_declarado()
     {
-        var claves = RegistroDeAccionesJson.Cargar(Ruta).Todas.Select(a => a.Clave);
-        Assert.Equal(["ALL-IN", "CALL", "RAISE_X2", "FOLD"], claves);
+        var ordenes = RegistroDeAccionesJson.Cargar(Ruta).Todas.Select(a => a.Orden).ToList();
+        Assert.Equal(ordenes.OrderBy(o => o), ordenes);
     }
 
     [Fact]

@@ -1,32 +1,217 @@
 {
-  "palabrasDeStack": ["be be", "bb", "blinds", "ciegas"],
+  "palabrasDeStack": [
+    "be be",
+    "bb",
+    "blinds",
+    "ciegas"
+  ],
   "rangos": [
-    { "clave": "A", "dichos": ["as", "a", "ace"] },
-    { "clave": "K", "dichos": ["rey", "ka", "king"] },
-    { "clave": "Q", "dichos": ["reina", "dama", "cu", "queen"] },
-    { "clave": "J", "dichos": ["jota", "jack"] },
-    { "clave": "T", "dichos": ["diez", "ten"] },
-    { "clave": "9", "dichos": ["nueve", "nine"] },
-    { "clave": "8", "dichos": ["ocho", "eight"] },
-    { "clave": "7", "dichos": ["siete", "seven"] },
-    { "clave": "6", "dichos": ["seis", "six"] },
-    { "clave": "5", "dichos": ["cinco", "five"] },
-    { "clave": "4", "dichos": ["cuatro", "four"] },
-    { "clave": "3", "dichos": ["tres", "three"] },
-    { "clave": "2", "dichos": ["dos", "two", "deuce"] }
+    {
+      "clave": "A",
+      "dichos": [
+        "as",
+        "a",
+        "ace"
+      ]
+    },
+    {
+      "clave": "K",
+      "dichos": [
+        "rey",
+        "ka",
+        "king"
+      ]
+    },
+    {
+      "clave": "Q",
+      "dichos": [
+        "reina",
+        "dama",
+        "cu",
+        "queen"
+      ]
+    },
+    {
+      "clave": "J",
+      "dichos": [
+        "jota",
+        "jack"
+      ]
+    },
+    {
+      "clave": "T",
+      "dichos": [
+        "diez",
+        "ten"
+      ]
+    },
+    {
+      "clave": "9",
+      "dichos": [
+        "nueve",
+        "nine"
+      ]
+    },
+    {
+      "clave": "8",
+      "dichos": [
+        "ocho",
+        "eight"
+      ]
+    },
+    {
+      "clave": "7",
+      "dichos": [
+        "siete",
+        "seven"
+      ]
+    },
+    {
+      "clave": "6",
+      "dichos": [
+        "seis",
+        "six"
+      ]
+    },
+    {
+      "clave": "5",
+      "dichos": [
+        "cinco",
+        "five"
+      ]
+    },
+    {
+      "clave": "4",
+      "dichos": [
+        "cuatro",
+        "four"
+      ]
+    },
+    {
+      "clave": "3",
+      "dichos": [
+        "tres",
+        "three"
+      ]
+    },
+    {
+      "clave": "2",
+      "dichos": [
+        "dos",
+        "two",
+        "deuce"
+      ]
+    }
   ],
   "palos": [
-    { "clave": "s", "dichos": ["suited", "del mismo palo", "mismo palo", "color"] },
-    { "clave": "o", "dichos": ["offsuit", "off suit", "off", "distinto palo"] }
+    {
+      "clave": "s",
+      "dichos": [
+        "suited",
+        "del mismo palo",
+        "mismo palo",
+        "color"
+      ]
+    },
+    {
+      "clave": "o",
+      "dichos": [
+        "offsuit",
+        "off suit",
+        "off",
+        "distinto palo"
+      ]
+    }
   ],
   "spots": [
-    { "clave": "SB_OR", "dichos": ["ese be o erre", "mi accion", "primera accion", "abrir", "open"] },
-    { "clave": "VS_BB_ALL_IN", "dichos": ["contra all in", "versus all in", "contra shove", "be be all in"] },
-    { "clave": "VS_BB_3BET", "dichos": ["contra tres bet", "versus tres bet", "contra tribet"] },
-    { "clave": "VS_BB_ISO_3BB", "dichos": ["contra iso tres", "versus iso tres be be", "iso tres"] },
-    { "clave": "VS_BB_ISO_ALL_IN", "dichos": ["contra iso all in", "versus iso all in", "iso all in"] }
+    {
+      "clave": "SB_OR",
+      "dichos": [
+        "ese be o erre",
+        "mi accion",
+        "primera accion",
+        "abrir",
+        "open"
+      ]
+    },
+    {
+      "clave": "VS_BB_ALL_IN",
+      "dichos": [
+        "contra all in",
+        "versus all in",
+        "contra shove",
+        "be be all in"
+      ]
+    },
+    {
+      "clave": "VS_BB_3BET",
+      "dichos": [
+        "contra tres bet",
+        "versus tres bet",
+        "contra tribet"
+      ]
+    },
+    {
+      "clave": "VS_BB_ISO_3BB",
+      "dichos": [
+        "contra iso tres",
+        "versus iso tres be be",
+        "iso tres"
+      ]
+    },
+    {
+      "clave": "VS_BB_ISO_ALL_IN",
+      "dichos": [
+        "contra iso all in",
+        "versus iso all in",
+        "iso all in"
+      ]
+    },
+    {
+      "clave": "BB_VS_SB_LIMP",
+      "dichos": [
+        "contra limp",
+        "vs limp",
+        "be be contra limp",
+        "limpeo",
+        "me limpeo"
+      ]
+    },
+    {
+      "clave": "VS_SB_ALL_IN",
+      "dichos": [
+        "contra ese be all in",
+        "ese be all in",
+        "contra all in de ese be"
+      ]
+    },
+    {
+      "clave": "VS_SB_3BET",
+      "dichos": [
+        "contra ese be tres bet",
+        "ese be tres bet",
+        "contra tres bet de ese be"
+      ]
+    }
   ],
   "situaciones": [
-    { "clave": "HU_SB_OR_FISH", "dichos": ["heads up contra fish", "hu fish", "contra fish", "fish"] }
+    {
+      "clave": "HU_SB_OR_FISH",
+      "dichos": [
+        "heads up contra fish",
+        "hu fish",
+        "contra fish",
+        "fish"
+      ]
+    },
+    {
+      "clave": "HU_BB_OR_FISH",
+      "dichos": [
+        "be be contra fish",
+        "desde be be",
+        "be be fish",
+        "defendiendo"
+      ]
+    }
   ]
 }

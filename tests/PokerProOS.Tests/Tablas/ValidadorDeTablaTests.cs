@@ -9,10 +9,11 @@ public class ValidadorDeTablaTests : IDisposable
     private readonly List<string> _temporales = [];
 
     [Fact]
-    public void Las_once_tablas_reales_del_proyecto_son_validas()
+    public void Todas_las_tablas_reales_del_proyecto_son_validas()
     {
         var archivos = Directory.GetFiles(Rutas.SemillasDeTablas, "*.json");
-        Assert.Equal(11, archivos.Length);
+        // Que haya tablas, no cuantas: el usuario agrega archivos seguido.
+        Assert.NotEmpty(archivos);
         foreach (var archivo in archivos)
         {
             var resultado = _validador.Validar(archivo);
