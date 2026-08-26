@@ -110,6 +110,14 @@ public class ResolverManoTests
         Assert.Equal(MotivoSinRespuesta.SituacionDesconocida, resultado.Motivo);
     }
 
+    [Fact]
+    public void Avisa_cuando_el_rango_no_es_valido()
+    {
+        var resultado = Handler().Resolver(Consulta(10, "X", "9"));
+        Assert.Null(resultado.Respuesta);
+        Assert.Equal(MotivoSinRespuesta.ManoInvalida, resultado.Motivo);
+    }
+
     private static SpotDeTabla SpotDeReferencia() =>
         new CargadorDeTablas(new ValidadorDeTabla(
                 RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
