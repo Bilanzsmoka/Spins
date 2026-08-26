@@ -1,3 +1,4 @@
+using PokerProOS.Application.Bitacora;
 using PokerProOS.Application.Voz;
 
 namespace PokerProOS.Api.Voz;
@@ -11,6 +12,7 @@ public sealed class ServicioDeCopiloto(
     CopilotoDeVoz copiloto,
     IReconocedorDeVoz reconocedor,
     CanalDeEventos canal,
+    IServiceScopeFactory fabricaDeAlcances,
     ILogger<ServicioDeCopiloto> registro) : BackgroundService
 {
     public bool Escuchando { get; private set; }
@@ -29,7 +31,11 @@ public sealed class ServicioDeCopiloto(
         try
         {
             copiloto.Conectar();
-            copiloto.Publicado += (_, evento) => canal.Publicar(evento);
+            copiloto.Publicado += (_, evento) =>
+            {
+                canal.Publicar(evento);
+                _ = RegistrarEnBitacoraAsync(evento, cancelacion);
+            };
             copiloto.FalloAlHablar += (_, ex) =>
             {
                 FallaAlHablar = ex.Message;
@@ -46,5 +52,26 @@ public sealed class ServicioDeCopiloto(
             registro.LogError(ex, "No se pudo iniciar el copiloto de voz. La aplicación sigue sin voz.");
         }
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// El contexto de base de datos es Scoped y este servicio es Singleton:
+    /// no se puede inyectar la bitácora directamente. Se crea un alcance por
+    /// evento para resolverla y se descarta al terminar. Igual que
+    /// <see cref="BitacoraDeConsultas.RegistrarAsync"/>, no puede propagar:
+    /// se llama en fuego y olvido desde el callback de reconocimiento.
+    /// </summary>
+    private async Task RegistrarEnBitacoraAsync(EventoDeCopiloto evento, CancellationToken cancelacion)
+    {
+        try
+        {
+            using var alcance = fabricaDeAlcances.CreateScope();
+            var bitacora = alcance.ServiceProvider.GetRequiredService<IBitacoraDeConsultas>();
+            await bitacora.RegistrarAsync(evento, cancelacion);
+        }
+        catch (Exception ex)
+        {
+            registro.LogWarning(ex, "No se pudo registrar la consulta en la bitácora.");
+        }
     }
 }

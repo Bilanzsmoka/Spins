@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using PokerProOS.Api.Voz;
+using PokerProOS.Application.Bitacora;
 using PokerProOS.Application.Tablas;
 using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure;
+using PokerProOS.Infrastructure.Database;
 using PokerProOS.Infrastructure.Tablas;
 using PokerProOS.Infrastructure.Voz;
 using PokerProOS.Voz.Sapi;
@@ -66,6 +69,10 @@ builder.Services.AddSingleton<CanalDeEventos>();
 builder.Services.AddSingleton<ServicioDeCopiloto>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<ServicioDeCopiloto>());
 
+builder.Services.AddDbContext<PokerProOSDbContext>(opciones =>
+    opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IBitacoraDeConsultas, BitacoraDeConsultas>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -75,6 +82,23 @@ var app = builder.Build();
 foreach (var problema in catalogo.Problemas)
     app.Logger.LogWarning("Tabla inválida en {Archivo} ({Stack}/{Spot}): {Mensaje}",
         problema.Archivo, problema.Stack, problema.Spot, problema.Mensaje);
+
+// La base es opcional: si no esta, se estudia igual sin historial.
+using (var alcance = app.Services.CreateScope())
+{
+    try
+    {
+        var contexto = alcance.ServiceProvider.GetRequiredService<PokerProOSDbContext>();
+        await contexto.Database.MigrateAsync();
+        var filas = await new SincronizadorDeCatalogo(contexto).SincronizarAsync(catalogo, default);
+        app.Logger.LogInformation("Catálogo sincronizado: {Filas} celdas.", filas);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex,
+            "Sin base de datos. Las tablas funcionan igual, pero no hay historial de consultas.");
+    }
+}
 
 app.UseMiddleware<PokerProOS.Api.Middleware.ExceptionMiddleware>();
 
