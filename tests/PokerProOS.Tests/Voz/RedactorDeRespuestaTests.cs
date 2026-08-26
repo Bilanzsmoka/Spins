@@ -1,13 +1,15 @@
 using PokerProOS.Application.Tablas;
 using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure.Tablas;
+using PokerProOS.Infrastructure.Voz;
 
 namespace PokerProOS.Tests.Voz;
 
 public class RedactorDeRespuestaTests
 {
     private static RedactorDeRespuesta Redactor() =>
-        new(RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json")));
+        new(RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json")),
+            RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json")));
 
     private static ResultadoDeConsulta Con(
         string mano, string accion, int conteo, bool borde, bool asumido) =>
@@ -46,4 +48,42 @@ public class RedactorDeRespuestaTests
     public void Dice_que_no_entendio_cuando_no_hay_detalle()
         => Assert.Equal("No te entendí.",
             Redactor().Redactar(new ResultadoDeConsulta(null, MotivoSinRespuesta.ManoInvalida, null)));
+
+    [Fact]
+    public void La_palabra_del_palo_sale_del_registro_y_no_de_un_literal()
+    {
+        var vocabularioDeMentira = new RegistroDeVocabularioDeMentira(
+            palos: new List<FormasHabladas>
+            {
+                new("s", new List<string> { "del mismo palo" }),
+                new("o", new List<string> { "de palo distinto" }),
+            });
+        var redactor = new RedactorDeRespuesta(
+            RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json")), vocabularioDeMentira);
+
+        Assert.Equal("A K de palo distinto: CALL.",
+            redactor.Redactar(Con("AKo", "CALL", 43, false, true)));
+    }
+
+    [Fact]
+    public void No_repite_la_mano_suited_cuando_no_se_asumio_el_palo()
+        => Assert.Equal("CALL.", Redactor().Redactar(Con("AKs", "CALL", 43, false, false)));
+
+    [Fact]
+    public void No_repite_la_mano_offsuit_cuando_no_se_asumio_el_palo()
+        => Assert.Equal("CALL.", Redactor().Redactar(Con("AKo", "CALL", 43, false, false)));
+
+    [Fact]
+    public void Deletrea_un_par_sin_palabra_de_palo()
+        => Assert.Equal("A A: CALL.", Redactor().Redactar(Con("AA", "CALL", 43, false, true)));
+
+    private sealed class RegistroDeVocabularioDeMentira(IReadOnlyList<FormasHabladas> palos)
+        : IRegistroDeVocabulario
+    {
+        public IReadOnlyList<string> PalabrasDeStack { get; } = new List<string>();
+        public IReadOnlyList<FormasHabladas> Rangos { get; } = new List<FormasHabladas>();
+        public IReadOnlyList<FormasHabladas> Palos { get; } = palos;
+        public IReadOnlyList<FormasHabladas> Spots { get; } = new List<FormasHabladas>();
+        public IReadOnlyList<FormasHabladas> Situaciones { get; } = new List<FormasHabladas>();
+    }
 }

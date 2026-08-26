@@ -7,7 +7,7 @@ namespace PokerProOS.Application.Voz;
 /// hay nada que aclarar, y repetir la mano solo cuando se asumió el palo, que
 /// es cuando pudo haberse perdido la palabra "suited" en el reconocimiento.
 /// </summary>
-public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones)
+public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroDeVocabulario vocabulario)
 {
     public string Redactar(ResultadoDeConsulta resultado)
     {
@@ -27,11 +27,20 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones)
         return frase;
     }
 
-    /// <summary>Separa la mano para que la síntesis no lea "AKo" como una palabra.</summary>
-    private static string Deletrear(string mano)
+    /// <summary>
+    /// Separa la mano para que la síntesis no lea "AKo" como una palabra. La palabra
+    /// del palo sale del registro de vocabulario (su forma canónica, el primer dicho),
+    /// no de un literal, para que cambiar el JSON cambie lo que se dice.
+    /// </summary>
+    private string Deletrear(string mano)
     {
         var rangos = $"{mano[0]} {mano[1]}";
         if (mano.Length == 2) return rangos;
-        return mano[2] == 's' ? $"{rangos} suited" : $"{rangos} offsuit";
+
+        var claveDePalo = mano[2].ToString();
+        var palabraDePalo = vocabulario.Palos
+            .FirstOrDefault(p => p.Clave == claveDePalo)?.Dichos.FirstOrDefault();
+
+        return palabraDePalo is null ? rangos : $"{rangos} {palabraDePalo}";
     }
 }

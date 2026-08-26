@@ -38,16 +38,38 @@ public class RegistroDeVocabularioTests
     [Fact]
     public void Los_spots_declarados_existen_en_las_tablas()
     {
-        var catalogo = new PokerProOS.Infrastructure.Tablas.CargadorDeTablas(
+        var deLasTablas = SpotsDeLasTablas();
+        Assert.All(Cargar().Spots, s => Assert.Contains(s.Clave, deLasTablas));
+    }
+
+    [Fact]
+    public void Todo_spot_de_las_tablas_tiene_forma_hablada()
+    {
+        var deLasTablas = SpotsDeLasTablas();
+        var delVocabulario = Cargar().Spots.Select(s => s.Clave).ToHashSet();
+
+        Assert.All(deLasTablas, clave => Assert.Contains(clave, delVocabulario));
+    }
+
+    [Fact]
+    public void Toda_situacion_de_las_tablas_tiene_forma_hablada()
+    {
+        var catalogo = CargarCatalogo();
+        var deLasTablas = catalogo.Situaciones.Select(s => s.Clave).Distinct();
+        var delVocabulario = Cargar().Situaciones.Select(s => s.Clave).ToHashSet();
+
+        Assert.All(deLasTablas, clave => Assert.Contains(clave, delVocabulario));
+    }
+
+    private static PokerProOS.Application.Tablas.ICatalogoDeTablas CargarCatalogo() =>
+        new PokerProOS.Infrastructure.Tablas.CargadorDeTablas(
                 new PokerProOS.Infrastructure.Tablas.ValidadorDeTabla(
                     PokerProOS.Infrastructure.Tablas.RegistroDeAccionesJson.Cargar(
                         Rutas.Registro("acciones.json"))))
             .CargarDirectorio(Rutas.SemillasDeTablas);
 
-        var deLasTablas = catalogo.Situaciones
+    private static HashSet<string> SpotsDeLasTablas() =>
+        CargarCatalogo().Situaciones
             .SelectMany(s => s.Stacks).SelectMany(t => t.Spots)
             .Select(s => s.Clave).Distinct().ToHashSet();
-
-        Assert.All(Cargar().Spots, s => Assert.Contains(s.Clave, deLasTablas));
-    }
 }
