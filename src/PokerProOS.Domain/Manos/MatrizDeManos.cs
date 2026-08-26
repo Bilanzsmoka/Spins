@@ -43,8 +43,8 @@ public static class MatrizDeManos
     private static (int Fila, int Columna) Coordenadas(string etiqueta)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(etiqueta);
-        var primero = IndiceDe(etiqueta[0]);
-        var segundo = IndiceDe(etiqueta[1]);
+        var primero = IndiceDeRango(etiqueta[0]);
+        var segundo = IndiceDeRango(etiqueta[1]);
         if (primero < 0 || segundo < 0)
             throw new ArgumentException($"Mano desconocida: {etiqueta}", nameof(etiqueta));
 
@@ -57,7 +57,12 @@ public static class MatrizDeManos
         };
     }
 
-    private static int IndiceDe(char rango)
+    /// <summary>
+    /// Posición de un rango dentro de <see cref="Rangos"/>. Búsqueda lineal porque
+    /// IReadOnlyList&lt;char&gt; no expone IndexOf (eso es de IList&lt;T&gt;), y no
+    /// vale la pena envolver los 13 rangos en otro tipo solo por ese método.
+    /// </summary>
+    public static int IndiceDeRango(char rango)
     {
         for (var i = 0; i < Rangos.Count; i++)
             if (Rangos[i] == rango) return i;
