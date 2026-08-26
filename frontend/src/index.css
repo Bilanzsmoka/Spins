@@ -322,3 +322,67 @@ kbd {
   color: var(--apagado); font-size: 12px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* ---------- Cuadro de habitos ---------- */
+
+.cuadro-habitos {
+  padding: 12px 14px; margin-bottom: 18px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.habitos-fila { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 9px; }
+.habito {
+  display: grid; gap: 5px; justify-items: center;
+  padding: 8px 10px; border-radius: 8px; background: var(--panel-2);
+  min-width: 92px;
+}
+.habito-etiqueta {
+  background: transparent; border: none; padding: 0;
+  color: var(--apagado); font: inherit; font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .05em; cursor: help;
+  text-decoration: underline dotted; text-underline-offset: 3px;
+}
+.habito-etiqueta:hover { color: var(--texto); }
+.habito-botones { display: flex; gap: 4px; }
+.habito-botones button, .habito-numero {
+  border: 1px solid var(--borde); background: #11161c;
+  color: var(--apagado); font: inherit; font-size: 12px; font-weight: 700;
+  border-radius: 6px; cursor: pointer; padding: 5px 10px;
+}
+.habito-numero {
+  width: 78px; text-align: center; cursor: text;
+  color: var(--texto); font-size: 14px;
+}
+.habito-numero:focus { outline: none; border-color: var(--acento); }
+.marcado-bueno { background: #123629 !important; border-color: #43bf55 !important; color: #b8f5d2 !important; }
+.marcado-malo { background: #3a1d24 !important; border-color: #ff6868 !important; color: #ffc4c4 !important; }
+
+.habito-ayuda {
+  margin-top: 11px; padding: 11px 13px;
+  border: 1px solid var(--borde); border-radius: 8px; background: #11161c;
+}
+.habito-ayuda strong { display: block; margin-bottom: 5px; font-size: 13px; }
+.habito-ayuda p { margin: 0; color: var(--apagado); font-size: 13px; line-height: 1.55; }
+
+/* ---------- Comparativa ---------- */
+
+.comparativa {
+  border: 1px solid var(--borde); border-radius: 9px;
+  background: var(--panel); padding: 12px 14px;
+}
+.comparativa h2 {
+  margin: 0 0 10px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--apagado);
+}
+.comparativa-objetivo { margin-bottom: 11px; }
+.comparativa-objetivo p { margin: 4px 0 4px; font-size: 14px; line-height: 1.45; }
+.comparativa-nota { color: var(--apagado); font-size: 12px; }
+.comparativa-lineas { list-style: none; margin: 0 0 9px; padding: 0; display: grid; gap: 5px; }
+.comparativa-lineas li {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 9px; border-radius: 6px; background: var(--panel-2); font-size: 13px;
+}
+.comparativa-lineas strong { font-variant-numeric: tabular-nums; }
+.comparativa-lineas .mejor { color: #9ff0c8; }
+.comparativa-lineas .peor { color: #ffc4c4; }
+.comparativa-crudo { margin-left: auto; color: var(--apagado); font-size: 12px; font-variant-numeric: tabular-nums; }
+.comparativa-pie { margin: 0; color: var(--apagado); font-size: 12px; line-height: 1.45; }

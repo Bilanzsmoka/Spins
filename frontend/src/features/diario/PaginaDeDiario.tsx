@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { DiaDeDiario, EntradaDeDiario } from '../../core/models/catalogo.model'
-import { guardarDia, listarDiario, obtenerDia } from '../../core/services/tablasApi'
+import type { DiaDeDiario, EntradaDeDiario, HabitoDefinido } from '../../core/models/catalogo.model'
+import { guardarDia, listarDiario, obtenerDia, obtenerHabitos } from '../../core/services/tablasApi'
 import { AyudaNivelDeJuego } from './AyudaNivelDeJuego'
+import { ComparativaConAyer } from './ComparativaConAyer'
+import { CuadroDeHabitos } from './CuadroDeHabitos'
 import { ResumenDeConsultas } from './ResumenDeConsultas'
 
 const hoy = () => new Date().toLocaleDateString('sv')  // sv da AAAA-MM-DD
@@ -22,6 +24,10 @@ export function PaginaDeDiario() {
   const [mesas, setMesas] = useState('')
   const [minutos, setMinutos] = useState('')
   const [notas, setNotas] = useState('')
+  const [objetivo, setObjetivo] = useState('')
+  const [cumplimiento, setCumplimiento] = useState('')
+  const [habitos, setHabitos] = useState<HabitoDefinido[]>([])
+  const [marcas, setMarcas] = useState<Record<string, number>>({})
 
   const cargar = useCallback((cual: string) => {
     obtenerDia(cual)
@@ -33,12 +39,16 @@ export function PaginaDeDiario() {
         setMesas(datos.entrada?.mesas?.toString() ?? '')
         setMinutos(datos.entrada?.minutos?.toString() ?? '')
         setNotas(datos.entrada?.notas ?? '')
+        setObjetivo(datos.entrada?.objetivoTecnico ?? '')
+        setCumplimiento(datos.entrada?.cumplimientoObjetivo?.toString() ?? '')
+        setMarcas(datos.marcas ?? {})
         setError(null)
       })
       .catch((e: unknown) => setError(e instanceof Error ? e.message : 'No pude cargar el día'))
   }, [])
 
   useEffect(() => { cargar(fecha) }, [fecha, cargar])
+  useEffect(() => { obtenerHabitos().then(setHabitos).catch(() => setHabitos([])) }, [])
   useEffect(() => { listarDiario().then(setEntradas).catch(() => setEntradas([])) }, [guardado])
 
   const guardar = async () => {
@@ -52,6 +62,9 @@ export function PaginaDeDiario() {
         mesas: mesas ? Number(mesas) : null,
         minutos: minutos ? Number(minutos) : null,
         notas,
+        objetivoTecnico: objetivo || null,
+        cumplimientoObjetivo: cumplimiento ? Number(cumplimiento) : null,
+        habitos: marcas,
       })
       setGuardado((previo) => !previo)
       cargar(fecha)
@@ -80,8 +93,31 @@ export function PaginaDeDiario() {
 
       {error && <p className="error">{error}</p>}
 
+      {habitos.length > 0 && (
+        <CuadroDeHabitos
+          habitos={habitos}
+          marcas={marcas}
+          onCambiar={(clave, valor) =>
+            setMarcas((previo) => ({ ...previo, [clave]: valor }))}
+        />
+      )}
+
       <div className="diario-cuerpo">
         <section className="diario-entrada">
+          <label className="campo">
+            <span className="campo-titulo">Objetivo técnico del día</span>
+            <span className="campo-ayuda">
+              Medible, para poder compararlo mañana. «Bajar el VPIP a 38», no
+              «jugar mejor». Es lo que la pantalla te va a recordar el próximo día.
+            </span>
+            <input
+              type="text"
+              value={objetivo}
+              placeholder="Qué número o qué spot querés mover hoy"
+              onChange={(e) => setObjetivo(e.target.value)}
+            />
+          </label>
+
           <label className="campo">
             <span className="campo-titulo">Intención del día</span>
             <span className="campo-ayuda">
@@ -128,6 +164,11 @@ export function PaginaDeDiario() {
 
           <div className="campo campo-fila">
             <label>
+              <span className="campo-titulo">Cumplí el objetivo</span>
+              <input type="number" min="1" max="10" value={cumplimiento} placeholder="1-10"
+                onChange={(e) => setCumplimiento(e.target.value)} />
+            </label>
+            <label>
               <span className="campo-titulo">Mesas</span>
               <input type="number" min="1" max="24" value={mesas}
                 onChange={(e) => setMesas(e.target.value)} />
@@ -167,6 +208,7 @@ export function PaginaDeDiario() {
         </section>
 
         <aside className="diario-lateral">
+          {dia && <ComparativaConAyer comparativa={dia.comparativa} />}
           {dia && <ResumenDeConsultas resumen={dia.resumen} />}
 
           <section className="historial-dias">

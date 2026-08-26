@@ -1,0 +1,61 @@
+{
+  "habitos": [
+    {
+      "clave": "VOLUMEN",
+      "etiqueta": "Volumen",
+      "tipo": "numero",
+      "orden": 1,
+      "ayuda": "Cuántos torneos jugaste. Es el único número puro de la fila: no se suma como +1 o -1, se acumula. Sirve para dos cosas: ver si estás cumpliendo el volumen que te propusiste, y cruzarlo contra cómo jugaste. Volumen alto con C-game repetido no es progreso, es desgaste."
+    },
+    {
+      "clave": "ESTUDIO",
+      "etiqueta": "Estudio",
+      "tipo": "binario",
+      "orden": 2,
+      "ayuda": "¿Estudiaste hoy? La proporción que recomiendan es alrededor de una hora de estudio cada dos de juego. Lo que cuenta es estudio deliberado — repasar manos marcadas, trabajar un spot puntual — no mirar videos de fondo."
+    },
+    {
+      "clave": "AGRADECIMIENTO",
+      "etiqueta": "Agradecimiento",
+      "tipo": "binario",
+      "orden": 3,
+      "ayuda": "Anotar algo que agradecés antes de jugar. Suena ajeno al póker, pero apunta a lo mismo que el resto: entrar a la sesión desde un estado que no sea urgencia por recuperar. La urgencia es el combustible del C-game."
+    },
+    {
+      "clave": "MEDITACION",
+      "etiqueta": "Meditación",
+      "tipo": "binario",
+      "orden": 4,
+      "ayuda": "Unos minutos antes de jugar. El objetivo no es relajarte: es entrenar el músculo de notar que te fuiste. Ese mismo músculo es el que detecta el tilt cuando recién empieza — y detectarlo temprano es lo único que funciona, porque después del umbral ya no hay lógica que inyectar."
+    },
+    {
+      "clave": "VISUALIZAR",
+      "etiqueta": "Visualizar",
+      "tipo": "binario",
+      "orden": 5,
+      "ayuda": "Repasar mentalmente cómo querés jugar, incluyendo los momentos malos. Visualizar el bad beat y tu reacción deseada hace que, cuando pase de verdad, ya tengas una respuesta ensayada en vez de improvisar en caliente."
+    },
+    {
+      "clave": "CORPORALIDAD",
+      "etiqueta": "Corporalidad",
+      "tipo": "binario",
+      "orden": 6,
+      "ayuda": "Postura, respiración, tensión en los hombros y la mandíbula. El cuerpo avisa antes que la cabeza: solés apretar los dientes un rato antes de darte cuenta de que estás tilteado. Chequearlo durante la sesión es una alarma temprana gratis."
+    },
+    {
+      "clave": "DEPORTE",
+      "etiqueta": "Deporte",
+      "tipo": "binario",
+      "orden": 7,
+      "ayuda": "Actividad física, aunque sea corta. Reduce el estrés acumulado y sostiene la energía — y la energía es lo que determina cuántas horas podés jugar antes de que las decisiones empiecen a empeorar."
+    },
+    {
+      "clave": "TILT",
+      "etiqueta": "Tilt",
+      "tipo": "binario",
+      "invertido": true,
+      "orden": 8,
+      "ayuda": "¿Te tilteaste hoy? Acá marcar que SÍ es lo malo, al revés que el resto de la fila. No es para castigarte: es para que el patrón se vea. Lo que importa no es cuántas veces te tiltaste sino qué lo dispara, y eso lo escribís en el campo de disparador."
+    }
+  ]
+}

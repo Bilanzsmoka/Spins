@@ -78,6 +78,27 @@ export interface ConsultaRegistrada extends EventoDeVoz {
 
 /* ---------- Diario ---------- */
 
+export interface HabitoDefinido {
+  clave: string
+  etiqueta: string
+  tipo: 'binario' | 'numero'
+  orden: number
+  ayuda: string
+  invertido: boolean
+}
+
+/** Lo que te propusiste el día anterior y cómo salió. */
+export interface Comparativa {
+  fechaPrevia: string | null
+  objetivoPrevio: string | null
+  cumplimientoPrevio: number | null
+  nivelPrevio: string | null
+  volumenPrevio: number | null
+  volumenDeHoy: number | null
+  consultasPrevias: number
+  consultasDeHoy: number
+}
+
 export interface EntradaDeDiario {
   id: number
   fecha: string
@@ -87,6 +108,8 @@ export interface EntradaDeDiario {
   mesas: number | null
   minutos: number | null
   notas: string
+  objetivoTecnico: string | null
+  cumplimientoObjetivo: number | null
   creadaEn: string
   actualizadaEn: string
 }
@@ -109,6 +132,8 @@ export interface ResumenDelDia {
 export interface DiaDeDiario {
   entrada: EntradaDeDiario | null
   resumen: ResumenDelDia
+  marcas: Record<string, number>
+  comparativa: Comparativa
 }
 
 export interface EntradaEnviada {
@@ -118,4 +143,7 @@ export interface EntradaEnviada {
   mesas: number | null
   minutos: number | null
   notas: string
+  objetivoTecnico: string | null
+  cumplimientoObjetivo: number | null
+  habitos: Record<string, number>
 }

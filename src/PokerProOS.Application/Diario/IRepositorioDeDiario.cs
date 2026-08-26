@@ -12,9 +12,27 @@ public record ResumenDelDia(
 
 public record ManoConsultada(string Mano, string Accion, int Veces);
 
+/// <summary>
+/// Lo que te propusiste ayer y cómo salió. Es el bucle que pidió el usuario:
+/// el objetivo de un día solo sirve si al día siguiente alguien te lo recuerda
+/// y te dice cómo te fue.
+/// </summary>
+public record Comparativa(
+    DateOnly? FechaPrevia,
+    string? ObjetivoPrevio,
+    int? CumplimientoPrevio,
+    string? NivelPrevio,
+    int? VolumenPrevio,
+    int? VolumenDeHoy,
+    int ConsultasPrevias,
+    int ConsultasDeHoy);
+
 public interface IRepositorioDeDiario
 {
     Task<EntradaDeDiario?> ObtenerAsync(DateOnly fecha, CancellationToken ct);
+    Task<IReadOnlyDictionary<string, int>> MarcasAsync(DateOnly fecha, CancellationToken ct);
+    Task GuardarMarcasAsync(DateOnly fecha, IReadOnlyDictionary<string, int> marcas, CancellationToken ct);
+    Task<Comparativa> CompararAsync(DateOnly fecha, CancellationToken ct);
     Task<IReadOnlyList<EntradaDeDiario>> ListarAsync(int limite, CancellationToken ct);
     Task<EntradaDeDiario> GuardarAsync(EntradaDeDiario entrada, CancellationToken ct);
     Task<ResumenDelDia> ResumirAsync(DateOnly fecha, CancellationToken ct);

@@ -1,5 +1,6 @@
 import type {
-  Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada, EstadoDeVoz, SpotCompleto,
+  Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada, EstadoDeVoz,
+  HabitoDefinido, SpotCompleto,
 } from '../models/catalogo.model'
 
 async function pedir<T>(url: string): Promise<T> {
@@ -27,6 +28,8 @@ export const encenderVoz = () => accionar('/api/voz/encender')
 export const apagarVoz = () => accionar('/api/voz/apagar')
 
 /* ---------- Diario ---------- */
+
+export const obtenerHabitos = () => pedir<HabitoDefinido[]>('/api/diario/habitos')
 
 export const obtenerDia = (fecha: string) => pedir<DiaDeDiario>(`/api/diario/${fecha}`)
 

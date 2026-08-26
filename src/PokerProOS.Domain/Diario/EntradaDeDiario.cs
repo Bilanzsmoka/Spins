@@ -26,6 +26,16 @@ public class EntradaDeDiario
     public int? Mesas { get; set; }
     public int? Minutos { get; set; }
 
+    /// <summary>
+    /// Lo que te propusiste técnicamente antes de jugar. Distinto de
+    /// <see cref="Intencion"/>: la intención es de conducta ("no pagar sin
+    /// blockers"), el objetivo técnico es medible ("bajar el VPIP a 38").
+    /// </summary>
+    public string? ObjetivoTecnico { get; set; }
+
+    /// <summary>Qué tan bien cumpliste el objetivo técnico, de 1 a 10.</summary>
+    public int? CumplimientoObjetivo { get; set; }
+
     /// <summary>El cuerpo del diario. Lo que pasó, en sus palabras.</summary>
     public string Notas { get; set; } = string.Empty;
 

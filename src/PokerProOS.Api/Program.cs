@@ -7,6 +7,7 @@ using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure;
 using PokerProOS.Infrastructure.Database;
 using PokerProOS.Infrastructure.Tablas;
+using PokerProOS.Infrastructure.Diario;
 using PokerProOS.Infrastructure.Voz;
 using PokerProOS.Voz.Sapi;
 
@@ -41,11 +42,14 @@ var acciones = CargarRegistroOTerminar(() =>
     RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json")));
 var vocabulario = CargarRegistroOTerminar(() =>
     RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
+var habitos = CargarRegistroOTerminar(() =>
+    RegistroDeHabitosJson.Cargar(Path.Combine(carpetaDatos, "registro", "habitos.json")));
 var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
     .CargarDirectorio(Path.Combine(carpetaDatos, "seed-data"));
 
 builder.Services.AddSingleton(acciones);
 builder.Services.AddSingleton(vocabulario);
+builder.Services.AddSingleton(habitos);
 builder.Services.AddSingleton(catalogo);
 builder.Services.AddSingleton(new OpcionesDeVoz
 {

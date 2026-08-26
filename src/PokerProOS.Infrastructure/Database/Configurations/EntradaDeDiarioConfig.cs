@@ -14,6 +14,7 @@ public class EntradaDeDiarioConfig : IEntityTypeConfiguration<EntradaDeDiario>
         constructor.Property(e => e.Intencion).HasMaxLength(300);
         constructor.Property(e => e.NivelDeJuego).HasMaxLength(1);
         constructor.Property(e => e.Disparador).HasMaxLength(300);
+        constructor.Property(e => e.ObjetivoTecnico).HasMaxLength(300);
         // El cuerpo no se acota: es donde el usuario escribe de verdad.
         constructor.Property(e => e.Notas).IsRequired();
     }

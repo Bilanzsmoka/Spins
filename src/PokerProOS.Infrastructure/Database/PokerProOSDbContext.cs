@@ -13,6 +13,7 @@ public class PokerProOSDbContext : DbContext
     public DbSet<TrainerAttempt> TrainerAttempts => Set<TrainerAttempt>();
     public DbSet<ConsultaDeVoz> ConsultasDeVoz => Set<ConsultaDeVoz>();
     public DbSet<EntradaDeDiario> EntradasDeDiario => Set<EntradaDeDiario>();
+    public DbSet<MarcaDeHabito> MarcasDeHabito => Set<MarcaDeHabito>();
 
     public PokerProOSDbContext(DbContextOptions<PokerProOSDbContext> options)
         : base(options) { }
