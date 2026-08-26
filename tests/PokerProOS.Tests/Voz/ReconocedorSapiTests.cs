@@ -17,7 +17,7 @@ public class ReconocedorSapiTests : IDisposable
         var vocabulario = RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
         // Umbral bajo: sobre audio sintetico la confianza queda entre 0,48 y 0,64.
         var opciones = new OpcionesDeVoz { ConfianzaMinima = 0.20f, Voz = "Microsoft Helena Desktop" };
-        var gramatica = new GeneradorDeGramatica(catalogo, vocabulario);
+        var gramatica = new GeneradorDeGramatica(catalogo, vocabulario, opciones);
         return (new ReconocedorSapi(gramatica, opciones), new SintetizadorSapi(opciones));
     }
 
@@ -65,6 +65,33 @@ public class ReconocedorSapiTests : IDisposable
         {
             var wav = Sintetizar(sintetizador, "mañana voy al supermercado a comprar pan");
             Assert.Null(reconocedor.ReconocerArchivo(wav));
+        }
+    }
+
+    [Fact]
+    public void Pausar_y_reanudar_repetidamente_no_lanza()
+    {
+        // Task 8 ejecuta Pausar(); Hablar(); Reanudar(); en cada consulta de
+        // voz, varias veces por minuto. RecognizeAsyncCancel() es asincrono:
+        // llamar Reanudar() inmediatamente despues puede pegarle a un motor
+        // que todavia no terminó de cancelar. Este bucle ajustado sin espera
+        // reproduce esa carrera de forma confiable.
+        var (reconocedor, sintetizador) = Armar();
+        using (reconocedor)
+        using (sintetizador)
+        {
+            reconocedor.ComenzarEscuchaContinua();
+
+            var excepcion = Record.Exception(() =>
+            {
+                for (var i = 0; i < 200; i++)
+                {
+                    reconocedor.Pausar();
+                    reconocedor.Reanudar();
+                }
+            });
+
+            Assert.Null(excepcion);
         }
     }
 

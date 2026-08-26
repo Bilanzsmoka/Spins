@@ -12,16 +12,27 @@ namespace PokerProOS.Voz.Sapi;
 /// </summary>
 public sealed class GeneradorDeGramatica(
     ICatalogoDeTablas catalogo,
-    IRegistroDeVocabulario vocabulario)
+    IRegistroDeVocabulario vocabulario,
+    OpcionesDeVoz opciones)
 {
     public Grammar Construir()
     {
-        var cultura = new CultureInfo("es-ES");
+        var cultura = new CultureInfo(opciones.Cultura);
 
         var constructor = new GrammarBuilder { Culture = cultura };
         constructor.Append(new SemanticResultKey("situacion", Formas(vocabulario.Situaciones)), 0, 1);
-        constructor.Append(new SemanticResultKey("stack", Stacks()), 0, 1);
-        constructor.Append(Choices(vocabulario.PalabrasDeStack), 0, 1);
+
+        // SAPI rechaza en la compilación SRGS un <one-of> sin elementos, incluso
+        // dentro de un rango opcional (0,1). Si el catálogo no cubre ningún
+        // stack (p.ej. arranque sin datos), se omite el elemento entero en vez
+        // de agregar un Choices vacío.
+        var stacks = Stacks();
+        if (stacks is not null)
+        {
+            constructor.Append(new SemanticResultKey("stack", stacks), 0, 1);
+            constructor.Append(Choices(vocabulario.PalabrasDeStack), 0, 1);
+        }
+
         constructor.Append(new SemanticResultKey("alta", Formas(vocabulario.Rangos)));
         constructor.Append(new SemanticResultKey("baja", Formas(vocabulario.Rangos)));
         constructor.Append(new SemanticResultKey("palo", Formas(vocabulario.Palos)), 0, 1);
@@ -32,26 +43,27 @@ public sealed class GeneradorDeGramatica(
 
     /// <summary>
     /// Los números de stack salen de la cobertura real de las tablas: se toma
-    /// el mínimo y el máximo entero que alguna tabla cubre.
+    /// el mínimo y el máximo entero que alguna tabla cubre. Null cuando el
+    /// catálogo no tiene ninguna tabla cargada.
     /// </summary>
-    private Choices Stacks()
+    private Choices? Stacks()
     {
         var rangos = catalogo.Situaciones
             .SelectMany(s => s.Stacks)
             .Select(t => t.Stack)
             .ToList();
 
-        var opciones = new Choices();
-        if (rangos.Count == 0) return opciones;
+        if (rangos.Count == 0) return null;
 
         var minimo = (int)Math.Floor(rangos.Min(r => r.MinBB));
         var maximo = (int)Math.Ceiling(rangos.Max(r => r.MaxBB));
 
+        var valores = new Choices();
         for (var bb = minimo; bb <= maximo; bb++)
-            opciones.Add(new SemanticResultValue(
+            valores.Add(new SemanticResultValue(
                 bb.ToString(CultureInfo.InvariantCulture), bb));
 
-        return opciones;
+        return valores;
     }
 
     private static Choices Formas(IReadOnlyList<FormasHabladas> formas)

@@ -8,7 +8,16 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 {
     private readonly SpeechRecognitionEngine _motor;
     private readonly OpcionesDeVoz _opciones;
-    private bool _escuchaContinua;
+    private readonly object _bloqueo = new();
+
+    // Estas tres banderas se leen y escriben tanto desde el hilo llamador
+    // (ComenzarEscuchaContinua/Pausar/Reanudar) como desde el hilo de SAPI
+    // que dispara RecognizeCompleted. _bloqueo las protege a todas: nunca se
+    // llama RecognizeAsync mientras el motor ya está corriendo, ni mientras
+    // un cancel pedido no terminó de completarse.
+    private bool _escuchaDeseada;
+    private bool _pausado;
+    private bool _motorEnEjecucion;
 
     public ReconocedorSapi(GeneradorDeGramatica generador, OpcionesDeVoz opciones)
     {
@@ -18,7 +27,8 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
         _motor.SpeechRecognized += AlReconocer;
         _motor.SpeechRecognitionRejected += (_, _) => NoReconocido?.Invoke(this, "");
         // Windows corta la escucha continua tras un rato de silencio.
-        // Reengancharla en RecognizeCompleted es el watchdog.
+        // Reengancharla aca es el watchdog; tambien es el unico lugar que ve
+        // cuando un cancel pedido por Pausar() realmente terminó.
         _motor.RecognizeCompleted += AlCompletar;
     }
 
@@ -27,19 +37,39 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 
     public void ComenzarEscuchaContinua()
     {
-        _escuchaContinua = true;
-        _motor.SetInputToDefaultAudioDevice();
-        _motor.RecognizeAsync(RecognizeMode.Multiple);
+        lock (_bloqueo)
+        {
+            _escuchaDeseada = true;
+            _pausado = false;
+            if (_motorEnEjecucion) return;
+            _motor.SetInputToDefaultAudioDevice();
+            _motor.RecognizeAsync(RecognizeMode.Multiple);
+            _motorEnEjecucion = true;
+        }
     }
 
     public void Pausar()
     {
-        if (_escuchaContinua) _motor.RecognizeAsyncCancel();
+        lock (_bloqueo)
+        {
+            _pausado = true;
+            if (_motorEnEjecucion) _motor.RecognizeAsyncCancel();
+        }
     }
 
     public void Reanudar()
     {
-        if (_escuchaContinua) _motor.RecognizeAsync(RecognizeMode.Multiple);
+        lock (_bloqueo)
+        {
+            _pausado = false;
+            // Si el motor todavia esta corriendo (el cancel de un Pausar
+            // previo no completó), no se arranca de nuevo aca: AlCompletar
+            // lo hará en cuanto el cancel termine, porque ya ve _pausado
+            // en false.
+            if (!_escuchaDeseada || _motorEnEjecucion) return;
+            _motor.RecognizeAsync(RecognizeMode.Multiple);
+            _motorEnEjecucion = true;
+        }
     }
 
     public DictadoReconocido? ReconocerArchivo(string rutaWav)
@@ -60,8 +90,27 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 
     private void AlCompletar(object? remitente, RecognizeCompletedEventArgs argumentos)
     {
-        if (_escuchaContinua && !argumentos.Cancelled)
-            _motor.RecognizeAsync(RecognizeMode.Multiple);
+        lock (_bloqueo)
+        {
+            _motorEnEjecucion = false;
+
+            if (argumentos.Error is not null)
+            {
+                // No reintentar en bucle sobre un error real: se avisa y se
+                // deja el motor detenido en vez de arriesgar un spin.
+                NoReconocido?.Invoke(this, argumentos.Error.Message);
+                return;
+            }
+
+            // Se reengancha tanto en el corte normal por silencio (watchdog)
+            // como en un cancel que ya completó, siempre que siga habiendo
+            // escucha deseada y nadie haya vuelto a pausar mientras tanto.
+            if (_escuchaDeseada && !_pausado)
+            {
+                _motor.RecognizeAsync(RecognizeMode.Multiple);
+                _motorEnEjecucion = true;
+            }
+        }
     }
 
     private DictadoReconocido? Interpretar(RecognitionResult? resultado)
@@ -89,7 +138,11 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 
     public void Dispose()
     {
-        _escuchaContinua = false;
+        lock (_bloqueo)
+        {
+            _escuchaDeseada = false;
+            _pausado = true;
+        }
         _motor.Dispose();
     }
 }
