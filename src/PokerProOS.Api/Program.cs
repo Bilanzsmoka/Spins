@@ -1,39 +1,58 @@
-using Microsoft.EntityFrameworkCore;
-using PokerProOS.Api.Middleware;
-using PokerProOS.Application.Charts.Interfaces;
-using PokerProOS.Application.Sessions.Interfaces;
-using PokerProOS.Application.Trainer.Interfaces;
-using PokerProOS.Infrastructure.Database;
-using PokerProOS.Infrastructure.Repositories;
-using PokerProOS.Infrastructure.Services;
+using PokerProOS.Api.Voz;
+using PokerProOS.Application.Tablas;
+using PokerProOS.Application.Voz;
+using PokerProOS.Infrastructure.Tablas;
+using PokerProOS.Infrastructure.Voz;
+using PokerProOS.Voz.Sapi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// EF Core + SQL Server
-builder.Services.AddDbContext<PokerProOSDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Los datos viven junto al ejecutable: el csproj los copia a la salida.
+// Nada de subir cinco directorios desde AppContext.BaseDirectory.
+var carpetaDatos = Path.Combine(AppContext.BaseDirectory, "database");
 
-// Repositories
-builder.Services.AddScoped<IChartRepository, ChartStrategyRepository>();
-builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
+var acciones = RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json"));
+var vocabulario = RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json"));
+var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones))
+    .CargarDirectorio(Path.Combine(carpetaDatos, "seed-data"));
 
-// Services
-builder.Services.AddScoped<ChartImportService>();
+builder.Services.AddSingleton(acciones);
+builder.Services.AddSingleton(vocabulario);
+builder.Services.AddSingleton(catalogo);
+builder.Services.AddSingleton(new OpcionesDeVoz
+{
+    Cultura = builder.Configuration["Voz:Cultura"] ?? "es-ES",
+    Voz = builder.Configuration["Voz:Voz"],
+    ConfianzaMinima = builder.Configuration.GetValue("Voz:ConfianzaMinima", 0.35f)
+});
 
-// Handlers
-builder.Services.AddScoped<PokerProOS.Application.Charts.Queries.GetChartByStackHandler>();
-builder.Services.AddScoped<PokerProOS.Application.Trainer.Queries.EvaluateAnswerHandler>();
+builder.Services.AddSingleton<GeneradorDeGramatica>();
+builder.Services.AddSingleton<IReconocedorDeVoz, ReconocedorSapi>();
+builder.Services.AddSingleton<ISintetizadorDeVoz, SintetizadorSapi>();
+builder.Services.AddSingleton<ResolverManoHandler>();
+builder.Services.AddSingleton<RedactorDeRespuesta>();
+builder.Services.AddSingleton(new MemoriaDeContexto
+{
+    Situacion = catalogo.Situaciones.FirstOrDefault()?.Clave ?? "",
+    StackBB = 7,
+    Spot = catalogo.Situaciones.FirstOrDefault()?.Stacks.FirstOrDefault()?.Spots.FirstOrDefault()?.Clave ?? ""
+});
+builder.Services.AddSingleton<CopilotoDeVoz>();
+builder.Services.AddSingleton<CanalDeEventos>();
+builder.Services.AddSingleton<ServicioDeCopiloto>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<ServicioDeCopiloto>());
 
-// Controllers + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Middleware pipeline
-app.UseMiddleware<ExceptionMiddleware>();
+foreach (var problema in catalogo.Problemas)
+    app.Logger.LogWarning("Tabla inválida en {Archivo} ({Stack}/{Spot}): {Mensaje}",
+        problema.Archivo, problema.Stack, problema.Spot, problema.Mensaje);
+
+app.UseMiddleware<PokerProOS.Api.Middleware.ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -41,29 +60,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthorization();
 app.MapControllers();
-
-// Serve React SPA from wwwroot
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-// SPA fallback - any non-API route serves index.html
 app.MapFallbackToFile("index.html");
-
-// Seed data on startup
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<PokerProOSDbContext>();
-    await context.Database.EnsureCreatedAsync();
-
-    var importer = scope.ServiceProvider.GetRequiredService<ChartImportService>();
-    var seedPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "database", "seed-data");
-    if (Directory.Exists(seedPath))
-    {
-        var result = await importer.ImportFromDirectoryAsync(seedPath);
-        Console.WriteLine($"Seed: {result.TotalRows} rows from {result.FilesProcessed} files");
-    }
-}
 
 app.Run();
