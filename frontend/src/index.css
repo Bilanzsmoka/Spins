@@ -92,15 +92,13 @@ body {
 .menu-etiqueta { font-size: 14px; font-weight: 700; }
 .menu-descripcion { font-size: 11px; color: var(--apagado); }
 
-.lateral-pie { margin-top: auto; padding-top: 18px; }
-
 .contenido { padding: 22px 26px; min-width: 0; }
 
 /* ---------- Control de voz ---------- */
 
 .control-voz {
-  display: grid; gap: 10px;
-  padding: 12px; border: 1px solid var(--borde);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 9px 12px; border: 1px solid var(--borde);
   border-radius: 9px; background: var(--panel);
 }
 .control-voz-cabecera { display: flex; align-items: center; gap: 8px; }
@@ -119,11 +117,17 @@ body {
 .boton-voz:disabled { opacity: .45; cursor: default; }
 .boton-voz-activo { background: #123629; border-color: #2f6f4f; color: #b8f5d2; }
 
-.aviso-voz { color: #d99a5b; font-size: 12px; font-weight: 600; margin: 0; line-height: 1.4; }
+.aviso-voz {
+  flex-basis: 100%; margin: 0;
+  color: #d99a5b; font-size: 12px; font-weight: 600; line-height: 1.4;
+}
 
 /* ---------- Entrenamiento ---------- */
 
-.entrenamiento-cabecera { margin-bottom: 16px; }
+.entrenamiento-cabecera {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 18px; flex-wrap: wrap; margin-bottom: 16px;
+}
 .entrenamiento-cabecera h1 { margin: 0 0 3px; font-size: 21px; }
 .subtitulo { margin: 0; color: var(--apagado); font-size: 13px; }
 .cargando { color: var(--apagado); }

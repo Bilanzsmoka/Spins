@@ -1,4 +1,4 @@
-interface Props {
+export interface PropsDeVoz {
   /** El motor arrancó bien y hay algo que encender. */
   disponible: boolean
   /** El usuario lo tiene encendido ahora. */
@@ -16,7 +16,7 @@ interface Props {
  */
 export function ControlDeVoz({
   disponible, activo, cambiando, falla, fallaAlHablar, errorAlCambiar, onAlternar,
-}: Props) {
+}: PropsDeVoz) {
   const estado = !disponible ? 'sin-motor' : activo ? 'activo' : 'apagado'
   const texto = { 'sin-motor': 'Sin micrófono', activo: 'Escuchando', apagado: 'Apagado' }[estado]
 

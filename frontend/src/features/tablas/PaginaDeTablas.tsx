@@ -3,6 +3,7 @@ import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type { ConsultaRegistrada, EventoDeVoz, SpotCompleto } from '../../core/models/catalogo.model'
 import { obtenerSpot } from '../../core/services/tablasApi'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
+import { ControlDeVoz, type PropsDeVoz } from './ControlDeVoz'
 import { Grilla } from './Grilla'
 import { Leyenda } from './Leyenda'
 import { Selectores } from './Selectores'
@@ -12,9 +13,11 @@ interface Props {
   ultimo: EventoDeVoz | null
   historial: ConsultaRegistrada[]
   onLimpiarHistorial: () => void
+  /** El copiloto solo se enciende desde acá: es un control del entrenamiento. */
+  voz: PropsDeVoz
 }
 
-export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial }: Props) {
+export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: Props) {
   const { catalogo, error } = useCatalogo()
 
   const [situacion, setSituacion] = useState('')
@@ -78,8 +81,11 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial }: Props)
   return (
     <div className="entrenamiento">
       <header className="entrenamiento-cabecera">
-        <h1>Entrenamiento</h1>
-        <p className="subtitulo">Tablas preflop · dictá una mano y te la responde</p>
+        <div>
+          <h1>Entrenamiento</h1>
+          <p className="subtitulo">Tablas preflop · dictá una mano y te la responde</p>
+        </div>
+        <ControlDeVoz {...voz} />
       </header>
 
       {/* La ultima respuesta, grande. Lo hablado se pierde; esto queda a la

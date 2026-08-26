@@ -11,8 +11,6 @@ export interface Modulo {
 
 interface Props {
   modulos: Modulo[]
-  /** Va en la barra lateral, debajo del menú: el control de voz. */
-  panelLateral?: ReactNode
 }
 
 /**
@@ -21,7 +19,7 @@ interface Props {
  * apagados, para que se vea hacia dónde va esto en vez de aparentar que
  * la aplicación es una sola pantalla.
  */
-export function Aplicacion({ modulos, panelLateral }: Props) {
+export function Aplicacion({ modulos }: Props) {
   const primeroDisponible = modulos.find((m) => m.disponible)?.clave ?? ''
   const [activo, setActivo] = useState(primeroDisponible)
   const moduloActivo = modulos.find((m) => m.clave === activo)
@@ -51,8 +49,6 @@ export function Aplicacion({ modulos, panelLateral }: Props) {
             </button>
           ))}
         </nav>
-
-        {panelLateral && <div className="lateral-pie">{panelLateral}</div>}
       </aside>
 
       <main className="contenido">{moduloActivo?.contenido}</main>
