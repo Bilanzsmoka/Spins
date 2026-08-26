@@ -26,10 +26,23 @@ public sealed class SintetizadorFalso : ISintetizadorDeVoz
     public List<bool> PausadoAlHablar { get; } = [];
     public ReconocedorFalso? Reconocedor { get; set; }
 
+    /// <summary>Cuando se asigna, <see cref="Hablar"/> la lanza en vez de hablar.</summary>
+    public Exception? Fallo { get; set; }
+
+    /// <summary>
+    /// Lista compartida con el test para registrar en qué orden ocurrieron
+    /// las cosas. El test agrega "publicado" al suscribirse a
+    /// <c>CopilotoDeVoz.Publicado</c>; este doble agrega "hablar" aquí, en
+    /// el mismo instante en que se registra <see cref="PausadoAlHablar"/>.
+    /// </summary>
+    public List<string>? Orden { get; set; }
+
     public void Hablar(string texto)
     {
-        Dicho.Add(texto);
+        Orden?.Add("hablar");
         PausadoAlHablar.Add(Reconocedor?.Pausado ?? false);
+        if (Fallo is { } fallo) throw fallo;
+        Dicho.Add(texto);
     }
 
     public void HablarAArchivo(string texto, string rutaWav) => Dicho.Add(texto);

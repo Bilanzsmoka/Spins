@@ -24,10 +24,23 @@ public sealed class CopilotoDeVoz(
     RedactorDeRespuesta redactor,
     MemoriaDeContexto memoria)
 {
+    private bool _conectado;
+
     public event EventHandler<EventoDeCopiloto>? Publicado;
+
+    /// <summary>
+    /// Se levanta cuando falla la síntesis de la respuesta. El bucle sigue
+    /// vivo (el reconocedor se reanuda igual), pero el usuario se quedó sin
+    /// voz para esa respuesta y necesita verlo, no descubrirlo hablándole
+    /// al vacío.
+    /// </summary>
+    public event EventHandler<Exception>? FalloAlHablar;
 
     public void Conectar()
     {
+        if (_conectado) return;
+        _conectado = true;
+
         reconocedor.Reconocido += (_, dictado) => Procesar(dictado);
         reconocedor.NoReconocido += (_, crudo) => Publicar(
             new EventoDeCopiloto(crudo, "", "No te entendí.", false, null, null, null));
@@ -54,19 +67,45 @@ public sealed class CopilotoDeVoz(
         return evento;
     }
 
+    /// <summary>
+    /// Publica antes de hablar: la pantalla no debería esperar a que termine
+    /// la síntesis (del orden de un segundo y medio) para resaltar la celda,
+    /// y así el resaltado llega aunque la síntesis falle. Pausa el
+    /// reconocedor mientras habla, o se escucha a sí mismo y dispara una
+    /// consulta fantasma con su propia respuesta. Si <c>Hablar</c> lanza, la
+    /// excepción no debe escapar hacia el callback del reconocedor: eso
+    /// tumbaría el bucle entero por una respuesta. Se avisa por
+    /// <see cref="FalloAlHablar"/> en su lugar.
+    /// </summary>
     private void Publicar(EventoDeCopiloto evento)
     {
-        // Pausar mientras habla, o el reconocedor se escucha a sí mismo
-        // y dispara una consulta fantasma con su propia respuesta.
+        Publicado?.Invoke(this, evento);
+
         reconocedor.Pausar();
         try
         {
             sintetizador.Hablar(evento.Respuesta);
         }
+        catch (Exception ex)
+        {
+            AvisarFallo(ex);
+        }
         finally
         {
             reconocedor.Reanudar();
         }
-        Publicado?.Invoke(this, evento);
+    }
+
+    private void AvisarFallo(Exception ex)
+    {
+        try
+        {
+            FalloAlHablar?.Invoke(this, ex);
+        }
+        catch
+        {
+            // Un suscriptor que lanza no puede convertirse en el mismo
+            // problema un nivel más arriba.
+        }
     }
 }

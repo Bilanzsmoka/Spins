@@ -113,4 +113,59 @@ public class CopilotoDeVozTests
         reconocedor.EmitirFallo("ruido");
         Assert.False(capturado!.Resuelta);
     }
+
+    [Fact]
+    public void Publica_el_evento_antes_de_hablar()
+    {
+        var (copiloto, reconocedor, sintetizador, _) = Armar();
+        var orden = new List<string>();
+        sintetizador.Orden = orden;
+        copiloto.Publicado += (_, __) => orden.Add("publicado");
+
+        reconocedor.Emitir(Dictado("A", "A"));
+
+        Assert.Equal(new[] { "publicado", "hablar" }, orden);
+    }
+
+    [Fact]
+    public void Publica_el_evento_y_reanuda_el_reconocedor_aunque_hablar_falle()
+    {
+        var (copiloto, reconocedor, sintetizador, _) = Armar();
+        sintetizador.Fallo = new InvalidOperationException("síntesis fallida");
+        EventoDeCopiloto? capturado = null;
+        copiloto.Publicado += (_, e) => capturado = e;
+
+        var evento = copiloto.Procesar(Dictado("A", "A"));
+
+        Assert.Equal(evento, capturado);
+        Assert.False(reconocedor.Pausado);
+    }
+
+    [Fact]
+    public void Avisa_el_fallo_de_sintesis()
+    {
+        var (copiloto, _, sintetizador, _) = Armar();
+        var fallo = new InvalidOperationException("síntesis fallida");
+        sintetizador.Fallo = fallo;
+        Exception? capturado = null;
+        copiloto.FalloAlHablar += (_, e) => capturado = e;
+
+        copiloto.Procesar(Dictado("A", "A"));
+
+        Assert.Same(fallo, capturado);
+    }
+
+    [Fact]
+    public void Conectar_dos_veces_no_duplica_el_procesamiento()
+    {
+        var (copiloto, reconocedor, sintetizador, _) = Armar();
+        copiloto.Conectar();
+        var eventos = 0;
+        copiloto.Publicado += (_, __) => eventos++;
+
+        reconocedor.Emitir(Dictado("A", "A"));
+
+        Assert.Single(sintetizador.Dicho);
+        Assert.Equal(1, eventos);
+    }
 }
