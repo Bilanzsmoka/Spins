@@ -41,7 +41,6 @@ No hace falta volver a comprobarlos:
 | Archivo | Responsabilidad |
 | --- | --- |
 | `src/PokerProOS.Domain/Manos/MatrizDeManos.cs` | Genera las 169 manos y sus vecinas en la matriz |
-| `src/PokerProOS.Domain/Manos/ManoTexto.cs` | Normaliza y valida una etiqueta de mano |
 | `src/PokerProOS.Domain/Tablas/CeldaDeTabla.cs` | Una mano con su acción dentro de un spot |
 | `src/PokerProOS.Domain/Tablas/RangoDeStack.cs` | Clave de stack y su cobertura en BB |
 | `src/PokerProOS.Application/Tablas/IRegistroDeAcciones.cs` | Contrato del registro de acciones |
@@ -72,7 +71,7 @@ No hace falta volver a comprobarlos:
 - Create: `tests/PokerProOS.Tests/PokerProOS.Tests.csproj`
 - Create: `tests/PokerProOS.Tests/Manos/MatrizDeManosTests.cs`
 - Create: `src/PokerProOS.Domain/Manos/MatrizDeManos.cs`
-- Delete: `src/PokerProOS.Api/WeatherForecast.cs`, `src/PokerProOS.Api/Controllers/WeatherForecastController.cs`, `src/PokerProOS.Domain/Enums/`
+- Delete: `src/PokerProOS.Api/WeatherForecast.cs`, `src/PokerProOS.Api/Controllers/WeatherForecastController.cs`, `src/PokerProOS.Domain/Enums/`, `src/PokerProOS.Domain/ValueObjects/HandLabel.cs`
 - Modify: `PokerProOS.slnx`
 
 **Interfaces:**
@@ -246,7 +245,7 @@ Nota: `Construir` recorre la matriz completa y deduplica, porque la diagonal pro
 dotnet test tests/PokerProOS.Tests --filter MatrizDeManosTests
 ```
 
-Esperado: 7 pruebas en verde.
+Esperado: 12 pruebas en verde (6 hechos más 6 casos del Theory).
 
 - [ ] **Step 6: Borrar el andamiaje muerto**
 
@@ -254,10 +253,11 @@ Esperado: 7 pruebas en verde.
 rm src/PokerProOS.Api/WeatherForecast.cs
 rm src/PokerProOS.Api/Controllers/WeatherForecastController.cs
 rm -r src/PokerProOS.Domain/Enums
+rm src/PokerProOS.Domain/ValueObjects/HandLabel.cs
 dotnet build PokerProOS.slnx
 ```
 
-Los enums no los referencia nadie; el build lo confirma. Si algo falla, es que quedó un `using PokerProOS.Domain.Enums` huérfano: borrarlo.
+Nada de esto lo referencia nadie; el build lo confirma. `HandLabel` además tenía el regex roto: `^(2-9|T|J|Q|K|A){2}[so]?$` alterna contra la cadena literal `2-9`, así que rechazaba `72o`, `T9s` y `55`, y aceptaba `2-92-9`. Los usos que aparecen al buscar "HandLabel" son la propiedad string homónima de las entidades, no el tipo. Si algo falla, es que quedó un `using PokerProOS.Domain.Enums` huérfano: borrarlo.
 
 - [ ] **Step 7: Commit**
 
@@ -507,7 +507,7 @@ public sealed class RegistroDeAccionesJson : IRegistroDeAcciones
 dotnet test tests/PokerProOS.Tests --filter RegistroDeAccionesTests
 ```
 
-Esperado: 10 pruebas en verde (7 hechos más las 4 variantes del `Theory` menos el solapamiento).
+Esperado: 10 pruebas en verde (6 hechos más 4 casos del `Theory`).
 
 - [ ] **Step 6: Commit**
 
@@ -526,7 +526,7 @@ requerir cambios de codigo. Recupera los colores del proyecto original."
 
 **Files:**
 - Create: `src/PokerProOS.Infrastructure/Tablas/ValidadorDeTabla.cs`
-- Create: `src/PokerProOS.Infrastructure/Tablas/ResultadoDeValidacion.cs`
+- Create: `src/PokerProOS.Application/Tablas/ResultadoDeValidacion.cs`
 - Create: `tests/PokerProOS.Tests/Tablas/ValidadorDeTablaTests.cs`
 - Delete: `src/PokerProOS.Application/Charts/Validators/ChartValidator.cs`, `src/PokerProOS.Application/Charts/Validators/ValidationResult.cs`
 
@@ -685,10 +685,10 @@ Esperado: no compila, `ValidadorDeTabla` no existe.
 
 - [ ] **Step 3: Implementar el validador**
 
-`src/PokerProOS.Infrastructure/Tablas/ResultadoDeValidacion.cs`:
+`src/PokerProOS.Application/Tablas/ResultadoDeValidacion.cs`. Va en Application, no en Infrastructure: `ICatalogoDeTablas` lo expone en su superficie pública y Application no puede depender de Infrastructure.
 
 ```csharp
-namespace PokerProOS.Infrastructure.Tablas;
+namespace PokerProOS.Application.Tablas;
 
 public record ProblemaDeTabla(string Archivo, string Stack, string Spot, string Mensaje);
 
@@ -1075,8 +1075,6 @@ public interface ICatalogoDeTablas
 }
 ```
 
-`ProblemaDeTabla` está hoy en Infrastructure (Task 3). Moverlo a `PokerProOS.Application/Tablas/ProblemaDeTabla.cs` y ajustar el `using` en `ValidadorDeTabla` y sus pruebas: Application no puede depender de Infrastructure.
-
 - [ ] **Step 5: Implementar cargador y catálogo**
 
 `src/PokerProOS.Infrastructure/Tablas/CatalogoEnMemoria.cs`:
@@ -1330,7 +1328,7 @@ public class ResolverManoTests
     [Fact]
     public void Marca_como_borde_una_mano_con_vecina_distinta()
     {
-        var spot = Handler2Spot();
+        var spot = SpotDeReferencia();
         var mano = spot.Celdas.First(c =>
             PokerProOS.Domain.Manos.MatrizDeManos.Vecinas(c.Mano)
                 .Any(v => spot.AccionDe(v) != c.Accion));
@@ -1342,7 +1340,7 @@ public class ResolverManoTests
     [Fact]
     public void No_marca_como_borde_una_mano_rodeada_de_la_misma_accion()
     {
-        var spot = Handler2Spot();
+        var spot = SpotDeReferencia();
         var mano = spot.Celdas.First(c =>
             PokerProOS.Domain.Manos.MatrizDeManos.Vecinas(c.Mano)
                 .All(v => spot.AccionDe(v) == c.Accion));
@@ -1375,7 +1373,7 @@ public class ResolverManoTests
         Assert.Equal(MotivoSinRespuesta.SituacionDesconocida, resultado.Motivo);
     }
 
-    private static SpotDeTabla Handler2Spot() =>
+    private static SpotDeTabla SpotDeReferencia() =>
         new CargadorDeTablas(new ValidadorDeTabla(
                 RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
             .CargarDirectorio(Rutas.SemillasDeTablas)
@@ -2057,7 +2055,7 @@ public sealed class GeneradorDeGramatica(
         var cultura = new CultureInfo("es-ES");
 
         var constructor = new GrammarBuilder { Culture = cultura };
-        constructor.Append(new SemanticResultKey("situacion", Opcional(Formas(vocabulario.Situaciones))), 0, 1);
+        constructor.Append(new SemanticResultKey("situacion", Formas(vocabulario.Situaciones)), 0, 1);
         constructor.Append(new SemanticResultKey("stack", Stacks()), 0, 1);
         constructor.Append(Choices(vocabulario.PalabrasDeStack), 0, 1);
         constructor.Append(new SemanticResultKey("alta", Formas(vocabulario.Rangos)));
@@ -2102,8 +2100,6 @@ public sealed class GeneradorDeGramatica(
                 opciones.Add(new SemanticResultValue(dicho, forma.Clave));
         return opciones;
     }
-
-    private static Choices Opcional(Choices opciones) => opciones;
 
     private static Choices Choices(IReadOnlyList<string> palabras)
     {
@@ -2258,7 +2254,7 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 dotnet test tests/PokerProOS.Tests --filter ReconocedorSapiTests
 ```
 
-Esperado: 7 pruebas en verde. Si alguna frase no se reconoce, bajar `ConfianzaMinima` en la prueba antes de tocar la gramática: la voz sintética es peor entrada que la voz real.
+Esperado: 12 pruebas en verde (6 hechos más 6 casos del Theory). Si alguna frase no se reconoce, bajar `ConfianzaMinima` en la prueba antes de tocar la gramática: la voz sintética es peor entrada que la voz real.
 
 - [ ] **Step 8: Commit**
 
@@ -3240,7 +3236,7 @@ sleep 10
 curl -s http://localhost:5000/api/tablas | head -c 200
 ```
 
-Esperado: el log dice "Catálogo sincronizado: 9165 celdas." Detener el servicio, detener SQL Server con `net stop MSSQLSERVER`, arrancar de nuevo y confirmar que la aplicación levanta igual con la advertencia de que no hay historial. Volver a arrancar SQL Server al terminar.
+Esperado: el log dice "Catálogo sincronizado: 8619 celdas." Detener el servicio, detener SQL Server con `net stop MSSQLSERVER`, arrancar de nuevo y confirmar que la aplicación levanta igual con la advertencia de que no hay historial. Volver a arrancar SQL Server al terminar.
 
 - [ ] **Step 8: Commit**
 
