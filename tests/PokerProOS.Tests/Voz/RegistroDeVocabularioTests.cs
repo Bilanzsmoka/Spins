@@ -64,12 +64,14 @@ public class RegistroDeVocabularioTests : IDisposable
         Assert.All(deLasTablas, clave => Assert.Contains(clave, delVocabulario));
     }
 
-    private static PokerProOS.Application.Tablas.ICatalogoDeTablas CargarCatalogo() =>
-        new PokerProOS.Infrastructure.Tablas.CargadorDeTablas(
-                new PokerProOS.Infrastructure.Tablas.ValidadorDeTabla(
-                    PokerProOS.Infrastructure.Tablas.RegistroDeAccionesJson.Cargar(
-                        Rutas.Registro("acciones.json"))))
+    private static PokerProOS.Application.Tablas.ICatalogoDeTablas CargarCatalogo()
+    {
+        var acciones = PokerProOS.Infrastructure.Tablas.RegistroDeAccionesJson.Cargar(
+            Rutas.Registro("acciones.json"));
+        return new PokerProOS.Infrastructure.Tablas.CargadorDeTablas(
+                new PokerProOS.Infrastructure.Tablas.ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas);
+    }
 
     private static HashSet<string> SpotsDeLasTablas() =>
         CargarCatalogo().Situaciones

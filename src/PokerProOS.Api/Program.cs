@@ -40,7 +40,7 @@ var acciones = CargarRegistroOTerminar(() =>
     RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json")));
 var vocabulario = CargarRegistroOTerminar(() =>
     RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
-var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones))
+var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
     .CargarDirectorio(Path.Combine(carpetaDatos, "seed-data"));
 
 builder.Services.AddSingleton(acciones);

@@ -8,9 +8,19 @@ namespace PokerProOS.Api.Voz;
 /// está disponible, la aplicación sigue funcionando sin voz: las tablas
 /// se consultan igual desde la pantalla.
 /// </summary>
+/// <remarks>
+/// <see cref="CopilotoDeVoz"/> y <see cref="IReconocedorDeVoz"/> se resuelven
+/// acá adentro, en <see cref="ExecuteAsync"/>, y no se toman por constructor.
+/// El host resuelve los servicios hospedados (llamando al constructor) antes
+/// de arrancarlos, fuera de cualquier try nuestro: si el grafo se construyera
+/// ahí, un <c>ReconocedorSapi</c> que falla al compilar la gramática de
+/// <c>vocabulario.json</c> (o un <c>SintetizadorSapi</c> que no encuentra la
+/// voz configurada) tumbaría <c>Host.StartAsync</c> entero, sin tablas y sin
+/// diagnóstico. Resolviéndolos acá, esa misma falla cae en el catch de abajo,
+/// que ya sabe convertirla en <see cref="Falla"/>.
+/// </remarks>
 public sealed class ServicioDeCopiloto(
-    CopilotoDeVoz copiloto,
-    IReconocedorDeVoz reconocedor,
+    IServiceProvider proveedorDeServicios,
     CanalDeEventos canal,
     IServiceScopeFactory fabricaDeAlcances,
     ILogger<ServicioDeCopiloto> registro) : BackgroundService
@@ -30,6 +40,9 @@ public sealed class ServicioDeCopiloto(
     {
         try
         {
+            var copiloto = proveedorDeServicios.GetRequiredService<CopilotoDeVoz>();
+            var reconocedor = proveedorDeServicios.GetRequiredService<IReconocedorDeVoz>();
+
             copiloto.Conectar();
             copiloto.Publicado += (_, evento) =>
             {

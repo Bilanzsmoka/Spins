@@ -19,13 +19,24 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
     private bool _pausado;
     private bool _motorEnEjecucion;
 
+    // Se pone en true cuando AlCompletar ve un error real de SAPI y decide,
+    // a propósito, dejar el motor detenido (ver el comentario en esa rama).
+    // Reanudar() la respeta: sin esto, NoReconocido dispara
+    // CopilotoDeVoz.Publicar, que llama Reanudar() en su finally y
+    // reengancha el motor que el propio handler de error acaba de decidir
+    // detener. Sobre una falla persistente de audio (mic desconectado,
+    // cambio de dispositivo) eso es error -> habla -> reintenta -> error,
+    // sin fin. ComenzarEscuchaContinua es el único lugar que la limpia: es
+    // el pedido explícito de volver a escuchar.
+    private bool _detenidoPorError;
+
     public ReconocedorSapi(GeneradorDeGramatica generador, OpcionesDeVoz opciones)
     {
         _opciones = opciones;
         _motor = new SpeechRecognitionEngine(new CultureInfo(opciones.Cultura));
         _motor.LoadGrammar(generador.Construir());
         _motor.SpeechRecognized += AlReconocer;
-        _motor.SpeechRecognitionRejected += (_, _) => NoReconocido?.Invoke(this, "");
+        _motor.SpeechRecognitionRejected += AlRechazar;
         // Windows corta la escucha continua tras un rato de silencio.
         // Reengancharla aca es el watchdog; tambien es el unico lugar que ve
         // cuando un cancel pedido por Pausar() realmente terminó.
@@ -41,6 +52,7 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
         {
             _escuchaDeseada = true;
             _pausado = false;
+            _detenidoPorError = false;
             if (_motorEnEjecucion) return;
             _motor.SetInputToDefaultAudioDevice();
             _motor.RecognizeAsync(RecognizeMode.Multiple);
@@ -62,6 +74,10 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
         lock (_bloqueo)
         {
             _pausado = false;
+            // Un error real ya decidió detener el motor a propósito (ver
+            // AlCompletar): no reengancharlo hasta un pedido explícito de
+            // ComenzarEscuchaContinua.
+            if (_detenidoPorError) return;
             // Si el motor todavia esta corriendo (el cancel de un Pausar
             // previo no completó), no se arranca de nuevo aca: AlCompletar
             // lo hará en cuanto el cancel termine, porque ya ve _pausado
@@ -83,33 +99,77 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 
     private void AlReconocer(object? remitente, SpeechRecognizedEventArgs argumentos)
     {
-        var dictado = Interpretar(argumentos.Result);
-        if (dictado is null) NoReconocido?.Invoke(this, argumentos.Result?.Text ?? "");
-        else Reconocido?.Invoke(this, dictado);
+        // Este handler corre en el hilo de SAPI, sin nada por encima: la
+        // política por default de .NET ante una excepción no atrapada ahí
+        // es terminar el proceso. Reconocido/NoReconocido dispara, en el
+        // mismo hilo y sincrónicamente, todo el bucle del copiloto
+        // (Pausar/Hablar/Reanudar y cualquier suscriptor de Publicado
+        // incluidos); una excepción en cualquier punto de esa cadena tiene
+        // que morir acá, no tumbar la app en medio de una mano.
+        try
+        {
+            var dictado = Interpretar(argumentos.Result);
+            if (dictado is null) NoReconocido?.Invoke(this, argumentos.Result?.Text ?? "");
+            else Reconocido?.Invoke(this, dictado);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[ReconocedorSapi] Error al procesar un reconocimiento: {ex}");
+        }
+    }
+
+    private void AlRechazar(object? remitente, SpeechRecognitionRejectedEventArgs argumentos)
+    {
+        // Mismo hilo de SAPI, mismo riesgo que AlReconocer: NoReconocido
+        // dispara la misma cadena sincrónica hacia el copiloto.
+        try
+        {
+            NoReconocido?.Invoke(this, "");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[ReconocedorSapi] Error al procesar un rechazo: {ex}");
+        }
     }
 
     private void AlCompletar(object? remitente, RecognizeCompletedEventArgs argumentos)
     {
-        lock (_bloqueo)
+        // Mismo motivo que en AlReconocer: nada puede escapar de este
+        // handler hacia el hilo de SAPI.
+        try
         {
-            _motorEnEjecucion = false;
-
-            if (argumentos.Error is not null)
+            lock (_bloqueo)
             {
-                // No reintentar en bucle sobre un error real: se avisa y se
-                // deja el motor detenido en vez de arriesgar un spin.
-                NoReconocido?.Invoke(this, argumentos.Error.Message);
-                return;
-            }
+                _motorEnEjecucion = false;
 
-            // Se reengancha tanto en el corte normal por silencio (watchdog)
-            // como en un cancel que ya completó, siempre que siga habiendo
-            // escucha deseada y nadie haya vuelto a pausar mientras tanto.
-            if (_escuchaDeseada && !_pausado)
-            {
-                _motor.RecognizeAsync(RecognizeMode.Multiple);
-                _motorEnEjecucion = true;
+                if (argumentos.Error is not null)
+                {
+                    // No reintentar en bucle sobre un error real: se avisa y
+                    // se deja el motor detenido en vez de arriesgar un spin.
+                    // _detenidoPorError se pone en true ANTES de avisar
+                    // porque NoReconocido puede reengancharse
+                    // sincrónicamente hasta Reanudar() (vía
+                    // CopilotoDeVoz.Publicar): si Reanudar() no viera la
+                    // bandera todavía, reiniciaría el motor que esta misma
+                    // rama decidió detener.
+                    _detenidoPorError = true;
+                    NoReconocido?.Invoke(this, argumentos.Error.Message);
+                    return;
+                }
+
+                // Se reengancha tanto en el corte normal por silencio (watchdog)
+                // como en un cancel que ya completó, siempre que siga habiendo
+                // escucha deseada y nadie haya vuelto a pausar mientras tanto.
+                if (_escuchaDeseada && !_pausado)
+                {
+                    _motor.RecognizeAsync(RecognizeMode.Multiple);
+                    _motorEnEjecucion = true;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[ReconocedorSapi] Error al completar un reconocimiento: {ex}");
         }
     }
 

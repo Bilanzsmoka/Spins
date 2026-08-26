@@ -11,10 +11,12 @@ public class SincronizadorTests
         new(new DbContextOptionsBuilder<PokerProOSDbContext>()
             .UseInMemoryDatabase($"prueba-{Guid.NewGuid():N}").Options);
 
-    private static ICatalogoDeTablas Catalogo() =>
-        new CargadorDeTablas(new ValidadorDeTabla(
-                RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
+    private static ICatalogoDeTablas Catalogo()
+    {
+        var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
+        return new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas);
+    }
 
     [Fact]
     public async Task Sincroniza_todas_las_celdas_del_catalogo()

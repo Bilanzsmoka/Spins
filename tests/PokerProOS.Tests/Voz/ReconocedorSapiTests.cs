@@ -1,3 +1,4 @@
+using System.Reflection;
 using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure.Tablas;
 using PokerProOS.Infrastructure.Voz;
@@ -11,8 +12,8 @@ public class ReconocedorSapiTests : IDisposable
 
     private static (IReconocedorDeVoz Reconocedor, ISintetizadorDeVoz Sintetizador) Armar()
     {
-        var catalogo = new CargadorDeTablas(new ValidadorDeTabla(
-                RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
+        var accionesParaTablas = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
+        var catalogo = new CargadorDeTablas(new ValidadorDeTabla(accionesParaTablas), accionesParaTablas)
             .CargarDirectorio(Rutas.SemillasDeTablas);
         var vocabulario = RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
         // Umbral bajo: sobre audio sintetico la confianza queda entre 0,48 y 0,64.
@@ -107,6 +108,64 @@ public class ReconocedorSapiTests : IDisposable
                 Sintetizar(sintetizador, "ochenta be be as rey offsuit"));
             Assert.NotNull(dictado);
             Assert.Equal(80, dictado!.StackBB);
+        }
+    }
+
+    /// <summary>
+    /// AlCompletar solo llega a la rama de error con una falla real de SAPI
+    /// (mic desconectado, etc.), que no se puede reproducir de forma
+    /// confiable en un test. Estas dos pruebas verifican la máquina de
+    /// estados sin pasar por ahí: fuerzan las banderas privadas por
+    /// reflexión, tal como quedarían justo después de que AlCompletar viera
+    /// un error real, y comprueban que Reanudar() y ComenzarEscuchaContinua
+    /// respetan el contrato descrito en su comentario.
+    /// </summary>
+    private static bool LeerBandera(ReconocedorSapi reconocedor, string campo) =>
+        (bool)typeof(ReconocedorSapi)
+            .GetField(campo, BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(reconocedor)!;
+
+    private static void EscribirBandera(ReconocedorSapi reconocedor, string campo, bool valor) =>
+        typeof(ReconocedorSapi)
+            .GetField(campo, BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(reconocedor, valor);
+
+    [Fact]
+    public void Reanudar_no_arranca_el_motor_mientras_el_flag_de_error_esta_activo()
+    {
+        var (reconocedorInterfaz, sintetizador) = Armar();
+        var reconocedor = (ReconocedorSapi)reconocedorInterfaz;
+        using (reconocedor)
+        using (sintetizador)
+        {
+            reconocedor.ComenzarEscuchaContinua();
+
+            // Simula el estado justo después de que AlCompletar viera un
+            // error real: el motor ya no está corriendo y la bandera quedó
+            // activa.
+            EscribirBandera(reconocedor, "_motorEnEjecucion", false);
+            EscribirBandera(reconocedor, "_detenidoPorError", true);
+
+            var excepcion = Record.Exception(reconocedor.Reanudar);
+
+            Assert.Null(excepcion);
+            Assert.False(LeerBandera(reconocedor, "_motorEnEjecucion"));
+        }
+    }
+
+    [Fact]
+    public void ComenzarEscuchaContinua_limpia_el_flag_de_error()
+    {
+        var (reconocedorInterfaz, sintetizador) = Armar();
+        var reconocedor = (ReconocedorSapi)reconocedorInterfaz;
+        using (reconocedor)
+        using (sintetizador)
+        {
+            EscribirBandera(reconocedor, "_detenidoPorError", true);
+
+            reconocedor.ComenzarEscuchaContinua();
+
+            Assert.False(LeerBandera(reconocedor, "_detenidoPorError"));
         }
     }
 

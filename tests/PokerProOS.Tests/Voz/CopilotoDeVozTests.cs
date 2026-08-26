@@ -12,7 +12,7 @@ public class CopilotoDeVozTests
     {
         var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
         var vocabulario = RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
-        var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones))
+        var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas);
         var reconocedor = new ReconocedorFalso();
         var sintetizador = new SintetizadorFalso { Reconocedor = reconocedor };

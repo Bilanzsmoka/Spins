@@ -5,7 +5,7 @@ using PokerProOS.Domain.Tablas;
 
 namespace PokerProOS.Infrastructure.Tablas;
 
-public sealed class CargadorDeTablas(ValidadorDeTabla validador)
+public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcciones registro)
 {
     public ICatalogoDeTablas CargarDirectorio(string directorio)
     {
@@ -25,7 +25,21 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador)
                 problemas.AddRange(validacion.Problemas);
                 continue;
             }
-            LeerArchivo(archivo, stacksPorSituacion);
+
+            // La validación ya garantiza que Validar() en sí no lanza, pero eso
+            // no dice nada de LeerArchivo: son dos recorridos independientes del
+            // mismo JSON. Un archivo estructuralmente incompleto que pasa la
+            // validación (situation/label/minBB ausentes o mal tipados: la
+            // validación no los mira) no puede tumbar el resto de las tablas.
+            try
+            {
+                LeerArchivo(archivo, stacksPorSituacion, problemas);
+            }
+            catch (Exception ex)
+            {
+                problemas.Add(new ProblemaDeTabla(
+                    Path.GetFileName(archivo), "", "", $"El archivo no se pudo leer: {ex.Message}"));
+            }
         }
 
         var situaciones = stacksPorSituacion
@@ -38,10 +52,12 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador)
         return new CatalogoEnMemoria(situaciones, problemas);
     }
 
-    private static void LeerArchivo(
+    private void LeerArchivo(
         string archivo,
-        Dictionary<string, (string Etiqueta, List<TablaDeStack> Stacks)> acumulador)
+        Dictionary<string, (string Etiqueta, List<TablaDeStack> Stacks)> acumulador,
+        List<ProblemaDeTabla> problemas)
     {
+        var nombreArchivo = Path.GetFileName(archivo);
         using var documento = JsonDocument.Parse(File.ReadAllText(archivo));
         var raiz = documento.RootElement;
         var situacion = raiz.GetProperty("situation");
@@ -53,8 +69,26 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador)
 
         foreach (var stack in raiz.GetProperty("stacks").EnumerateArray())
         {
+            var claveStack = stack.GetProperty("key").GetString()!;
+
+            // Copiar un archivo de chart para iterar sobre él es un flujo
+            // normal; si el stack no se renombra, dos archivos declaran la
+            // misma clave para la misma situación. Sin esta guarda,
+            // StackQueCubre esconde en silencio uno de los dos en el camino
+            // de lectura de voz, y las 169 filas duplicadas violan el índice
+            // único de ChartStrategyCells recién al sincronizar con SQL
+            // Server (después de que SincronizarAsync ya vació la tabla).
+            if (entrada.Stacks.Any(t =>
+                    string.Equals(t.Stack.Clave, claveStack, StringComparison.OrdinalIgnoreCase)))
+            {
+                problemas.Add(new ProblemaDeTabla(nombreArchivo, claveStack, "",
+                    $"El stack '{claveStack}' ya existe para la situación '{claveSituacion}'; " +
+                    "este duplicado se ignora."));
+                continue;
+            }
+
             var rango = new RangoDeStack(
-                stack.GetProperty("key").GetString()!,
+                claveStack,
                 stack.GetProperty("minBB").GetDecimal(),
                 stack.GetProperty("maxBB").GetDecimal());
 
@@ -67,20 +101,35 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador)
         }
     }
 
-    private static SpotDeTabla LeerSpot(JsonElement spot)
+    private SpotDeTabla LeerSpot(JsonElement spot)
     {
         var asignadas = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         string? resto = null;
 
         foreach (var propiedad in spot.GetProperty("actions").EnumerateObject())
         {
+            // La validación ya pasó Existe(accion) en modo case-insensitive;
+            // Obtener() devuelve la grafía canónica del registro. Guardar esa
+            // clave en vez del nombre de la propiedad JSON tal cual es lo que
+            // hace que "call" en un chart y "CALL" en acciones.json terminen
+            // siendo la misma acción también para el frontend, que sí es
+            // sensible a mayúsculas al indexar por clave.
+            var clave = registro.Obtener(propiedad.Name).Clave;
+
             if (propiedad.Value.ValueKind == JsonValueKind.String)
             {
-                resto = propiedad.Name;
+                resto = clave;
                 continue;
             }
             foreach (var elemento in propiedad.Value.EnumerateArray())
-                asignadas[elemento.GetString()!] = propiedad.Name;
+            {
+                // Un elemento JSON null pasa de largo en el validador
+                // (ValidarAcciones también lo salta); acá también se ignora
+                // en vez de usarlo como clave de diccionario.
+                var mano = elemento.GetString();
+                if (mano is null) continue;
+                asignadas[mano] = clave;
+            }
         }
 
         if (resto is not null)

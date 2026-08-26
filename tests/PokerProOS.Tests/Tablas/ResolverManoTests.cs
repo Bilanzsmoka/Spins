@@ -5,10 +5,12 @@ namespace PokerProOS.Tests.Tablas;
 
 public class ResolverManoTests
 {
-    private static ResolverManoHandler Handler() => new(
-        new CargadorDeTablas(new ValidadorDeTabla(
-                RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
+    private static ResolverManoHandler Handler()
+    {
+        var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
+        return new(new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas));
+    }
 
     private static ConsultaDeMano Consulta(
         decimal bb, string alto, string bajo, string? palo = null, string spot = "SB_OR")
@@ -118,11 +120,13 @@ public class ResolverManoTests
         Assert.Equal(MotivoSinRespuesta.ManoInvalida, resultado.Motivo);
     }
 
-    private static SpotDeTabla SpotDeReferencia() =>
-        new CargadorDeTablas(new ValidadorDeTabla(
-                RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))))
+    private static SpotDeTabla SpotDeReferencia()
+    {
+        var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
+        return new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas)
             .Spot("HU_SB_OR_FISH", "10bb", "SB_OR")!;
+    }
 
     private static (string Alto, string Bajo, string? Palo) Descomponer(string mano) =>
         mano.Length == 2
