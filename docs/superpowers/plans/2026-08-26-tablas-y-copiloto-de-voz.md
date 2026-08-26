@@ -212,8 +212,8 @@ public static class MatrizDeManos
     private static (int Fila, int Columna) Coordenadas(string etiqueta)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(etiqueta);
-        var primero = Rangos.IndexOf(etiqueta[0]);
-        var segundo = Rangos.IndexOf(etiqueta[1]);
+        var primero = IndiceDeRango(etiqueta[0]);
+        var segundo = IndiceDeRango(etiqueta[1]);
         if (primero < 0 || segundo < 0)
             throw new ArgumentException($"Mano desconocida: {etiqueta}", nameof(etiqueta));
 
@@ -1480,8 +1480,10 @@ public sealed class ResolverManoHandler(ICatalogoDeTablas catalogo)
     /// </summary>
     private static (string Mano, bool PaloAsumido) Componer(ConsultaDeMano consulta)
     {
-        var indiceAlto = MatrizDeManos.Rangos.IndexOf(consulta.RangoAlto[0]);
-        var indiceBajo = MatrizDeManos.Rangos.IndexOf(consulta.RangoBajo[0]);
+        // MatrizDeManos.IndiceDeRango, no Rangos.IndexOf: IReadOnlyList<char>
+        // no expone IndexOf, eso es de IList<T>.
+        var indiceAlto = MatrizDeManos.IndiceDeRango(consulta.RangoAlto[0]);
+        var indiceBajo = MatrizDeManos.IndiceDeRango(consulta.RangoBajo[0]);
         var alto = MatrizDeManos.Rangos[Math.Min(indiceAlto, indiceBajo)];
         var bajo = MatrizDeManos.Rangos[Math.Max(indiceAlto, indiceBajo)];
 
