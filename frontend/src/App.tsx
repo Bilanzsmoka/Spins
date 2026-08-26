@@ -1,11 +1,5 @@
-import { ChartsPage } from './features/spins/charts/ChartsPage';
+import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
 
-function App() {
-  return (
-    <div className="app">
-      <ChartsPage />
-    </div>
-  );
+export default function App() {
+  return <PaginaDeTablas />
 }
-
-export default App;

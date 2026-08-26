@@ -10,6 +10,12 @@ public sealed class VozController(
     CanalDeEventos canal,
     ServicioDeCopiloto copiloto) : ControllerBase
 {
+    // JsonSerializer.Serialize sin opciones no aplica la politica camelCase
+    // que si usan los controladores via Ok(...); sin esto el SSE manda las
+    // propiedades en PascalCase y el front (que espera camelCase, igual que
+    // el resto de la API) no puede leer el evento.
+    private static readonly JsonSerializerOptions OpcionesJson = new(JsonSerializerDefaults.Web);
+
     [HttpGet("estado")]
     public IActionResult Estado() => Ok(new
     {
@@ -32,7 +38,7 @@ public sealed class VozController(
             {
                 await foreach (var evento in lector.ReadAllAsync(cancelacion))
                 {
-                    await Response.WriteAsync($"data: {JsonSerializer.Serialize(evento)}\n\n", cancelacion);
+                    await Response.WriteAsync($"data: {JsonSerializer.Serialize(evento, OpcionesJson)}\n\n", cancelacion);
                     await Response.Body.FlushAsync(cancelacion);
                 }
             }

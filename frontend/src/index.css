@@ -1,229 +1,79 @@
-/* PokerProOS — Global Styles */
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root {
+  --fondo: #0d1117;
+  --panel: #151a21;
+  --panel-2: #1b222b;
+  --borde: #3a4350;
+  --texto: #edf3fb;
+  --apagado: #b0bac7;
+  --acento: #8bb8e8;
 }
+
+* { box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #0a0e1a;
-  color: #e2e8f0;
-  line-height: 1.5;
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
-.app {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 24px;
+.pagina { padding: 20px; }
+
+.selectores { display: flex; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+.selectores label {
+  display: grid; gap: 5px;
+  color: var(--apagado); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.selectores select {
+  background: var(--panel-2); color: var(--texto);
+  border: 1px solid var(--borde); border-radius: 7px;
+  padding: 8px 10px; font-size: 14px; font-weight: 600;
 }
 
-/* Page */
-.charts-page h1 {
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #f1f5f9;
-  letter-spacing: -0.3px;
+.error { color: #ff6868; }
+
+.grilla { display: grid; gap: 3px; width: max-content; }
+.grilla-fila { display: grid; grid-template-columns: 28px repeat(13, 40px); gap: 3px; }
+.grilla-encabezado {
+  display: grid; place-items: center;
+  color: var(--apagado); font-size: 12px; font-weight: 700;
+}
+.celda {
+  height: 40px; display: grid; place-items: center;
+  border-radius: 3px; font-size: 11px; font-weight: 800;
+  border: 1px solid transparent;
+}
+.celda-resaltada {
+  outline: 3px solid var(--texto);
+  outline-offset: 1px;
+  transform: scale(1.12);
+  z-index: 2;
 }
 
-/* Controls */
-.chart-controls {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 14px 16px;
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 8px;
-}
+.leyenda { display: flex; gap: 14px; align-items: center; margin-top: 14px; }
+.leyenda-item { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 13px; }
+.leyenda-item i { width: 14px; height: 14px; border-radius: 3px; }
+.leyenda-item b { color: var(--apagado); font-weight: 700; }
 
-.chart-controls > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.estado-voz {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  padding: 10px 12px; margin-bottom: 14px;
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 8px;
 }
+.indicador {
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--panel-2); color: var(--apagado);
+  font-size: 12px; font-weight: 800;
+}
+.indicador-activo { background: #123629; color: #9ff0c8; }
+.aviso-voz { color: #d99a5b; font-size: 12px; font-weight: 700; }
+.frase-cruda { color: var(--apagado); font-style: italic; }
+.mano-interpretada { font-size: 18px; letter-spacing: .04em; }
+.respuesta { font-weight: 700; }
 
-.chart-controls label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+.aviso-problemas {
+  padding: 12px; margin-bottom: 14px;
+  border: 1px solid #7a4a2a; border-radius: 8px; background: #2a1b12;
 }
-
-.chart-controls select {
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid #374151;
-  background: #0a0e1a;
-  color: #e5e7eb;
-  font-size: 13px;
-  min-width: 150px;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.chart-controls select:hover {
-  border-color: #4b5563;
-}
-
-.chart-controls select:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
-/* Grid */
-.chart-grid-wrapper {
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.chart-grid {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.chart-header-row {
-  display: flex;
-  gap: 1px;
-}
-
-.chart-corner {
-  width: 36px;
-  height: 26px;
-}
-
-.chart-header-cell {
-  width: 48px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: #6b7280;
-  user-select: none;
-}
-
-.chart-row {
-  display: flex;
-  gap: 1px;
-  align-items: center;
-}
-
-.chart-cell {
-  width: 48px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  position: relative;
-}
-
-.chart-cell:hover {
-  transform: scale(1.15);
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
-  z-index: 10;
-}
-
-.cell-hand {
-  font-size: 10px;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  letter-spacing: 0.3px;
-}
-
-.cell-pair {
-  font-size: 11px;
-  font-weight: 800;
-}
-
-/* Result */
-.chart-result {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 8px;
-}
-
-.chart-result--error {
-  border-color: #991b1b;
-}
-
-.chart-result h4 {
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.action-counts {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.count-badge {
-  padding: 5px 12px;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.count-total {
-  background: #374151;
-  color: #f9fafb;
-}
-
-/* Legend */
-.legend {
-  display: flex;
-  gap: 16px;
-  margin-top: 12px;
-  padding: 10px 16px;
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 8px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #9ca3af;
-}
-
-.legend-color {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-}
-
-/* Loading / Error */
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.error {
-  padding: 12px 16px;
-  background: #1c1917;
-  border: 1px solid #991b1b;
-  border-radius: 6px;
-  color: #fca5a5;
-  margin: 16px 0;
-  font-size: 14px;
-}
+.aviso-problemas ul { margin: 8px 0 0; padding-left: 18px; color: var(--apagado); }
