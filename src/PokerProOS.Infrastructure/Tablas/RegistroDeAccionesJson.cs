@@ -24,18 +24,25 @@ public sealed class RegistroDeAccionesJson : IRegistroDeAcciones
 
     public static IRegistroDeAcciones Cargar(string rutaArchivo)
     {
-        using var documento = JsonDocument.Parse(File.ReadAllText(rutaArchivo));
-        var acciones = documento.RootElement.GetProperty("acciones")
-            .EnumerateArray()
-            .Select(e => new AccionDefinida(
-                e.GetProperty("clave").GetString()!,
-                e.GetProperty("etiqueta").GetString()!,
-                e.GetProperty("color").GetString()!,
-                e.GetProperty("colorTexto").GetString()!,
-                e.GetProperty("orden").GetInt32(),
-                e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList()))
-            .OrderBy(a => a.Orden)
-            .ToList();
-        return new RegistroDeAccionesJson(acciones);
+        try
+        {
+            using var documento = JsonDocument.Parse(File.ReadAllText(rutaArchivo));
+            var acciones = documento.RootElement.GetProperty("acciones")
+                .EnumerateArray()
+                .Select(e => new AccionDefinida(
+                    e.GetProperty("clave").GetString()!,
+                    e.GetProperty("etiqueta").GetString()!,
+                    e.GetProperty("color").GetString()!,
+                    e.GetProperty("colorTexto").GetString()!,
+                    e.GetProperty("orden").GetInt32(),
+                    e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList()))
+                .OrderBy(a => a.Orden)
+                .ToList();
+            return new RegistroDeAccionesJson(acciones);
+        }
+        catch (Exception ex)
+        {
+            throw new RegistroInvalidoException(rutaArchivo, ex);
+        }
     }
 }

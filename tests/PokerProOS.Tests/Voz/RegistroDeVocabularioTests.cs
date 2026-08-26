@@ -1,12 +1,15 @@
 using PokerProOS.Application.Voz;
+using PokerProOS.Infrastructure;
 using PokerProOS.Infrastructure.Voz;
 
 namespace PokerProOS.Tests.Voz;
 
-public class RegistroDeVocabularioTests
+public class RegistroDeVocabularioTests : IDisposable
 {
     private static IRegistroDeVocabulario Cargar() =>
         RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
+
+    private readonly List<string> _temporales = [];
 
     [Fact]
     public void Declara_los_trece_rangos()
@@ -72,4 +75,29 @@ public class RegistroDeVocabularioTests
         CargarCatalogo().Situaciones
             .SelectMany(s => s.Stacks).SelectMany(t => t.Spots)
             .Select(s => s.Clave).Distinct().ToHashSet();
+
+    [Fact]
+    public void Falla_con_un_mensaje_legible_ante_un_archivo_malformado()
+    {
+        var ruta = Fabricar("""{"palabrasDeStack": [ esto no es json valido""");
+
+        var excepcion = Assert.Throws<RegistroInvalidoException>(
+            () => RegistroDeVocabularioJson.Cargar(ruta));
+
+        Assert.Contains(ruta, excepcion.Message);
+        Assert.Equal(ruta, excepcion.RutaArchivo);
+    }
+
+    private string Fabricar(string contenido)
+    {
+        var ruta = Path.Combine(Path.GetTempPath(), $"vocabulario-{Guid.NewGuid():N}.json");
+        File.WriteAllText(ruta, contenido);
+        _temporales.Add(ruta);
+        return ruta;
+    }
+
+    public void Dispose()
+    {
+        foreach (var ruta in _temporales) File.Delete(ruta);
+    }
 }

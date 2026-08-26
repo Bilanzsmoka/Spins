@@ -22,21 +22,28 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
 
     public static IRegistroDeVocabulario Cargar(string ruta)
     {
-        using var documento = JsonDocument.Parse(File.ReadAllText(ruta));
-        var raiz = documento.RootElement;
+        try
+        {
+            using var documento = JsonDocument.Parse(File.ReadAllText(ruta));
+            var raiz = documento.RootElement;
 
-        static IReadOnlyList<FormasHabladas> Leer(JsonElement raiz, string propiedad) =>
-            raiz.GetProperty(propiedad).EnumerateArray()
-                .Select(e => new FormasHabladas(
-                    e.GetProperty("clave").GetString()!,
-                    e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList()))
-                .ToList();
+            static IReadOnlyList<FormasHabladas> Leer(JsonElement raiz, string propiedad) =>
+                raiz.GetProperty(propiedad).EnumerateArray()
+                    .Select(e => new FormasHabladas(
+                        e.GetProperty("clave").GetString()!,
+                        e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList()))
+                    .ToList();
 
-        return new RegistroDeVocabularioJson(
-            raiz.GetProperty("palabrasDeStack").EnumerateArray().Select(e => e.GetString()!).ToList(),
-            Leer(raiz, "rangos"),
-            Leer(raiz, "palos"),
-            Leer(raiz, "spots"),
-            Leer(raiz, "situaciones"));
+            return new RegistroDeVocabularioJson(
+                raiz.GetProperty("palabrasDeStack").EnumerateArray().Select(e => e.GetString()!).ToList(),
+                Leer(raiz, "rangos"),
+                Leer(raiz, "palos"),
+                Leer(raiz, "spots"),
+                Leer(raiz, "situaciones"));
+        }
+        catch (Exception ex)
+        {
+            throw new RegistroInvalidoException(ruta, ex);
+        }
     }
 }

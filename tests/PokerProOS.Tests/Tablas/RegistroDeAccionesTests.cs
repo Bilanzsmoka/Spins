@@ -1,10 +1,12 @@
+using PokerProOS.Infrastructure;
 using PokerProOS.Infrastructure.Tablas;
 
 namespace PokerProOS.Tests.Tablas;
 
-public class RegistroDeAccionesTests
+public class RegistroDeAccionesTests : IDisposable
 {
     private static string Ruta => Rutas.Registro("acciones.json");
+    private readonly List<string> _temporales = [];
 
     [Fact]
     public void Carga_las_cuatro_acciones_del_proyecto()
@@ -42,4 +44,29 @@ public class RegistroDeAccionesTests
     public void Cada_accion_declara_al_menos_una_forma_hablada()
         => Assert.All(RegistroDeAccionesJson.Cargar(Ruta).Todas,
             a => Assert.NotEmpty(a.Dichos));
+
+    [Fact]
+    public void Falla_con_un_mensaje_legible_ante_un_archivo_malformado()
+    {
+        var ruta = Fabricar("""{"acciones": [ esto no es json valido""");
+
+        var excepcion = Assert.Throws<RegistroInvalidoException>(
+            () => RegistroDeAccionesJson.Cargar(ruta));
+
+        Assert.Contains(ruta, excepcion.Message);
+        Assert.Equal(ruta, excepcion.RutaArchivo);
+    }
+
+    private string Fabricar(string contenido)
+    {
+        var ruta = Path.Combine(Path.GetTempPath(), $"acciones-{Guid.NewGuid():N}.json");
+        File.WriteAllText(ruta, contenido);
+        _temporales.Add(ruta);
+        return ruta;
+    }
+
+    public void Dispose()
+    {
+        foreach (var ruta in _temporales) File.Delete(ruta);
+    }
 }

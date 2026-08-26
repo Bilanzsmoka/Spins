@@ -1,6 +1,7 @@
 using PokerProOS.Api.Voz;
 using PokerProOS.Application.Tablas;
 using PokerProOS.Application.Voz;
+using PokerProOS.Infrastructure;
 using PokerProOS.Infrastructure.Tablas;
 using PokerProOS.Infrastructure.Voz;
 using PokerProOS.Voz.Sapi;
@@ -11,8 +12,31 @@ var builder = WebApplication.CreateBuilder(args);
 // Nada de subir cinco directorios desde AppContext.BaseDirectory.
 var carpetaDatos = Path.Combine(AppContext.BaseDirectory, "database");
 
-var acciones = RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json"));
-var vocabulario = RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json"));
+// acciones.json y vocabulario.json son el único dato que el usuario edita a
+// mano (el caso de uso central del proyecto). Si el archivo falta o tiene
+// un error de sintaxis, no hay nada útil que servir: colores, validación de
+// tablas y la gramática de voz dependen del registro. A esta altura no hay
+// host ni logger todavía, así que el diagnóstico va a stderr y el proceso
+// termina con código distinto de cero en vez de dejar escapar un stack
+// trace en bruto.
+static T CargarRegistroOTerminar<T>(Func<T> cargar)
+{
+    try
+    {
+        return cargar();
+    }
+    catch (RegistroInvalidoException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        Environment.Exit(1);
+        throw; // Nunca se alcanza: Environment.Exit termina el proceso.
+    }
+}
+
+var acciones = CargarRegistroOTerminar(() =>
+    RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json")));
+var vocabulario = CargarRegistroOTerminar(() =>
+    RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
 var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones))
     .CargarDirectorio(Path.Combine(carpetaDatos, "seed-data"));
 
