@@ -28,6 +28,7 @@ export function PaginaDeDiario() {
   const [cumplimiento, setCumplimiento] = useState('')
   const [habitos, setHabitos] = useState<HabitoDefinido[]>([])
   const [marcas, setMarcas] = useState<Record<string, number>>({})
+  const [notasDeHabitos, setNotasDeHabitos] = useState<Record<string, string>>({})
 
   const cargar = useCallback((cual: string) => {
     obtenerDia(cual)
@@ -42,6 +43,7 @@ export function PaginaDeDiario() {
         setObjetivo(datos.entrada?.objetivoTecnico ?? '')
         setCumplimiento(datos.entrada?.cumplimientoObjetivo?.toString() ?? '')
         setMarcas(datos.marcas ?? {})
+        setNotasDeHabitos(datos.notasDeHabitos ?? {})
         setError(null)
       })
       .catch((e: unknown) => setError(e instanceof Error ? e.message : 'No pude cargar el día'))
@@ -65,6 +67,7 @@ export function PaginaDeDiario() {
         objetivoTecnico: objetivo || null,
         cumplimientoObjetivo: cumplimiento ? Number(cumplimiento) : null,
         habitos: marcas,
+        notasDeHabitos,
       })
       setGuardado((previo) => !previo)
       cargar(fecha)
@@ -97,8 +100,11 @@ export function PaginaDeDiario() {
         <CuadroDeHabitos
           habitos={habitos}
           marcas={marcas}
+          notas={notasDeHabitos}
           onCambiar={(clave, valor) =>
             setMarcas((previo) => ({ ...previo, [clave]: valor }))}
+          onNota={(clave, nota) =>
+            setNotasDeHabitos((previo) => ({ ...previo, [clave]: nota }))}
         />
       )}
 

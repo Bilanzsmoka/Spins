@@ -99,6 +99,43 @@ export interface Comparativa {
   consultasDeHoy: number
 }
 
+export interface DiaDeGrilla {
+  fecha: string
+  nivelDeJuego: string | null
+  marcas: Record<string, number>
+  notas: Record<string, string>
+}
+
+export interface ResumenDeHabito {
+  clave: string
+  cumplidos: number
+  diasRegistrados: number
+  rachaActual: number
+  mejorRacha: number
+}
+
+/**
+ * Cómo jugaste los días que hiciste el hábito contra los que no.
+ * `confiable` es falso cuando hay tan pocos días de un lado que el número
+ * no significa nada.
+ */
+export interface CruceDeHabito {
+  clave: string
+  diasCon: number
+  buenosCon: number
+  diasSin: number
+  buenosSin: number
+  confiable: boolean
+}
+
+export interface ProgresoDeHabitos {
+  desde: string
+  hasta: string
+  dias: DiaDeGrilla[]
+  resumen: ResumenDeHabito[]
+  cruces: CruceDeHabito[]
+}
+
 export interface EntradaDeDiario {
   id: number
   fecha: string
@@ -133,6 +170,7 @@ export interface DiaDeDiario {
   entrada: EntradaDeDiario | null
   resumen: ResumenDelDia
   marcas: Record<string, number>
+  notasDeHabitos: Record<string, string>
   comparativa: Comparativa
 }
 
@@ -146,4 +184,5 @@ export interface EntradaEnviada {
   objetivoTecnico: string | null
   cumplimientoObjetivo: number | null
   habitos: Record<string, number>
+  notasDeHabitos: Record<string, string>
 }

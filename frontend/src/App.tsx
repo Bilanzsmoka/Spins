@@ -1,6 +1,7 @@
 import { useEstadoDeVoz } from './core/hooks/useEstadoDeVoz'
 import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
 import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
+import { PaginaDeHabitos } from './features/diario/PaginaDeHabitos'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
 import { Aplicacion, type GrupoDeModulos } from './shared/Aplicacion'
 
@@ -44,6 +45,13 @@ export default function App() {
           descripcion: 'Tu día y tu evolución',
           disponible: true,
           contenido: <PaginaDeDiario />,
+        },
+        {
+          clave: 'habitos',
+          etiqueta: 'Hábitos',
+          descripcion: 'Cumplimiento y efecto',
+          disponible: true,
+          contenido: <PaginaDeHabitos />,
         },
         {
           clave: 'sesiones',

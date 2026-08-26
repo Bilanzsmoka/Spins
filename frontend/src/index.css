@@ -386,3 +386,93 @@ kbd {
 .comparativa-lineas .peor { color: #ffc4c4; }
 .comparativa-crudo { margin-left: auto; color: var(--apagado); font-size: 12px; font-variant-numeric: tabular-nums; }
 .comparativa-pie { margin: 0; color: var(--apagado); font-size: 12px; line-height: 1.45; }
+
+/* ---------- Nota por habito ---------- */
+
+.habito-nota-campo { display: grid; gap: 4px; margin-top: 10px; }
+.habito-nota-campo input {
+  background: #11161c; color: var(--texto);
+  border: 1px solid var(--borde); border-radius: 6px;
+  padding: 7px 10px; font: inherit; font-size: 13px;
+}
+.habito-nota-campo input:focus { outline: none; border-color: var(--acento); }
+
+/* ---------- Pagina de habitos ---------- */
+
+.periodos { display: flex; gap: 6px; }
+.periodo {
+  padding: 7px 12px; border-radius: 7px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  color: var(--apagado); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.periodo:hover { color: var(--texto); }
+.periodo-activo { background: var(--panel); border-color: var(--acento); color: var(--texto); }
+
+.grilla-habitos, .cruce {
+  padding: 14px 16px; margin-bottom: 18px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.grilla-habitos h2, .cruce h2 {
+  margin: 0 0 12px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--apagado);
+}
+
+.grilla-scroll { overflow-x: auto; }
+.tabla-habitos { border-collapse: separate; border-spacing: 2px; }
+.tabla-habitos th, .tabla-habitos td { padding: 0; }
+.col-habito {
+  text-align: left; padding-right: 10px !important;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+  color: var(--texto); position: sticky; left: 0; background: var(--panel);
+}
+.invertido { color: #ff6868; margin-left: 4px; font-size: 11px; }
+.col-dia {
+  width: 18px; font-size: 9px; font-weight: 600;
+  color: var(--apagado); font-variant-numeric: tabular-nums;
+}
+.col-cifra {
+  padding: 0 6px !important; text-align: right;
+  font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.col-tenue { color: var(--apagado); font-weight: 600; }
+
+.tabla-habitos tbody td { width: 18px; height: 18px; border-radius: 3px; position: relative; }
+.celda-vacia { background: #11161c; }
+.celda-bien { background: #43bf55; }
+.celda-mal { background: #6a2b33; }
+.tiene-nota {
+  position: absolute; inset: 0; margin: auto;
+  width: 4px; height: 4px; border-radius: 50%; background: #061018;
+}
+.celda-nivel { background: transparent !important; }
+.fila-nivel td { text-align: center; }
+.fila-nivel .nivel { width: 18px; height: 18px; font-size: 10px; }
+
+.totales-numericos { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+.totales-numericos div { display: grid; gap: 1px; }
+.totales-numericos strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.totales-numericos span { color: var(--apagado); font-size: 11px; }
+.grilla-nota { margin: 12px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.5; }
+
+/* ---------- Cruce contra el nivel de juego ---------- */
+
+.cruce-intro { margin: 0 0 12px; color: var(--apagado); font-size: 13px; line-height: 1.5; }
+.cruce-intro strong { color: var(--texto); }
+.cruce-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.cruce-lista li { padding: 11px 13px; border-radius: 8px; background: var(--panel-2); }
+.cruce-flojo { opacity: .62; }
+.cruce-titulo { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.cruce-salto { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cruce-salto.mejor { color: #9ff0c8; }
+.cruce-salto.peor { color: #ffc4c4; }
+.cruce-barras { display: grid; gap: 5px; }
+.cruce-barra { display: flex; align-items: center; gap: 10px; }
+.cruce-etiqueta { width: 130px; flex: none; color: var(--apagado); font-size: 12px; }
+.barra { flex: 1; height: 14px; border-radius: 4px; background: #11161c; overflow: hidden; }
+.barra i { display: block; height: 100%; border-radius: 4px; }
+.barra-bien { background: #43bf55; }
+.barra-mal { background: #6a7280; }
+.cruce-cifra { width: 42px; text-align: right; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cruce-aviso { margin: 9px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.45; }
+.cruce-pie { margin: 14px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.5; }

@@ -45,8 +45,17 @@ public sealed class RepositorioDeDiario(PokerProOSDbContext contexto) : IReposit
             .Where(m => m.Fecha == fecha)
             .ToDictionaryAsync(m => m.Clave, m => m.Valor, ct);
 
+    public async Task<IReadOnlyDictionary<string, string>> NotasDeHabitosAsync(
+        DateOnly fecha, CancellationToken ct)
+        => await contexto.MarcasDeHabito
+            .Where(m => m.Fecha == fecha && m.Nota != null && m.Nota != "")
+            .ToDictionaryAsync(m => m.Clave, m => m.Nota!, ct);
+
     public async Task GuardarMarcasAsync(
-        DateOnly fecha, IReadOnlyDictionary<string, int> marcas, CancellationToken ct)
+        DateOnly fecha,
+        IReadOnlyDictionary<string, int> marcas,
+        IReadOnlyDictionary<string, string> notas,
+        CancellationToken ct)
     {
         var existentes = await contexto.MarcasDeHabito
             .Where(m => m.Fecha == fecha)
@@ -54,11 +63,18 @@ public sealed class RepositorioDeDiario(PokerProOSDbContext contexto) : IReposit
 
         foreach (var (clave, valor) in marcas)
         {
+            var nota = notas.GetValueOrDefault(clave)?.Trim();
+            if (string.IsNullOrEmpty(nota)) nota = null;
+
             var existente = existentes.FirstOrDefault(m => m.Clave == clave);
-            if (existente is not null) existente.Valor = valor;
+            if (existente is not null)
+            {
+                existente.Valor = valor;
+                existente.Nota = nota;
+            }
             else contexto.MarcasDeHabito.Add(new MarcaDeHabito
             {
-                Fecha = fecha, Clave = clave, Valor = valor
+                Fecha = fecha, Clave = clave, Valor = valor, Nota = nota
             });
         }
 
@@ -101,6 +117,90 @@ public sealed class RepositorioDeDiario(PokerProOSDbContext contexto) : IReposit
             await VolumenDe(fecha),
             await ConsultasDe(previa?.Fecha),
             await ConsultasDe(fecha));
+    }
+
+    public async Task<ProgresoDeHabitos> ProgresoAsync(
+        DateOnly desde, DateOnly hasta, CancellationToken ct)
+    {
+        var marcas = await contexto.MarcasDeHabito
+            .Where(m => m.Fecha >= desde && m.Fecha <= hasta)
+            .ToListAsync(ct);
+
+        var niveles = await contexto.EntradasDeDiario
+            .Where(e => e.Fecha >= desde && e.Fecha <= hasta)
+            .ToDictionaryAsync(e => e.Fecha, e => e.NivelDeJuego, ct);
+
+        var dias = new List<DiaDeGrilla>();
+        for (var dia = desde; dia <= hasta; dia = dia.AddDays(1))
+        {
+            var delDia = marcas.Where(m => m.Fecha == dia).ToList();
+            dias.Add(new DiaDeGrilla(
+                dia,
+                niveles.GetValueOrDefault(dia),
+                delDia.ToDictionary(m => m.Clave, m => m.Valor),
+                delDia.Where(m => !string.IsNullOrEmpty(m.Nota))
+                      .ToDictionary(m => m.Clave, m => m.Nota!)));
+        }
+
+        var claves = marcas.Select(m => m.Clave).Distinct().ToList();
+
+        var resumen = claves.Select(clave =>
+        {
+            var suyas = marcas.Where(m => m.Clave == clave).ToList();
+            // Un dia "cumplido" es valor positivo. Para el volumen eso significa
+            // haber jugado algo; para los binarios, haber marcado que si.
+            var cumplidos = suyas.Count(m => m.Valor > 0);
+            var (actual, mejor) = Rachas(dias, clave);
+            return new ResumenDeHabito(clave, cumplidos, suyas.Count(m => m.Valor != 0), actual, mejor);
+        }).ToList();
+
+        var cruces = claves.Select(clave => Cruzar(clave, dias)).ToList();
+
+        return new ProgresoDeHabitos(desde, hasta, dias, resumen, cruces);
+    }
+
+    /// <summary>
+    /// Racha de dias consecutivos cumpliendo. Un dia sin marcar no rompe la
+    /// racha: no marcar no es lo mismo que no haberlo hecho, y castigarlo
+    /// haria que el usuario deje de abrir la aplicacion los dias flojos.
+    /// </summary>
+    private static (int Actual, int Mejor) Rachas(IReadOnlyList<DiaDeGrilla> dias, string clave)
+    {
+        var actual = 0;
+        var mejor = 0;
+        foreach (var dia in dias)
+        {
+            if (!dia.Marcas.TryGetValue(clave, out var valor) || valor == 0) continue;
+            if (valor > 0) { actual++; mejor = Math.Max(mejor, actual); }
+            else actual = 0;
+        }
+        return (actual, mejor);
+    }
+
+    /// <summary>
+    /// Cruza el habito contra como se jugo. "Bueno" es A o B; C no lo es.
+    /// Solo cuentan los dias que tienen las dos cosas anotadas.
+    /// </summary>
+    private static CruceDeHabito Cruzar(string clave, IReadOnlyList<DiaDeGrilla> dias)
+    {
+        const int MinimoParaConfiar = 4;
+
+        var conNivel = dias
+            .Where(d => d.NivelDeJuego is "A" or "B" or "C")
+            .Where(d => d.Marcas.TryGetValue(clave, out var v) && v != 0)
+            .ToList();
+
+        var con = conNivel.Where(d => d.Marcas[clave] > 0).ToList();
+        var sin = conNivel.Where(d => d.Marcas[clave] < 0).ToList();
+
+        static int Buenos(IEnumerable<DiaDeGrilla> dias) =>
+            dias.Count(d => d.NivelDeJuego is "A" or "B");
+
+        return new CruceDeHabito(
+            clave,
+            con.Count, Buenos(con),
+            sin.Count, Buenos(sin),
+            con.Count >= MinimoParaConfiar && sin.Count >= MinimoParaConfiar);
     }
 
     /// <summary>

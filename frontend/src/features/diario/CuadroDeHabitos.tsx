@@ -4,7 +4,9 @@ import type { HabitoDefinido } from '../../core/models/catalogo.model'
 interface Props {
   habitos: HabitoDefinido[]
   marcas: Record<string, number>
+  notas: Record<string, string>
   onCambiar: (clave: string, valor: number) => void
+  onNota: (clave: string, nota: string) => void
 }
 
 /**
@@ -12,7 +14,7 @@ interface Props {
  * el volumen es un número. Los hábitos salen del registro en datos, así que
  * agregar uno nuevo no toca este componente.
  */
-export function CuadroDeHabitos({ habitos, marcas, onCambiar }: Props) {
+export function CuadroDeHabitos({ habitos, marcas, notas, onCambiar, onNota }: Props) {
   const [ayudaAbierta, setAyudaAbierta] = useState<string | null>(null)
   const habitoConAyuda = habitos.find((h) => h.clave === ayudaAbierta)
 
@@ -69,6 +71,21 @@ export function CuadroDeHabitos({ habitos, marcas, onCambiar }: Props) {
           )
         })}
       </div>
+
+      {/* Al marcar que si aparece una linea para anotar QUE hiciste. Opcional:
+          exigirla mataria el habito de marcar, pero "medite 10 min antes de
+          jugar" vale mucho mas que un tilde suelto cuando lo releas en un mes. */}
+      {habitos.filter((h) => h.tipo === 'binario' && (marcas[h.clave] ?? 0) === 1).map((habito) => (
+        <label key={habito.clave} className="habito-nota-campo">
+          <span className="campo-titulo">{habito.etiqueta} — ¿qué hiciste?</span>
+          <input
+            type="text"
+            value={notas[habito.clave] ?? ''}
+            placeholder="Opcional. Una línea alcanza."
+            onChange={(e) => onNota(habito.clave, e.target.value)}
+          />
+        </label>
+      ))}
 
       {habitoConAyuda && (
         <div className="habito-ayuda">

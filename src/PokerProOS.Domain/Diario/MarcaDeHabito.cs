@@ -14,4 +14,11 @@ public class MarcaDeHabito
     /// Binarios: 1 hecho, -1 no hecho, 0 sin marcar. Numéricos: el valor.
     /// </summary>
     public int Valor { get; set; }
+
+    /// <summary>
+    /// Qué hiciste, en una línea. Opcional a propósito: exigirla mataría el
+    /// hábito de marcar. "Medité ✓" vale poco; "medité 10 min antes de jugar,
+    /// me costó arrancar" vale para releer en un mes.
+    /// </summary>
+    public string? Nota { get; set; }
 }
