@@ -190,15 +190,18 @@ Acción más un dato corto que ancle la memoria; alrededor de un segundo y medio
 
 Es el dato que más vale memorizar. Que `A5o` sea ALL-IN importa poco si `A4o` también lo es; importa mucho si `A4o` es FOLD, porque ahí está la línea que hay que recordar. Si la mano está rodeada de la misma acción, se omite la frase y se contesta solo la acción con el conteo.
 
-### Manos ambiguas
+### Manos sin palo especificado
 
-El diccionario establece que `AK` sin palo es ambiguo. El código anterior devolvía `AKo` en silencio, lo que enseña mal.
+Una mano dictada sin calificar el palo es **offsuit**. Decir "a rey" significa `AKo`. Es la convención de quien dicta: cuando la mano es suited se dice, y si no se dijo, no lo es.
 
-Si no se especifica palo y las dos acciones difieren, se contestan las dos:
+Las parejas no tienen palo, así que la regla no las toca: "as as" es `AA`.
 
-> "AK: suited ALL-IN, offsuit CALL."
+El riesgo no está en la regla sino en el reconocimiento: si el motor se come la palabra "suited", el usuario recibe la acción del offsuit sin enterarse de la sustitución. Por eso, **cuando se aplicó el default la respuesta repite la mano interpretada**:
 
-Si coinciden, se contesta una sola. Nunca se adivina.
+> Dictado: "siete bb a rey" → "A K offsuit: CALL."
+> Dictado: "siete bb a rey suited" → "CALL."
+
+Confirmar solo cuando se asumió mantiene rápido el caso explícito y hace audible el caso donde pudo haber una pérdida de palabra. La mano interpretada también queda escrita en pantalla, siempre.
 
 ## Errores
 
@@ -230,7 +233,7 @@ Las tres suites principales son dominio puro, sin voz ni interfaz, y por lo tant
 
 - **Validador**: los once archivos reales deben pasar, más archivos rotos fabricados a propósito — mano duplicada, acción fuera del registro, dos `REST`, cobertura incompleta — que deben fallar con el mensaje correcto.
 - **Intérprete de dictado**: el `voice-dictionary.md` convertido en tabla de casos, frase hablada contra consulta esperada. El diccionario es la especificación y la suite a la vez.
-- **Resolución de manos**: los bloques `checks` que ya traen los JSON, más la resolución de stack por cobertura de rango y el caso de mano ambigua.
+- **Resolución de manos**: los bloques `checks` que ya traen los JSON, más la resolución de stack por cobertura de rango, el default a offsuit cuando no se dicta el palo, y la detección de borde.
 
 El reconocedor y el sintetizador quedan detrás de sus interfaces, así que la lógica del bucle de voz se prueba con dobles, sin micrófono.
 
