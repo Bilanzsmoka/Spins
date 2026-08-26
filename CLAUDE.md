@@ -16,7 +16,7 @@ studying away from the keyboard.
 Backend (from repo root):
 
 ```bash
-dotnet build PokerProOS.slnx            # .slnx is the active solution; PokerProOS.sln is the legacy copy
+dotnet build PokerProOS.slnx            # .slnx is the active solution; PokerProOS.slnx es la única solución. is the 
 dotnet run --project src/PokerProOS.Api # http://localhost:5000, Swagger UI at /swagger (Development only)
 dotnet test PokerProOS.slnx             # 114 tests; the voice-recognition ones drive real audio and are slow
 ```
