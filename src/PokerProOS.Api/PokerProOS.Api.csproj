@@ -32,4 +32,17 @@
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <Target Name="ConstruirFrontend" BeforeTargets="Build"
+          Condition="'$(SaltearFrontend)' != 'true'">
+    <Exec Command="npm install" WorkingDirectory="../../frontend"
+          Condition="!Exists('../../frontend/node_modules')" />
+    <Exec Command="npm run build" WorkingDirectory="../../frontend" />
+    <ItemGroup>
+      <ArchivosDelFrontend Include="../../frontend/dist/**/*" />
+    </ItemGroup>
+    <RemoveDir Directories="wwwroot" />
+    <Copy SourceFiles="@(ArchivosDelFrontend)"
+          DestinationFiles="@(ArchivosDelFrontend->'wwwroot/%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
 </Project>

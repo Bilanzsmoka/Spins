@@ -11,8 +11,8 @@ export function Celda({ mano, accion, resaltada }: Props) {
     <div
       className={`celda${resaltada ? ' celda-resaltada' : ''}`}
       style={{
-        backgroundColor: accion?.color ?? '#374151',
-        color: accion?.colorTexto ?? '#edf3fb',
+        backgroundColor: accion?.color ?? 'var(--desconocido)',
+        color: accion?.colorTexto ?? 'var(--texto)',
       }}
       title={`${mano}: ${accion?.etiqueta ?? 'desconocida'}`}
     >
