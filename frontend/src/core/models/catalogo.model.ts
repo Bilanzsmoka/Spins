@@ -75,3 +75,47 @@ export interface EstadoDeVoz {
 export interface ConsultaRegistrada extends EventoDeVoz {
   hora: string
 }
+
+/* ---------- Diario ---------- */
+
+export interface EntradaDeDiario {
+  id: number
+  fecha: string
+  intencion: string | null
+  nivelDeJuego: string | null
+  disparador: string | null
+  mesas: number | null
+  minutos: number | null
+  notas: string
+  creadaEn: string
+  actualizadaEn: string
+}
+
+export interface ManoConsultada {
+  mano: string
+  accion: string
+  veces: number
+}
+
+/** Lo que ningún tracker tiene: qué preguntaste ese día, o sea qué no sabías. */
+export interface ResumenDelDia {
+  consultas: number
+  resueltas: number
+  manosMasConsultadas: ManoConsultada[]
+  primeraHora: string | null
+  ultimaHora: string | null
+}
+
+export interface DiaDeDiario {
+  entrada: EntradaDeDiario | null
+  resumen: ResumenDelDia
+}
+
+export interface EntradaEnviada {
+  intencion: string | null
+  nivelDeJuego: string | null
+  disparador: string | null
+  mesas: number | null
+  minutos: number | null
+  notas: string
+}

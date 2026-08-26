@@ -1,7 +1,8 @@
 import { useEstadoDeVoz } from './core/hooks/useEstadoDeVoz'
 import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
+import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
-import { Aplicacion, type Modulo } from './shared/Aplicacion'
+import { Aplicacion, type GrupoDeModulos } from './shared/Aplicacion'
 
 export default function App() {
   // El estado de voz se resuelve acá, no dentro de la página, para que el
@@ -10,42 +11,61 @@ export default function App() {
   const { estado, alternar, cambiando, errorAlCambiar } = useEstadoDeVoz()
   const { ultimo, historial, conectado, limpiarHistorial } = useEventosDeVoz()
 
-  const modulos: Modulo[] = [
-    {
-      clave: 'entrenamiento',
-      etiqueta: 'Entrenamiento',
-      descripcion: 'Tablas preflop y copiloto',
-      disponible: true,
-      contenido: (
-        <PaginaDeTablas
-          ultimo={ultimo}
-          historial={historial}
-          onLimpiarHistorial={limpiarHistorial}
-          voz={{
-            disponible: estado?.escuchando ?? conectado,
-            activo: estado?.activo ?? false,
-            cambiando,
-            falla: estado?.falla ?? null,
-            fallaAlHablar: estado?.fallaAlHablar ?? null,
-            errorAlCambiar,
-            onAlternar: () => { void alternar() },
-          }}
-        />
-      ),
-    },
+  const grupos: GrupoDeModulos[] = [
     {
       clave: 'spins',
       etiqueta: 'Spins',
-      descripcion: 'Sesiones y resultados',
-      disponible: false,
+      modulos: [
+        {
+          clave: 'entrenamiento',
+          etiqueta: 'Entrenamiento',
+          descripcion: 'Tablas preflop y copiloto',
+          disponible: true,
+          contenido: (
+            <PaginaDeTablas
+              ultimo={ultimo}
+              historial={historial}
+              onLimpiarHistorial={limpiarHistorial}
+              voz={{
+                disponible: estado?.escuchando ?? conectado,
+                activo: estado?.activo ?? false,
+                cambiando,
+                falla: estado?.falla ?? null,
+                fallaAlHablar: estado?.fallaAlHablar ?? null,
+                errorAlCambiar,
+                onAlternar: () => { void alternar() },
+              }}
+            />
+          ),
+        },
+        {
+          clave: 'diario',
+          etiqueta: 'Diario',
+          descripcion: 'Tu día y tu evolución',
+          disponible: true,
+          contenido: <PaginaDeDiario />,
+        },
+        {
+          clave: 'sesiones',
+          etiqueta: 'Sesiones',
+          descripcion: 'Volumen y resultados',
+          disponible: false,
+        },
+      ],
     },
     {
-      clave: 'bankroll',
-      etiqueta: 'Bankroll',
-      descripcion: 'Movimientos y salas',
-      disponible: false,
+      clave: 'banca',
+      etiqueta: 'Banca',
+      modulos: [
+        {
+          clave: 'bankroll',
+          etiqueta: 'Bankroll',
+          descripcion: 'Movimientos y salas',
+          disponible: false,
+        },
+      ],
     },
   ]
 
-  return <Aplicacion modulos={modulos} />
+  return <Aplicacion grupos={grupos} />
 }

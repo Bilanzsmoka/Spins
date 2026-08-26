@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PokerProOS.Api.Voz;
 using PokerProOS.Application.Bitacora;
+using PokerProOS.Application.Diario;
 using PokerProOS.Application.Tablas;
 using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure;
@@ -72,6 +73,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<ServicioDeCopiloto
 builder.Services.AddDbContext<PokerProOSDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IBitacoraDeConsultas, BitacoraDeConsultas>();
+builder.Services.AddScoped<IRepositorioDeDiario, RepositorioDeDiario>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
