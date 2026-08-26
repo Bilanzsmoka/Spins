@@ -1,0 +1,52 @@
+{
+  "situation": {
+    "key": "HU_SB_OR_FISH",
+    "label": "HU SB OR | fish"
+  },
+  "stacks": [
+    {
+      "key": "1-4bb",
+      "minBB": 1,
+      "maxBB": 4,
+      "spots": [
+        {
+          "key": "SB_OR",
+          "label": "Mi acción · SB OR",
+          "actions": {
+            "CALL": [],
+            "ALL-IN": "REST",
+            "FOLD": [
+              "83s", "82s", "73s", "72s", "62s", "85o", "75o", "65o", "52s",
+              "94o", "84o", "74o", "64o", "42s", "T3o", "93o", "83o", "73o", "63o", "53o", "43o", "32s",
+              "T2o", "92o", "82o", "72o", "62o", "52o", "42o", "32o"
+            ]
+          },
+          "expectedCounts": { "CALL": 0, "ALL-IN": 139, "FOLD": 30, "TOTAL": 169 },
+          "checks": { "AA": "ALL-IN", "72o": "FOLD" }
+        },
+        {
+          "key": "VS_BB_ALL_IN",
+          "label": "VS BB ALL-IN",
+          "actions": {
+            "CALL": ["AA", "KK", "QQ", "JJ", "TT"],
+            "ALL-IN": [],
+            "FOLD": "REST"
+          },
+          "expectedCounts": { "CALL": 5, "ALL-IN": 0, "FOLD": 164, "TOTAL": 169 },
+          "checks": { "TT": "CALL", "99": "FOLD" }
+        },
+        {
+          "key": "VS_BB_3BET",
+          "label": "VS BB 3-BET",
+          "actions": {
+            "CALL": [],
+            "ALL-IN": ["AA", "KK", "QQ", "JJ", "TT", "QTs"],
+            "FOLD": "REST"
+          },
+          "expectedCounts": { "CALL": 0, "ALL-IN": 6, "FOLD": 163, "TOTAL": 169 },
+          "checks": { "QTs": "ALL-IN", "99": "FOLD", "88": "FOLD" }
+        }
+      ]
+    }
+  ]
+}

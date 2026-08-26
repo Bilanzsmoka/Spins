@@ -1,0 +1,241 @@
+{
+  "situation": {
+    "key": "HU_SB_OR_FISH",
+    "label": "HU SB OR | fish"
+  },
+  "stacks": [
+    {
+      "key": "10bb",
+      "minBB": 10,
+      "maxBB": 10,
+      "spots": [
+        {
+          "key": "SB_OR",
+          "label": "Mi acción · SB OR",
+          "actions": {
+            "CALL": "REST",
+            "ALL-IN": [
+              "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+              "AKo",
+              "K4s", "K3s", "K2s",
+              "AQo", "KQo",
+              "AJo", "KJo", "QJo",
+              "ATo", "KTo", "QTo",
+              "A9o", "K9o", "Q9o",
+              "A8o", "K8o", "86s",
+              "A7o", "K7o", "76s", "75s",
+              "A6o", "K6o", "65s",
+              "A5o", "K5o", "55", "54s",
+              "A4o", "K4o", "44",
+              "A3o", "K3o", "33",
+              "A2o", "K2o", "22"
+            ],
+            "FOLD": []
+          },
+          "expectedCounts": {
+            "CALL": 123,
+            "ALL-IN": 46,
+            "FOLD": 0,
+            "TOTAL": 169
+          },
+          "checks": {
+            "AA": "CALL",
+            "A9s": "ALL-IN",
+            "AKo": "ALL-IN",
+            "86s": "ALL-IN",
+            "22": "ALL-IN",
+            "32o": "CALL"
+          }
+        },
+        {
+          "key": "VS_BB_ALL_IN",
+          "label": "VS BB ALL-IN",
+          "actions": {
+            "CALL": [
+              "AA",
+              "AKs", "AQs", "AJs", "ATs",
+              "KK",
+              "KQs", "KJs", "KTs", "K9s",
+              "KQo",
+              "QQ",
+              "QJs", "QTs", "Q9s",
+              "KJo", "QJo",
+              "JJ",
+              "JTs", "J9s",
+              "KTo",
+              "TT",
+              "T9s",
+              "99",
+              "88",
+              "77"
+            ],
+            "ALL-IN": [],
+            "FOLD": "REST"
+          },
+          "expectedCounts": {
+            "CALL": 26,
+            "ALL-IN": 0,
+            "FOLD": 143,
+            "TOTAL": 169
+          },
+          "checks": {
+            "AA": "CALL",
+            "ATs": "CALL",
+            "A9s": "FOLD",
+            "K9s": "CALL",
+            "77": "CALL",
+            "66": "FOLD"
+          }
+        },
+        {
+          "key": "VS_BB_3BET",
+          "label": "VS BB 3-BET",
+          "actions": {
+            "CALL": [
+              "AA",
+              "KK",
+              "KQs", "KJs", "KTs", "K9s",
+              "KQo",
+              "QQ",
+              "QJs", "QTs", "Q9s",
+              "KJo", "QJo",
+              "JJ",
+              "JTs", "J9s",
+              "KTo",
+              "T9s"
+            ],
+            "ALL-IN": [
+              "TT",
+              "99",
+              "88",
+              "77"
+            ],
+            "FOLD": "REST"
+          },
+          "expectedCounts": {
+            "CALL": 18,
+            "ALL-IN": 4,
+            "FOLD": 147,
+            "TOTAL": 169
+          },
+          "checks": {
+            "AA": "CALL",
+            "AKs": "FOLD",
+            "KQs": "CALL",
+            "T9s": "CALL",
+            "TT": "ALL-IN",
+            "77": "ALL-IN",
+            "66": "FOLD"
+          }
+        },
+        {
+          "key": "VS_BB_ISO_3BB",
+          "label": "VS BB ISO 3BB",
+          "actions": {
+            "CALL": [
+              "AA",
+              "KK",
+              "KJs", "KTs", "K9s", "K8s", "K7s", "K6s", "K5s", "K4s", "K3s", "K2s",
+              "QQ",
+              "QJs", "QTs", "Q9s", "Q8s", "Q7s", "Q6s", "Q5s", "Q4s", "Q3s", "Q2s",
+              "QJo",
+              "JJ",
+              "JTs", "J9s", "J8s", "J7s", "J6s", "J5s", "J4s", "J3s", "J2s",
+              "QTo", "JTo",
+              "TT",
+              "T9s", "T8s", "T7s", "T6s", "T5s",
+              "Q9o", "J9o", "T9o",
+              "98s", "97s", "96s", "95s",
+              "Q8o", "J8o", "T8o", "98o",
+              "87s", "86s", "85s",
+              "76s", "75s", "74s",
+              "65s", "64s",
+              "54s", "53s",
+              "43s"
+            ],
+            "ALL-IN": [
+              "AKs", "AQs", "AJs", "ATs",
+              "KQs",
+              "99",
+              "88",
+              "77",
+              "66",
+              "55"
+            ],
+            "FOLD": "REST"
+          },
+          "expectedCounts": {
+            "CALL": 64,
+            "ALL-IN": 10,
+            "FOLD": 95,
+            "TOTAL": 169
+          },
+          "checks": {
+            "AA": "CALL",
+            "AKs": "ALL-IN",
+            "KQs": "ALL-IN",
+            "KJs": "CALL",
+            "99": "ALL-IN",
+            "55": "ALL-IN",
+            "44": "FOLD"
+          }
+        },
+        {
+          "key": "VS_BB_ISO_ALL_IN",
+          "label": "VS BB ISO ALL-IN",
+          "actions": {
+            "CALL": [
+              "AA",
+              "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+              "AKo",
+              "KK",
+              "KQs", "KJs", "KTs", "K9s", "K8s", "K7s",
+              "AQo", "KQo",
+              "QQ",
+              "QJs", "QTs", "Q9s",
+              "AJo", "KJo", "QJo",
+              "JJ",
+              "JTs", "J9s",
+              "ATo",
+              "TT",
+              "T9s",
+              "A9o",
+              "99",
+              "A8o",
+              "88",
+              "A7o",
+              "77",
+              "A6o",
+              "66",
+              "A5o",
+              "55",
+              "A4o",
+              "44",
+              "A3o",
+              "A2o"
+            ],
+            "ALL-IN": [],
+            "FOLD": "REST"
+          },
+          "expectedCounts": {
+            "CALL": 50,
+            "ALL-IN": 0,
+            "FOLD": 119,
+            "TOTAL": 169
+          },
+          "checks": {
+            "AA": "CALL",
+            "A2s": "CALL",
+            "K7s": "CALL",
+            "K6s": "FOLD",
+            "J9s": "CALL",
+            "J8s": "FOLD",
+            "44": "CALL",
+            "33": "FOLD",
+            "22": "FOLD"
+          }
+        }
+      ]
+    }
+  ]
+}

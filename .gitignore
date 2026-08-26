@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+node_modules/
+dist/
+frontend/dist/
+src/PokerProOS.Api/wwwroot/assets/
+*.user

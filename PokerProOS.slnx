@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PokerProOS.Api/PokerProOS.Api.csproj" />
+    <Project Path="src/PokerProOS.Application/PokerProOS.Application.csproj" />
+    <Project Path="src/PokerProOS.Domain/PokerProOS.Domain.csproj" />
+    <Project Path="src/PokerProOS.Infrastructure/PokerProOS.Infrastructure.csproj" />
+  </Folder>
+</Solution>
