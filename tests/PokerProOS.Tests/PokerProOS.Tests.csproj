@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PokerProOS.Domain\PokerProOS.Domain.csproj" />
     <ProjectReference Include="..\..\src\PokerProOS.Infrastructure\PokerProOS.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\PokerProOS.Voz.Sapi\PokerProOS.Voz.Sapi.csproj" />
   </ItemGroup>
 
 </Project>
