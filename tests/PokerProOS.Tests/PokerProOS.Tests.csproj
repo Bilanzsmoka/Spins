@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PokerProOS.Domain\PokerProOS.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PokerProOS.Infrastructure\PokerProOS.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

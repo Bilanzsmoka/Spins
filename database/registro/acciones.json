@@ -1,0 +1,36 @@
+{
+  "acciones": [
+    {
+      "clave": "ALL-IN",
+      "etiqueta": "ALL-IN",
+      "color": "#43bf55",
+      "colorTexto": "#061018",
+      "orden": 1,
+      "dichos": ["all in", "allin", "shove", "push", "jam", "empujar", "tirarme"]
+    },
+    {
+      "clave": "CALL",
+      "etiqueta": "CALL",
+      "color": "#ffb743",
+      "colorTexto": "#061018",
+      "orden": 2,
+      "dichos": ["call", "pagar", "igualar"]
+    },
+    {
+      "clave": "RAISE_X2",
+      "etiqueta": "RAISE X2",
+      "color": "#7c86dc",
+      "colorTexto": "#081025",
+      "orden": 3,
+      "dichos": ["raise", "raise por dos", "subir", "doblar"]
+    },
+    {
+      "clave": "FOLD",
+      "etiqueta": "FOLD",
+      "color": "#edf3fb",
+      "colorTexto": "#111820",
+      "orden": 4,
+      "dichos": ["fold", "foldear", "tirar", "botar"]
+    }
+  ]
+}
