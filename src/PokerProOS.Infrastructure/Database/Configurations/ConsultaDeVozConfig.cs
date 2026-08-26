@@ -14,6 +14,7 @@ public class ConsultaDeVozConfig : IEntityTypeConfiguration<ConsultaDeVoz>
         constructor.Property(e => e.Spot).HasMaxLength(50).IsRequired();
         constructor.Property(e => e.Mano).HasMaxLength(10).IsRequired();
         constructor.Property(e => e.Accion).HasMaxLength(20).IsRequired();
+        constructor.Property(e => e.Respuesta).HasMaxLength(500).IsRequired();
         constructor.Property(e => e.TextoCrudo).HasMaxLength(500).IsRequired();
         // El indice sirve la pregunta que motiva la bitacora:
         // que manos consulto mas en cada spot.

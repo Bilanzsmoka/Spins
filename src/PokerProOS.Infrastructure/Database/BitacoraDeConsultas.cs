@@ -19,7 +19,8 @@ public sealed class BitacoraDeConsultas(
                 ClaveDeStack = evento.ClaveDeStack ?? "",
                 Spot = evento.Spot ?? "",
                 Mano = evento.ManoInterpretada,
-                Accion = evento.Respuesta,
+                Accion = evento.Accion,
+                Respuesta = evento.Respuesta,
                 Resuelta = evento.Resuelta,
                 TextoCrudo = evento.TextoCrudo,
                 CreadaEn = DateTime.UtcNow

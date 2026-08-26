@@ -5,6 +5,7 @@ namespace PokerProOS.Application.Voz;
 public record EventoDeCopiloto(
     string TextoCrudo,
     string ManoInterpretada,
+    string Accion,
     string Respuesta,
     bool Resuelta,
     string? Situacion,
@@ -43,7 +44,7 @@ public sealed class CopilotoDeVoz(
 
         reconocedor.Reconocido += (_, dictado) => Procesar(dictado);
         reconocedor.NoReconocido += (_, crudo) => Publicar(
-            new EventoDeCopiloto(crudo, "", "No te entendí.", false, null, null, null));
+            new EventoDeCopiloto(crudo, "", "", "No te entendí.", false, null, null, null));
     }
 
     public EventoDeCopiloto Procesar(DictadoReconocido dictado)
@@ -57,6 +58,7 @@ public sealed class CopilotoDeVoz(
         var evento = new EventoDeCopiloto(
             dictado.TextoCrudo,
             resultado.Respuesta?.Mano ?? "",
+            resultado.Respuesta?.Accion ?? "",
             redactor.Redactar(resultado),
             resultado.Respuesta is not null,
             memoria.Situacion,

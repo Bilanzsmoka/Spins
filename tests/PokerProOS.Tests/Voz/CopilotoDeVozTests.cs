@@ -105,6 +105,20 @@ public class CopilotoDeVozTests
     }
 
     [Fact]
+    public void Publica_el_codigo_de_accion_cuando_resuelve()
+    {
+        var (copiloto, reconocedor, _, _) = Armar();
+        EventoDeCopiloto? capturado = null;
+        copiloto.Publicado += (_, e) => capturado = e;
+        reconocedor.Emitir(Dictado("A", "K"));
+        Assert.True(capturado!.Resuelta);
+        Assert.NotEqual("", capturado.Accion);
+        // El codigo de accion, no la frase hablada: eso es lo que hace
+        // agrupable a la bitacora.
+        Assert.DoesNotContain(" ", capturado.Accion);
+    }
+
+    [Fact]
     public void Publica_un_evento_aunque_no_haya_resuelto()
     {
         var (copiloto, reconocedor, _, _) = Armar();
@@ -112,6 +126,16 @@ public class CopilotoDeVozTests
         copiloto.Publicado += (_, e) => capturado = e;
         reconocedor.EmitirFallo("ruido");
         Assert.False(capturado!.Resuelta);
+    }
+
+    [Fact]
+    public void No_publica_codigo_de_accion_cuando_no_resuelve()
+    {
+        var (copiloto, reconocedor, _, _) = Armar();
+        EventoDeCopiloto? capturado = null;
+        copiloto.Publicado += (_, e) => capturado = e;
+        reconocedor.EmitirFallo("ruido");
+        Assert.Equal("", capturado!.Accion);
     }
 
     [Fact]
