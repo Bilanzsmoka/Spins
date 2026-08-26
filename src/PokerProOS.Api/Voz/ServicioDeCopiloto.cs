@@ -25,7 +25,20 @@ public sealed class ServicioDeCopiloto(
     IServiceScopeFactory fabricaDeAlcances,
     ILogger<ServicioDeCopiloto> registro) : BackgroundService
 {
+    private IReconocedorDeVoz? _reconocedor;
+
+    /// <summary>
+    /// El motor arrancó bien y está disponible. No dice si el usuario lo
+    /// tiene encendido en este momento: para eso está <see cref="Activo"/>.
+    /// </summary>
     public bool Escuchando { get; private set; }
+
+    /// <summary>
+    /// El usuario tiene el copiloto encendido. Se apaga entre sesiones para
+    /// que la aplicación no conteste sola mientras no está jugando.
+    /// </summary>
+    public bool Activo { get; private set; }
+
     public string? Falla { get; private set; }
 
     /// <summary>
@@ -55,16 +68,45 @@ public sealed class ServicioDeCopiloto(
                 registro.LogError(ex, "Falló la síntesis de voz al hablar una respuesta.");
             };
             reconocedor.ComenzarEscuchaContinua();
+            _reconocedor = reconocedor;
             Escuchando = true;
+            Activo = true;
             registro.LogInformation("Copiloto de voz escuchando.");
         }
         catch (Exception ex)
         {
             Falla = ex.Message;
             Escuchando = false;
+            Activo = false;
             registro.LogError(ex, "No se pudo iniciar el copiloto de voz. La aplicación sigue sin voz.");
         }
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Enciende la escucha. Devuelve false si el motor nunca arrancó, en cuyo
+    /// caso no hay nada que encender y <see cref="Falla"/> dice por qué.
+    /// </summary>
+    public bool Encender()
+    {
+        if (_reconocedor is null) return false;
+        _reconocedor.Reanudar();
+        Activo = true;
+        registro.LogInformation("Copiloto encendido.");
+        return true;
+    }
+
+    /// <summary>
+    /// Apaga la escucha sin desmontar el motor: encender de nuevo es
+    /// inmediato, sin recompilar la gramática.
+    /// </summary>
+    public bool Apagar()
+    {
+        if (_reconocedor is null) return false;
+        _reconocedor.Pausar();
+        Activo = false;
+        registro.LogInformation("Copiloto apagado.");
+        return true;
     }
 
     /// <summary>

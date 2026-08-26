@@ -62,8 +62,16 @@ export interface EventoDeVoz {
 }
 
 export interface EstadoDeVoz {
+  /** El motor arrancó bien. No dice si está encendido ahora. */
   escuchando: boolean
+  /** El usuario lo tiene encendido en este momento. */
+  activo: boolean
   falla: string | null
   fallaAlHablar: string | null
   ultimaFrase: string | null
+}
+
+/** Un evento de voz con la hora en que llegó, para el historial escrito. */
+export interface ConsultaRegistrada extends EventoDeVoz {
+  hora: string
 }

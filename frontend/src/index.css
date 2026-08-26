@@ -18,7 +18,6 @@ body {
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
-.pagina { padding: 20px; }
 
 .selectores { display: flex; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
 .selectores label {
@@ -57,24 +56,132 @@ body {
 .leyenda-item i { width: 14px; height: 14px; border-radius: 3px; }
 .leyenda-item b { color: var(--apagado); font-weight: 700; }
 
-.estado-voz {
-  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-  padding: 10px 12px; margin-bottom: 14px;
-  background: var(--panel); border: 1px solid var(--borde); border-radius: 8px;
-}
-.indicador {
-  padding: 4px 10px; border-radius: 999px;
-  background: var(--panel-2); color: var(--apagado);
-  font-size: 12px; font-weight: 800;
-}
-.indicador-activo { background: #123629; color: #9ff0c8; }
-.aviso-voz { color: #d99a5b; font-size: 12px; font-weight: 700; }
-.frase-cruda { color: var(--apagado); font-style: italic; }
-.mano-interpretada { font-size: 18px; letter-spacing: .04em; }
-.respuesta { font-weight: 700; }
 
 .aviso-problemas {
   padding: 12px; margin-bottom: 14px;
   border: 1px solid #7a4a2a; border-radius: 8px; background: #2a1b12;
 }
 .aviso-problemas ul { margin: 8px 0 0; padding-left: 18px; color: var(--apagado); }
+
+/* ---------- Armazon: menu lateral + contenido ---------- */
+
+.aplicacion { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+.barra-lateral {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--borde); background: #11161c;
+  padding: 18px 14px;
+}
+.marca { display: grid; gap: 2px; padding: 0 6px 18px; }
+.marca strong { font-size: 16px; letter-spacing: .02em; }
+.marca span { color: var(--apagado); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+
+.menu { display: grid; gap: 4px; }
+.menu-item {
+  display: grid; gap: 2px; text-align: left;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--apagado); cursor: pointer; font: inherit;
+}
+.menu-item:hover:not(:disabled) { background: var(--panel); color: var(--texto); }
+.menu-item:disabled { opacity: .42; cursor: default; }
+.menu-item-activo {
+  background: var(--panel-2); color: var(--texto);
+  border-color: var(--borde);
+}
+.menu-etiqueta { font-size: 14px; font-weight: 700; }
+.menu-descripcion { font-size: 11px; color: var(--apagado); }
+
+.lateral-pie { margin-top: auto; padding-top: 18px; }
+
+.contenido { padding: 22px 26px; min-width: 0; }
+
+/* ---------- Control de voz ---------- */
+
+.control-voz {
+  display: grid; gap: 10px;
+  padding: 12px; border: 1px solid var(--borde);
+  border-radius: 9px; background: var(--panel);
+}
+.control-voz-cabecera { display: flex; align-items: center; gap: 8px; }
+.control-voz-estado { font-size: 12px; font-weight: 800; letter-spacing: .03em; }
+.punto { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.punto-activo { background: #43bf55; box-shadow: 0 0 0 3px rgba(67,191,85,.18); }
+.punto-apagado { background: var(--apagado); }
+.punto-sin-motor { background: #d99a5b; }
+
+.boton-voz {
+  padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
+}
+.boton-voz:hover:not(:disabled) { border-color: var(--acento); }
+.boton-voz:disabled { opacity: .45; cursor: default; }
+.boton-voz-activo { background: #123629; border-color: #2f6f4f; color: #b8f5d2; }
+
+.aviso-voz { color: #d99a5b; font-size: 12px; font-weight: 600; margin: 0; line-height: 1.4; }
+
+/* ---------- Entrenamiento ---------- */
+
+.entrenamiento-cabecera { margin-bottom: 16px; }
+.entrenamiento-cabecera h1 { margin: 0 0 3px; font-size: 21px; }
+.subtitulo { margin: 0; color: var(--apagado); font-size: 13px; }
+.cargando { color: var(--apagado); }
+
+.respuesta-actual {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; margin-bottom: 16px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.respuesta-actual-fallo { border-color: #7a4a2a; background: #2a1b12; }
+.respuesta-mano { font-size: 24px; font-weight: 800; letter-spacing: .04em; }
+.respuesta-accion {
+  padding: 5px 11px; border-radius: 6px;
+  font-size: 14px; font-weight: 800; letter-spacing: .03em;
+}
+.respuesta-detalle { color: var(--apagado); font-size: 13px; }
+
+.entrenamiento-cuerpo {
+  display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
+}
+.entrenamiento-tabla { flex: none; }
+
+/* ---------- Sugerencias escritas ---------- */
+
+.sugerencias {
+  flex: 1 1 300px; min-width: 280px; max-width: 420px;
+  border: 1px solid var(--borde); border-radius: 9px;
+  background: var(--panel); padding: 12px 14px;
+}
+.sugerencias-cabecera { display: flex; align-items: center; justify-content: space-between; }
+.sugerencias-cabecera h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--apagado); }
+.boton-tenue {
+  background: transparent; border: none; color: var(--apagado);
+  font: inherit; font-size: 12px; cursor: pointer; padding: 2px 4px;
+}
+.boton-tenue:hover { color: var(--texto); text-decoration: underline; }
+.sugerencias-vacio { color: var(--apagado); font-size: 13px; line-height: 1.5; }
+.sugerencias-vacio em { color: var(--texto); font-style: normal; }
+
+.sugerencias-lista {
+  list-style: none; margin: 10px 0 0; padding: 0;
+  display: grid; gap: 8px; max-height: 560px; overflow-y: auto;
+}
+.sugerencia {
+  padding: 8px 10px; border-radius: 7px;
+  background: var(--panel-2); border: 1px solid transparent;
+}
+.sugerencia-sin-resolver { border-color: #6a4326; }
+.sugerencia-linea { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sugerencia-mano { font-size: 15px; letter-spacing: .03em; }
+.sugerencia-accion { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 800; }
+.sugerencia-contexto { color: var(--apagado); font-size: 11px; }
+.sugerencia-fallo { color: #d99a5b; font-size: 13px; font-weight: 700; }
+.sugerencia-hora { margin-left: auto; color: var(--apagado); font-size: 11px; font-variant-numeric: tabular-nums; }
+.sugerencia-crudo { color: var(--apagado); font-size: 12px; font-style: italic; margin-top: 3px; }
+.sugerencia-respuesta { font-size: 12px; margin-top: 2px; }
+
+@media (max-width: 900px) {
+  .aplicacion { grid-template-columns: 1fr; }
+  .barra-lateral { border-right: none; border-bottom: 1px solid var(--borde); }
+}

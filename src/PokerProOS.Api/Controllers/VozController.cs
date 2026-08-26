@@ -20,10 +20,28 @@ public sealed class VozController(
     public IActionResult Estado() => Ok(new
     {
         escuchando = copiloto.Escuchando,
+        activo = copiloto.Activo,
         falla = copiloto.Falla,
         fallaAlHablar = copiloto.FallaAlHablar,
         ultimaFrase = canal.Ultimo?.TextoCrudo
     });
+
+    /// <summary>
+    /// Enciende la escucha. Se usa al empezar una sesión de juego.
+    /// </summary>
+    [HttpPost("encender")]
+    public IActionResult Encender() => copiloto.Encender()
+        ? Ok(new { activo = true })
+        : StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
+
+    /// <summary>
+    /// Apaga la escucha. Se usa al terminar de jugar, para que la aplicación
+    /// no conteste sola mientras no está en sesión.
+    /// </summary>
+    [HttpPost("apagar")]
+    public IActionResult Apagar() => copiloto.Apagar()
+        ? Ok(new { activo = false })
+        : StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
 
     [HttpGet("eventos")]
     public async Task Eventos(CancellationToken cancelacion)

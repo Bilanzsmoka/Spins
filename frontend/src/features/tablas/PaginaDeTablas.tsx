@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
-import { useEstadoDeVoz } from '../../core/hooks/useEstadoDeVoz'
-import { useEventosDeVoz } from '../../core/hooks/useEventosDeVoz'
-import type { SpotCompleto } from '../../core/models/catalogo.model'
+import type { ConsultaRegistrada, EventoDeVoz, SpotCompleto } from '../../core/models/catalogo.model'
 import { obtenerSpot } from '../../core/services/tablasApi'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
-import { EstadoDeVoz } from './EstadoDeVoz'
 import { Grilla } from './Grilla'
 import { Leyenda } from './Leyenda'
 import { Selectores } from './Selectores'
+import { Sugerencias } from './Sugerencias'
 
-export function PaginaDeTablas() {
+interface Props {
+  ultimo: EventoDeVoz | null
+  historial: ConsultaRegistrada[]
+  onLimpiarHistorial: () => void
+}
+
+export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial }: Props) {
   const { catalogo, error } = useCatalogo()
-  const { ultimo, conectado } = useEventosDeVoz()
-  const { estado } = useEstadoDeVoz()
 
   const [situacion, setSituacion] = useState('')
   const [stack, setStack] = useState('')
@@ -35,8 +37,7 @@ export function PaginaDeTablas() {
   }, [catalogo, situacion])
 
   // La voz manda sobre los selectores: si el dictado trajo stack o spot,
-  // la pantalla se mueve a la tabla que se acaba de consultar. Sincroniza
-  // con el stream SSE, otro sistema externo.
+  // la pantalla se mueve a la tabla que se acaba de consultar.
   useEffect(() => {
     if (!ultimo?.resuelta) return
     // oxlint-disable-next-line set-state-in-effect
@@ -67,7 +68,7 @@ export function PaginaDeTablas() {
   }, [situacion, stack, spot])
 
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
-  if (!catalogo) return <p>Cargando…</p>
+  if (!catalogo) return <p className="cargando">Cargando…</p>
 
   // El evento trae el codigo de accion (ALL-IN, CALL...): con eso alcanza
   // para colorear la respuesta con el mismo color que la celda, en vez de
@@ -75,18 +76,34 @@ export function PaginaDeTablas() {
   const accionRespondida = catalogo.acciones.find((a) => a.clave === ultimo?.accion)
 
   return (
-    <main className="pagina">
-      <h1>Tablas preflop</h1>
+    <div className="entrenamiento">
+      <header className="entrenamiento-cabecera">
+        <h1>Entrenamiento</h1>
+        <p className="subtitulo">Tablas preflop · dictá una mano y te la responde</p>
+      </header>
 
-      <EstadoDeVoz
-        escuchando={estado?.escuchando ?? conectado}
-        falla={estado?.falla ?? null}
-        fallaAlHablar={estado?.fallaAlHablar ?? null}
-        ultimaFrase={ultimo?.textoCrudo ?? estado?.ultimaFrase ?? null}
-        manoInterpretada={ultimo?.manoInterpretada || null}
-        respuesta={ultimo?.respuesta ?? null}
-        colorRespuesta={accionRespondida?.color ?? null}
-      />
+      {/* La ultima respuesta, grande. Lo hablado se pierde; esto queda a la
+          vista mientras se juega la mano. */}
+      {ultimo && (
+        <div className={`respuesta-actual${ultimo.resuelta ? '' : ' respuesta-actual-fallo'}`}>
+          {ultimo.resuelta ? (
+            <>
+              <span className="respuesta-mano">{ultimo.manoInterpretada}</span>
+              <span
+                className="respuesta-accion"
+                style={accionRespondida
+                  ? { background: accionRespondida.color, color: accionRespondida.colorTexto }
+                  : undefined}
+              >
+                {accionRespondida?.etiqueta ?? ultimo.accion}
+              </span>
+              <span className="respuesta-detalle">{ultimo.respuesta}</span>
+            </>
+          ) : (
+            <span className="respuesta-detalle">No entendí · «{ultimo.textoCrudo}»</span>
+          )}
+        </div>
+      )}
 
       <AvisoDeProblemas problemas={catalogo.problemas} />
 
@@ -100,16 +117,26 @@ export function PaginaDeTablas() {
         onSpot={setSpot}
       />
 
-      {datos && (
-        <>
-          <Grilla
-            spot={datos}
-            acciones={catalogo.acciones}
-            manoResaltada={ultimo?.manoInterpretada || null}
-          />
-          <Leyenda acciones={catalogo.acciones} conteos={datos.conteos} />
-        </>
-      )}
-    </main>
+      <div className="entrenamiento-cuerpo">
+        <div className="entrenamiento-tabla">
+          {datos && (
+            <>
+              <Grilla
+                spot={datos}
+                acciones={catalogo.acciones}
+                manoResaltada={ultimo?.manoInterpretada || null}
+              />
+              <Leyenda acciones={catalogo.acciones} conteos={datos.conteos} />
+            </>
+          )}
+        </div>
+
+        <Sugerencias
+          historial={historial}
+          acciones={catalogo.acciones}
+          onLimpiar={onLimpiarHistorial}
+        />
+      </div>
+    </div>
   )
 }
