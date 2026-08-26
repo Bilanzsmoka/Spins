@@ -6,6 +6,7 @@ import { AvisoDeProblemas } from './AvisoDeProblemas'
 import { ControlDeVoz, type PropsDeVoz } from './ControlDeVoz'
 import { Grilla } from './Grilla'
 import { Leyenda } from './Leyenda'
+import { RepasoDeTablas } from './RepasoDeTablas'
 import { Selectores } from './Selectores'
 import { Sugerencias } from './Sugerencias'
 
@@ -24,6 +25,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   const [stack, setStack] = useState('')
   const [spot, setSpot] = useState('')
   const [datos, setDatos] = useState<SpotCompleto | null>(null)
+  const [repasando, setRepasando] = useState(false)
 
   // Seleccion inicial: la primera de cada nivel, tomada del catalogo.
   // Sincroniza con un sistema externo (el fetch del catalogo), que es
@@ -73,6 +75,14 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
   if (!catalogo) return <p className="cargando">Cargando…</p>
 
+  if (repasando) return (
+    <RepasoDeTablas
+      catalogo={catalogo}
+      acciones={catalogo.acciones}
+      onSalir={() => setRepasando(false)}
+    />
+  )
+
   // El evento trae el codigo de accion (ALL-IN, CALL...): con eso alcanza
   // para colorear la respuesta con el mismo color que la celda, en vez de
   // adivinarlo leyendo la frase hablada.
@@ -85,7 +95,14 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
           <h1>Entrenamiento</h1>
           <p className="subtitulo">Tablas preflop · dictá una mano y te la responde</p>
         </div>
-        <ControlDeVoz {...voz} />
+        <div className="cabecera-acciones">
+          {/* El calentamiento previo a la sesion: pasar todas las tablas antes
+              de abrir la sala, no consultarlas en medio de una mano. */}
+          <button type="button" className="boton-repaso" onClick={() => setRepasando(true)}>
+            Repasar todas
+          </button>
+          <ControlDeVoz {...voz} />
+        </div>
       </header>
 
       {/* La ultima respuesta, grande. Lo hablado se pierde; esto queda a la

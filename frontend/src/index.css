@@ -476,3 +476,30 @@ kbd {
 .cruce-cifra { width: 42px; text-align: right; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .cruce-aviso { margin: 9px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.45; }
 .cruce-pie { margin: 14px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.5; }
+
+/* ---------- Repaso previo a la sesion ---------- */
+
+.cabecera-acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.boton-repaso {
+  padding: 9px 14px; border-radius: 8px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
+}
+.boton-repaso:hover { border-color: var(--acento); }
+
+.repaso { max-width: 860px; }
+.repaso-cabecera {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 18px; margin-bottom: 14px;
+}
+.repaso-cabecera h1 { margin: 2px 0 0; font-size: 21px; }
+.eyebrow {
+  margin: 0; color: var(--acento); font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.repaso-avance { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.repaso-avance .barra { flex: 1; max-width: 420px; }
+.repaso-cifra { color: var(--apagado); font-size: 12px; font-variant-numeric: tabular-nums; }
+.repaso-controles { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+.repaso-controles .boton-tenue:disabled { opacity: .35; cursor: default; }
+.repaso-nota { margin: 12px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.5; }
