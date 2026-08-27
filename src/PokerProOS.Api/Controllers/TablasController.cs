@@ -4,12 +4,12 @@ using PokerProOS.Domain.Tablas;
 
 namespace PokerProOS.Api.Controllers;
 
-[ApiController]
-[Route("api/tablas")]
 public record ParteEnviada(string Accion, int Frecuencia);
 
 public record CeldaEnviada(string? Accion, List<ParteEnviada>? Mix);
 
+[ApiController]
+[Route("api/tablas")]
 public sealed class TablasController(
     ICatalogoDeTablas catalogo,
     IRegistroDeAcciones acciones,

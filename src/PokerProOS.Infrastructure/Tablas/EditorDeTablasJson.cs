@@ -39,9 +39,10 @@ public sealed class EditorDeTablasJson(
         await _turno.WaitAsync(ct);
         try
         {
-            var archivo = UbicarArchivo(edicion.Situacion);
+            var archivo = UbicarArchivo(edicion.Situacion, edicion.ClaveDeStack);
             if (archivo is null)
-                return new ResultadoDeEdicion(false, $"No encontré el archivo de {edicion.Situacion}.", []);
+                return new ResultadoDeEdicion(false,
+                    $"No encontré ningún archivo con {edicion.Situacion} / {edicion.ClaveDeStack}.", []);
 
             var raiz = JsonNode.Parse(await File.ReadAllTextAsync(archivo, ct))!.AsObject();
             var spot = UbicarSpot(raiz, edicion);
@@ -69,13 +70,24 @@ public sealed class EditorDeTablasJson(
         }
     }
 
-    private string? UbicarArchivo(string situacion)
+    /// <summary>
+    /// Busca por situación Y stack, no solo por situación: una misma
+    /// situación puede estar repartida en varios archivos —las once tablas
+    /// originales del proyecto son un archivo por stack— y quedarse con el
+    /// primero que coincida llevaría a editar el archivo equivocado.
+    /// </summary>
+    private string? UbicarArchivo(string situacion, string claveDeStack)
         => Directory.GetFiles(directorio, "*.json").FirstOrDefault(archivo =>
         {
             try
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(archivo));
-                return doc.RootElement.GetProperty("situation").GetProperty("key").GetString() == situacion;
+                var raiz = doc.RootElement;
+                if (raiz.GetProperty("situation").GetProperty("key").GetString() != situacion)
+                    return false;
+                return raiz.TryGetProperty("stacks", out var stacks)
+                    && stacks.EnumerateArray().Any(s =>
+                        s.TryGetProperty("key", out var k) && k.GetString() == claveDeStack);
             }
             catch { return false; }
         });
