@@ -8,12 +8,15 @@ public record ParteEnviada(string Accion, int Frecuencia);
 
 public record CeldaEnviada(string? Accion, List<ParteEnviada>? Mix);
 
+public record TipEnviado(string? Texto);
+
 [ApiController]
 [Route("api/tablas")]
 public sealed class TablasController(
     ICatalogoDeTablas catalogo,
     IRegistroDeAcciones acciones,
-    IEditorDeTablas editor) : ControllerBase
+    IEditorDeTablas editor,
+    AnalizadorDeMemoria analizador) : ControllerBase
 {
     /// <summary>
     /// Cambia lo que la tabla prescribe para una mano. Escribe en el JSON,
@@ -60,5 +63,37 @@ public sealed class TablasController(
         return encontrado is null
             ? NotFound(new { error = $"No existe el spot {spot} en {stack}." })
             : Ok(new { encontrado.Clave, encontrado.Etiqueta, encontrado.Celdas, encontrado.Conteos });
+    }
+
+    /// <summary>
+    /// Todo lo que hay que saber de una mano en un spot. Existe aparte del
+    /// evento de voz para poder estudiar tocando la grilla, sin micrófono.
+    /// </summary>
+    [HttpGet("ficha")]
+    public IActionResult Ficha(
+        [FromQuery] string situacion, [FromQuery] string stack,
+        [FromQuery] string spot, [FromQuery] string mano)
+    {
+        var ficha = analizador.Analizar(situacion, stack, spot, mano);
+        return ficha is null
+            ? NotFound(new { error = $"No tengo ficha de {mano} en {stack}/{spot}." })
+            : Ok(ficha);
+    }
+
+    /// <summary>
+    /// El porqué escrito a mano. Como la edición de celda, escribe el JSON —la
+    /// fuente de verdad— y recarga el catálogo en caliente.
+    /// </summary>
+    [HttpPut("{situacion}/{stack}/{spot}/tip")]
+    public async Task<IActionResult> EditarTip(
+        string situacion, string stack, string spot,
+        [FromBody] TipEnviado enviado, CancellationToken ct)
+    {
+        var resultado = await editor.EditarTipAsync(
+            new EdicionDeTip(situacion, stack, spot, enviado.Texto), ct);
+
+        return resultado.Exito
+            ? Ok(new { problemas = resultado.Problemas })
+            : BadRequest(new { error = resultado.Error });
     }
 }
