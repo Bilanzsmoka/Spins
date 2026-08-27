@@ -89,6 +89,11 @@ vacío. Los 13 archivos actuales siguen cargando sin tocarlos.
 Es la única pieza que se desactualiza al cambiar manos, y por eso la única que
 escribe el usuario.
 
+Se edita desde la pantalla, no abriendo el JSON a mano: la ficha muestra el tip
+con un botón para editarlo, y guardar reusa `IEditorDeTablas`, que ya escribe el
+archivo y recarga el catálogo en caliente. El JSON sigue siendo la fuente de
+verdad; la pantalla es sólo otra forma de escribirlo.
+
 ### 4. API
 
 `ResultadoDeConsulta` gana `Ficha`, y el evento SSE de `/api/voz/eventos` la
@@ -96,6 +101,10 @@ lleva: al dictar, la ficha aparece sola.
 
 Nuevo `GET /api/tablas/ficha?situacion=&stack=&spot=&mano=`, para tocar cualquier
 celda de la grilla y leer su ficha sin dictar — estudiar sin micrófono.
+
+Nuevo `PUT /api/tablas/{situacion}/{stack}/{spot}/tip`, con el texto en el cuerpo.
+`IEditorDeTablas` gana `EditarTipAsync`, hermano de `EditarAsync`: misma escritura
+al JSON y misma recarga en caliente. Texto vacío borra la clave `tip` del archivo.
 
 ### 5. Voz
 
@@ -109,6 +118,11 @@ conserva porque la pantalla lo usa para resaltar, pero no se habla más.
 `Sugerencias`. Se llena con el evento de voz y al tocar una celda de la grilla.
 Orden de lectura: acción y su peso de baraja → ancla → umbral (barra de stacks) →
 familias → la línea → tip.
+
+El tip es editable ahí mismo: un botón lo convierte en un campo de texto y
+guardar llama al `PUT`. Un spot sin tip muestra el botón igual, para poder
+escribir el primero. Las otras cinco piezas son de sólo lectura: se cambian
+cambiando la tabla.
 
 ## Qué NO se construye
 
@@ -133,7 +147,8 @@ de los combos de las 169 manos da `CombosTotales`.
 - Peso: los porcentajes de las acciones de un spot suman 100.
 
 **Infrastructure.** Un archivo con `"tip"` vacío es un `ProblemaDeTabla`; uno sin
-la clave carga sin problema.
+la clave carga sin problema. `EditarTipAsync` escribe la clave en el archivo del
+spot correcto y deja el resto del JSON intacto; con texto vacío la borra.
 
 ## Fuentes
 
