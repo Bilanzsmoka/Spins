@@ -187,7 +187,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
                   />
                 )
               })()}
-              <Leyenda acciones={catalogo.acciones} conteos={datos.conteos} />
+              <Leyenda acciones={catalogo.acciones} spot={datos} />
             </>
           )}
         </div>

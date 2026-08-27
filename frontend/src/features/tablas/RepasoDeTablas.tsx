@@ -127,7 +127,7 @@ export function RepasoDeTablas({ catalogo, acciones, onSalir }: Props) {
       {datos ? (
         <>
           <Grilla spot={datos} acciones={acciones} manoResaltada={null} />
-          <Leyenda acciones={acciones} conteos={datos.conteos} />
+          <Leyenda acciones={acciones} spot={datos} />
         </>
       ) : (
         <p className="cargando">Cargando…</p>
