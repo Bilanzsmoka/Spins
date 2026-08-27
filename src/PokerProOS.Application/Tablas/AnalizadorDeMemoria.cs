@@ -25,7 +25,7 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             Umbral(situacion, claveDeStack, claveDeSpot, celda.Mano),
             Familias(spot, celda.Mano),
             Linea(situacion, claveDeStack, claveDeSpot, celda.Mano),
-            null);
+            spot.Tip);
     }
 
     /// <summary>

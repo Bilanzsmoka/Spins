@@ -18,6 +18,10 @@ public class AnalizadorDeMemoriaTests
         => Analizador().Analizar(situacion, stack, spot, mano)!;
 
     [Fact]
+    public void Sin_tip_declarado_la_ficha_no_trae_tip()
+        => Assert.Null(Ficha("A8o").Tip);
+
+    [Fact]
     public void Sin_ficha_cuando_el_spot_no_existe()
         => Assert.Null(Analizador().Analizar("HU_SB_OR_FISH", "17-18bb", "NO_EXISTE", "A8o"));
 

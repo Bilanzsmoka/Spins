@@ -172,6 +172,9 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
         return new SpotDeTabla(
             spot.GetProperty("key").GetString()!,
             spot.GetProperty("label").GetString()!,
-            celdas);
+            celdas,
+            spot.TryGetProperty("tip", out var tip) && tip.ValueKind == JsonValueKind.String
+                ? tip.GetString()
+                : null);
     }
 }

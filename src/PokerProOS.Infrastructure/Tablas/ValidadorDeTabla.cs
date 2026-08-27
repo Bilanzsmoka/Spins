@@ -78,6 +78,13 @@ public sealed class ValidadorDeTabla(IRegistroDeAcciones registro)
         if (claveSpotDeclarada is null)
             Anotar("El spot no declara 'key'.");
 
+        // El tip es opcional, pero declararlo vacío es casi siempre un guardado
+        // a medias: mejor que se vea en pantalla a que se pierda en silencio.
+        if (spot.TryGetProperty("tip", out var tip)
+            && (tip.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(tip.GetString())))
+            Anotar("El 'tip' del spot está vacío. Sacá la clave o escribí algo.");
+
         try
         {
             ValidarAcciones();

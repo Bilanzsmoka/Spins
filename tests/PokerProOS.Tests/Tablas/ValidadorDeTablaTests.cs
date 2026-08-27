@@ -1,3 +1,4 @@
+using PokerProOS.Application.Tablas;
 using PokerProOS.Infrastructure.Tablas;
 
 namespace PokerProOS.Tests.Tablas;
@@ -167,6 +168,34 @@ public class ValidadorDeTablaTests : IDisposable
         Assert.NotEmpty(resultado.Problemas);
     }
 
+    [Fact]
+    public void Un_tip_vacio_es_un_problema()
+    {
+        var problemas = ValidarJson("""
+        {
+          "situation": { "key": "X", "label": "X" },
+          "stacks": [{ "key": "10bb", "minBB": 10, "maxBB": 10, "spots": [
+            { "key": "S", "label": "S", "tip": "   ", "actions": { "FOLD": "REST" } }
+          ]}]
+        }
+        """);
+        Assert.Contains(problemas, p => p.Mensaje.Contains("tip"));
+    }
+
+    [Fact]
+    public void Un_spot_sin_tip_no_es_un_problema()
+    {
+        var problemas = ValidarJson("""
+        {
+          "situation": { "key": "X", "label": "X" },
+          "stacks": [{ "key": "10bb", "minBB": 10, "maxBB": 10, "spots": [
+            { "key": "S", "label": "S", "actions": { "FOLD": "REST" } }
+          ]}]
+        }
+        """);
+        Assert.DoesNotContain(problemas, p => p.Mensaje.Contains("tip"));
+    }
+
     private string Fabricar(string json)
     {
         var ruta = Path.Combine(Path.GetTempPath(), $"tabla-{Guid.NewGuid():N}.json");
@@ -174,6 +203,8 @@ public class ValidadorDeTablaTests : IDisposable
         _temporales.Add(ruta);
         return ruta;
     }
+
+    private IReadOnlyList<ProblemaDeTabla> ValidarJson(string json) => _validador.Validar(Fabricar(json)).Problemas;
 
     public void Dispose()
     {

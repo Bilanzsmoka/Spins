@@ -2,7 +2,15 @@ using PokerProOS.Domain.Tablas;
 
 namespace PokerProOS.Application.Tablas;
 
-public record SpotDeTabla(string Clave, string Etiqueta, IReadOnlyList<CeldaDeTabla> Celdas)
+public record SpotDeTabla(
+    string Clave,
+    string Etiqueta,
+    IReadOnlyList<CeldaDeTabla> Celdas,
+    /// <summary>
+    /// El porqué escrito a mano: lo único de la ficha que ningún cálculo puede
+    /// deducir de la tabla. Nulo si el spot no lo declara.
+    /// </summary>
+    string? Tip = null)
 {
     private readonly Dictionary<string, string> _porMano =
         Celdas.ToDictionary(c => c.Mano, c => c.Accion, StringComparer.OrdinalIgnoreCase);
