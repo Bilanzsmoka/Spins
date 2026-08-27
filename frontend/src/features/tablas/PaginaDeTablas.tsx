@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type {
   ConsultaRegistrada, EventoDeVoz, ParteDeMix, SpotCompleto,
@@ -86,6 +86,15 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
     return () => { cancelado = true }
   }, [situacion, stack, spot, recarga])
 
+  // El evento de voz ya trae la ficha calculada (CopilotoDeVoz la manda en
+  // el SSE): si lo que hay en pantalla es justo lo que ese evento resolvió,
+  // usarla ahorra calcularla dos veces y un viaje de red. Se sirve a lo sumo
+  // una vez por evento — la referencia guardada acá es la marca de "ya la
+  // usé" — para que un efecto que corre por otra razón (tocar una celda a
+  // mano, o `recarga` tras guardar un tip o una celda) no siga sirviendo una
+  // ficha vieja sólo porque los campos coinciden por casualidad.
+  const fichaDeVozUsadaRef = useRef<EventoDeVoz | null>(null)
+
   // La ficha se pide al backend en vez de derivarse de `datos`: las piezas que
   // la arman (umbral, familias) miran otros stacks y otros spots, que la
   // pantalla no tiene cargados.
@@ -102,12 +111,26 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
       setFicha(null)
       return
     }
+
+    if (
+      ultimo?.ficha
+      && ultimo !== fichaDeVozUsadaRef.current
+      && ultimo.situacion === situacion
+      && ultimo.claveDeStack === stack
+      && ultimo.spot === spot
+      && ultimo.manoInterpretada === manoAbierta
+    ) {
+      fichaDeVozUsadaRef.current = ultimo
+      setFicha(ultimo.ficha)
+      return
+    }
+
     let cancelado = false
     obtenerFicha(situacion, stack, spot, manoAbierta)
       .then((f) => { if (!cancelado) setFicha(f) })
       .catch(() => { if (!cancelado) setFicha(null) })
     return () => { cancelado = true }
-  }, [situacion, stack, spot, manoAbierta, recarga])
+  }, [situacion, stack, spot, manoAbierta, recarga, ultimo])
 
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
   if (!catalogo) return <p className="cargando">Cargando…</p>
