@@ -114,15 +114,24 @@ conserva porque la pantalla lo usa para resaltar, pero no se habla más.
 
 ### 6. Pantalla
 
-`FichaDeMemoria.tsx`, en la columna derecha de `entrenamiento-cuerpo`, arriba de
-`Sugerencias`. Se llena con el evento de voz y al tocar una celda de la grilla.
-Orden de lectura: acción y su peso de baraja → ancla → umbral (barra de stacks) →
-familias → la línea → tip.
+Un **popup** por mano, no un panel al costado: `FichaDeMemoria.tsx` se abre
+centrado sobre un fondo oscurecido al tocar una celda de la grilla o al dictar
+una mano. Se cierra con el botón, con Escape y tocando el fondo.
 
-El tip es editable ahí mismo: un botón lo convierte en un campo de texto y
-guardar llama al `PUT`. Un spot sin tip muestra el botón igual, para poder
-escribir el primero. Las otras cinco piezas son de sólo lectura: se cambian
-cambiando la tabla.
+Cabecera: la casilla pintada con el color exacto de su acción —el mismo cuadro
+que en la grilla, para que el ojo lo reconozca—, la mano en grande, la etiqueta
+de la acción y su peso de baraja.
+
+Cuerpo, en orden de lectura: ancla → umbral (barra de stacks) → familias → la
+línea → tip.
+
+El popup es también el único lugar donde se configura esa mano. `EditorDeCelda`
+deja de renderizarse debajo de la grilla y pasa adentro del popup: cuando
+"Corregir tabla" está activo, sus controles de acción y mix aparecen bajo la
+ficha. El tip se edita ahí mismo —un botón lo convierte en campo de texto y
+guardar llama al `PUT`— y un spot sin tip muestra el botón igual, para escribir
+el primero. Las otras cinco piezas son de sólo lectura: se cambian cambiando la
+tabla.
 
 ## Qué NO se construye
 
@@ -131,6 +140,7 @@ cambiando la tabla.
 - No se muestra la mano en todos los stacks como tabla: el umbral ya la resume.
 - La voz no lee la ficha, ni bajo pedido. No se toca la gramática SAPI.
 - No se muestra el porcentaje por casillas junto al de combos.
+- La ficha no vive como panel fijo al costado de la grilla: es un popup.
 
 ## Pruebas
 
