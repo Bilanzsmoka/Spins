@@ -44,13 +44,17 @@ var vocabulario = CargarRegistroOTerminar(() =>
     RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
 var habitos = CargarRegistroOTerminar(() =>
     RegistroDeHabitosJson.Cargar(Path.Combine(carpetaDatos, "registro", "habitos.json")));
-var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
-    .CargarDirectorio(Path.Combine(carpetaDatos, "seed-data"));
+var carpetaDeTablas = Path.Combine(carpetaDatos, "seed-data");
+var cargador = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones);
+// Vivo: el editor reescribe el JSON y reemplaza el catálogo sin reiniciar.
+var catalogo = new CatalogoVivo(cargador.CargarDirectorio(carpetaDeTablas));
 
 builder.Services.AddSingleton(acciones);
 builder.Services.AddSingleton(vocabulario);
 builder.Services.AddSingleton(habitos);
-builder.Services.AddSingleton(catalogo);
+builder.Services.AddSingleton<ICatalogoDeTablas>(catalogo);
+builder.Services.AddSingleton<IEditorDeTablas>(
+    new EditorDeTablasJson(carpetaDeTablas, catalogo, cargador));
 builder.Services.AddSingleton(new OpcionesDeVoz
 {
     Cultura = builder.Configuration["Voz:Cultura"] ?? "es-ES",

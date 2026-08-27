@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
-import type { ConsultaRegistrada, EventoDeVoz, SpotCompleto } from '../../core/models/catalogo.model'
-import { obtenerSpot } from '../../core/services/tablasApi'
+import type {
+  ConsultaRegistrada, EventoDeVoz, ParteDeMix, SpotCompleto,
+} from '../../core/models/catalogo.model'
+import { editarCelda, obtenerSpot } from '../../core/services/tablasApi'
+import { EditorDeCelda } from './EditorDeCelda'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
 import { ControlDeVoz, type PropsDeVoz } from './ControlDeVoz'
 import { Grilla } from './Grilla'
@@ -26,6 +29,11 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   const [spot, setSpot] = useState('')
   const [datos, setDatos] = useState<SpotCompleto | null>(null)
   const [repasando, setRepasando] = useState(false)
+  const [editando, setEditando] = useState(false)
+  const [manoEnEdicion, setManoEnEdicion] = useState<string | null>(null)
+  const [guardando, setGuardando] = useState(false)
+  const [errorAlEditar, setErrorAlEditar] = useState<string | null>(null)
+  const [recarga, setRecarga] = useState(0)
 
   // Seleccion inicial: la primera de cada nivel, tomada del catalogo.
   // Sincroniza con un sistema externo (el fetch del catalogo), que es
@@ -70,7 +78,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
       .then((d) => { if (!cancelado) setDatos(d) })
       .catch(() => { if (!cancelado) setDatos(null) })
     return () => { cancelado = true }
-  }, [situacion, stack, spot])
+  }, [situacion, stack, spot, recarga])
 
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
   if (!catalogo) return <p className="cargando">Cargando…</p>
@@ -100,6 +108,13 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
               de abrir la sala, no consultarlas en medio de una mano. */}
           <button type="button" className="boton-repaso" onClick={() => setRepasando(true)}>
             Repasar todas
+          </button>
+          <button
+            type="button"
+            className={`boton-repaso${editando ? ' boton-editando' : ''}`}
+            onClick={() => { setEditando(!editando); setManoEnEdicion(null) }}
+          >
+            {editando ? 'Terminar edicion' : 'Corregir tabla'}
           </button>
           <ControlDeVoz {...voz} />
         </div>
@@ -148,7 +163,30 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
                 spot={datos}
                 acciones={catalogo.acciones}
                 manoResaltada={ultimo?.manoInterpretada || null}
+                onTocarCelda={editando ? setManoEnEdicion : undefined}
               />
+              {errorAlEditar && <p className="error">{errorAlEditar}</p>}
+              {manoEnEdicion && (() => {
+                const celda = datos.celdas.find((c) => c.mano === manoEnEdicion)
+                if (!celda) return null
+                return (
+                  <EditorDeCelda
+                    celda={celda}
+                    acciones={catalogo.acciones}
+                    guardando={guardando}
+                    onCerrar={() => setManoEnEdicion(null)}
+                    onGuardar={(accion: string | null, mix: ParteDeMix[] | null) => {
+                      setGuardando(true)
+                      setErrorAlEditar(null)
+                      editarCelda(situacion, stack, spot, manoEnEdicion, { accion, mix })
+                        .then(() => { setManoEnEdicion(null); setRecarga((n) => n + 1) })
+                        .catch((e: unknown) =>
+                          setErrorAlEditar(e instanceof Error ? e.message : 'No pude guardar'))
+                        .finally(() => setGuardando(false))
+                    }}
+                  />
+                )
+              })()}
               <Leyenda acciones={catalogo.acciones} conteos={datos.conteos} />
             </>
           )}

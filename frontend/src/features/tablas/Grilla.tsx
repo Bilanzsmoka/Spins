@@ -7,6 +7,8 @@ interface Props {
   spot: SpotCompleto
   acciones: AccionDefinida[]
   manoResaltada: string | null
+  /** En modo edicion, tocar una celda la abre para corregir. */
+  onTocarCelda?: (mano: string) => void
 }
 
 function etiqueta(fila: number, columna: number): string {
@@ -16,7 +18,7 @@ function etiqueta(fila: number, columna: number): string {
   return fila < columna ? `${alto}${bajo}s` : `${alto}${bajo}o`
 }
 
-export function Grilla({ spot, acciones, manoResaltada }: Props) {
+export function Grilla({ spot, acciones, manoResaltada, onTocarCelda }: Props) {
   const porMano = new Map(spot.celdas.map((c) => [c.mano, c]))
   const porClave = new Map(acciones.map((a) => [a.clave, a]))
 
@@ -40,6 +42,7 @@ export function Grilla({ spot, acciones, manoResaltada }: Props) {
                 mix={celda?.mix ?? null}
                 acciones={acciones}
                 resaltada={mano === manoResaltada}
+                onTocar={onTocarCelda}
               />
             )
           })}

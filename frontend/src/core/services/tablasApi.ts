@@ -1,6 +1,6 @@
 import type {
   Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada, EstadoDeVoz,
-  HabitoDefinido, ProgresoDeHabitos, SpotCompleto,
+  HabitoDefinido, ParteDeMix, ProgresoDeHabitos, SpotCompleto,
 } from '../models/catalogo.model'
 
 async function pedir<T>(url: string): Promise<T> {
@@ -30,6 +30,20 @@ export const apagarVoz = () => accionar('/api/voz/apagar')
 /* ---------- Diario ---------- */
 
 export const obtenerHabitos = () => pedir<HabitoDefinido[]>('/api/diario/habitos')
+
+export async function editarCelda(
+  situacion: string, stack: string, spot: string, mano: string,
+  cuerpo: { accion: string | null; mix: ParteDeMix[] | null },
+): Promise<void> {
+  const respuesta = await fetch(
+    `/api/tablas/${situacion}/${stack}/${spot}/${mano}`,
+    { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) },
+  )
+  if (!respuesta.ok) {
+    const error = await respuesta.json().catch(() => null) as { error?: string } | null
+    throw new Error(error?.error ?? `${respuesta.status} ${respuesta.statusText}`)
+  }
+}
 
 export const obtenerProgreso = (dias = 30) =>
   pedir<ProgresoDeHabitos>(`/api/diario/progreso?dias=${dias}`)

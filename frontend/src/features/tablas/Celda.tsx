@@ -6,6 +6,7 @@ interface Props {
   mix: ParteDeMix[] | null
   acciones: AccionDefinida[]
   resaltada: boolean
+  onTocar?: (mano: string) => void
 }
 
 /**
@@ -16,7 +17,7 @@ interface Props {
  * en proporción a sus frecuencias — que es como la muestran las tablas de las
  * que salen estos datos, y por lo tanto lo que el usuario ya reconoce.
  */
-export function Celda({ mano, accion, mix, acciones, resaltada }: Props) {
+export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props) {
   const colorDe = (clave: string) =>
     acciones.find((a) => a.clave === clave)?.color ?? 'var(--desconocido)'
 
@@ -30,14 +31,23 @@ export function Celda({ mano, accion, mix, acciones, resaltada }: Props) {
     ? `${mano}: ${mix.map((p) => `${p.frecuencia}% ${p.accion}`).join(' · ')}`
     : `${mano}: ${accion?.etiqueta ?? 'desconocida'}`
 
+  const clases = `celda${resaltada ? ' celda-resaltada' : ''}${esMix ? ' celda-mixta' : ''}`
+  const estilo = { background: fondo, color: accion?.colorTexto ?? 'var(--texto)' }
+
+  // Solo es interactiva cuando hay editor: una grilla de 169 botones sin nada
+  // que hacer estorba al navegar con teclado.
+  if (!onTocar) return <div className={clases} style={estilo} title={titulo}>{mano}</div>
+
   return (
-    <div
-      className={`celda${resaltada ? ' celda-resaltada' : ''}${esMix ? ' celda-mixta' : ''}`}
-      style={{ background: fondo, color: accion?.colorTexto ?? 'var(--texto)' }}
-      title={titulo}
+    <button
+      type="button"
+      className={`${clases} celda-editable`}
+      style={estilo}
+      title={`${titulo} - toca para corregir`}
+      onClick={() => onTocar(mano)}
     >
       {mano}
-    </div>
+    </button>
   )
 }
 
