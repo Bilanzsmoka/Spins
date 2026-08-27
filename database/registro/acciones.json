@@ -57,8 +57,8 @@
     {
       "clave": "CHECK",
       "etiqueta": "CHECK",
-      "color": "#5b6b7f",
-      "colorTexto": "#edf3fb",
+      "color": "#ffb743",
+      "colorTexto": "#061018",
       "orden": 5,
       "dichos": [
         "check",
