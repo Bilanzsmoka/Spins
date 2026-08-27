@@ -1,4 +1,6 @@
 using PokerProOS.Application.Tablas;
+using PokerProOS.Domain.Manos;
+using PokerProOS.Domain.Tablas;
 using PokerProOS.Infrastructure.Tablas;
 
 namespace PokerProOS.Tests.Tablas;
@@ -16,6 +18,32 @@ public class AnalizadorDeMemoriaTests
         string mano, string stack = "17-18bb", string spot = "SB_OR",
         string situacion = "HU_SB_OR_FISH")
         => Analizador().Analizar(situacion, stack, spot, mano)!;
+
+    /// <summary>
+    /// Un catálogo a medida, sin tocar <c>database/</c>: una situación con los
+    /// stacks (clave, minBB, maxBB, spots) que se le pasen, cada spot con las
+    /// 169 manos apuntando a la misma acción. Sirve para probar reglas del
+    /// analizador (fusión de bandas, línea de un paso) sin depender de qué
+    /// tablas tenga cargado el usuario en este momento.
+    /// </summary>
+    private static AnalizadorDeMemoria AnalizadorSintetico(
+        string situacion, string accion,
+        params (string ClaveDeStack, decimal MinBB, decimal MaxBB, string[] Spots)[] stacks)
+    {
+        var celdas = MatrizDeManos.Todas()
+            .Select(mano => new CeldaDeTabla(mano, accion))
+            .ToList();
+
+        var tablas = stacks
+            .Select(s => new TablaDeStack(
+                new RangoDeStack(s.ClaveDeStack, s.MinBB, s.MaxBB),
+                s.Spots.Select(clave => new SpotDeTabla(clave, clave, celdas)).ToList()))
+            .ToList();
+
+        var catalogo = new CatalogoEnMemoria(
+            [new SituacionDeTabla(situacion, situacion, tablas)], []);
+        return new AnalizadorDeMemoria(catalogo);
+    }
 
     [Fact]
     public void Sin_tip_declarado_la_ficha_no_trae_tip()
@@ -152,9 +180,30 @@ public class AnalizadorDeMemoriaTests
     [Fact]
     public void El_umbral_de_una_mano_fuerte_igual_se_calcula()
     {
+        // AA en HU_SB_OR_FISH / SB_OR corta en tres bandas reales: a stacks
+        // muy cortos se shovea, en el medio se paga y desde 13bb para arriba
+        // (fusionado con el consultado, 17-18bb) se sube.
         var umbral = Ficha("AA").Umbral;
-        Assert.NotEmpty(umbral);
-        Assert.All(umbral, banda => Assert.False(string.IsNullOrEmpty(banda.Accion)));
+
+        Assert.Equal(3, umbral.Count);
+
+        Assert.Equal("ALL-IN", umbral[0].Accion);
+        Assert.Equal("1-4bb", umbral[0].ClaveDeStack);
+        Assert.Equal(1m, umbral[0].MinBB);
+        Assert.Equal(4m, umbral[0].MaxBB);
+        Assert.False(umbral[0].EsElActual);
+
+        Assert.Equal("CALL", umbral[1].Accion);
+        Assert.Equal("5bb…11-12bb", umbral[1].ClaveDeStack);
+        Assert.Equal(5m, umbral[1].MinBB);
+        Assert.Equal(12m, umbral[1].MaxBB);
+        Assert.False(umbral[1].EsElActual);
+
+        Assert.Equal("RAISE_X2", umbral[2].Accion);
+        Assert.Equal("13-16bb…19-99bb", umbral[2].ClaveDeStack);
+        Assert.Equal(13m, umbral[2].MinBB);
+        Assert.Equal(99m, umbral[2].MaxBB);
+        Assert.True(umbral[2].EsElActual);
     }
 
     [Fact]
@@ -202,9 +251,47 @@ public class AnalizadorDeMemoriaTests
     [Fact]
     public void Un_stack_con_un_solo_spot_da_una_linea_de_un_paso()
     {
-        var ficha = Ficha("A8o",
-            situacion: "HU_BB_VS_MR_FISH", stack: "1-5bb", spot: "BB_VS_SB_MR");
+        var analizador = AnalizadorSintetico("SIT", "ALL-IN",
+            ("1-5bb", 1m, 5m, ["UNICO_SPOT"]));
+
+        var ficha = analizador.Analizar("SIT", "1-5bb", "UNICO_SPOT", "A8o")!;
         Assert.Single(ficha.Linea);
         Assert.True(ficha.Linea[0].EsElConsultado);
+    }
+
+    [Fact]
+    public void Dos_stacks_con_un_hueco_real_dan_dos_bandas()
+    {
+        // 0.5-1.5 y 2.5-3.5 son la misma acción, pero entre medio hay un
+        // stack (1.5-2.5) que no declara "SPOT" — de ese rango de stack
+        // ninguna tabla dice nada sobre este spot. Con la vieja resta
+        // ("MaxBB == MinBB - 1") 1.5 == 2.5 - 1 igual, así que el stack de
+        // en medio no alcanzaba a cortar la fusión: fusionar inventaría una
+        // banda "0.5-3.5bb" que nadie declaró.
+        var analizador = AnalizadorSintetico("SIT", "ALL-IN",
+            ("0.5-1.5bb", 0.5m, 1.5m, ["SPOT"]),
+            ("1.5-2.5bb", 1.5m, 2.5m, ["OTRO_SPOT"]),
+            ("2.5-3.5bb", 2.5m, 3.5m, ["SPOT"]));
+
+        var umbral = analizador.Analizar("SIT", "0.5-1.5bb", "SPOT", "A8o")!.Umbral;
+
+        Assert.Equal(2, umbral.Count);
+        Assert.Equal("0.5-1.5bb", umbral[0].ClaveDeStack);
+        Assert.Equal("2.5-3.5bb", umbral[1].ClaveDeStack);
+    }
+
+    [Fact]
+    public void Dos_stacks_decimales_contiguos_dan_una_sola_banda()
+    {
+        // 8.5-9.5 seguido de 9.5-10.5: contiguos de verdad, aunque "-1" en
+        // decimal no lo detecte (9.5 != 9.5 - 1).
+        var analizador = AnalizadorSintetico("SIT", "ALL-IN",
+            ("8.5-9.5bb", 8.5m, 9.5m, ["SPOT"]),
+            ("9.5-10.5bb", 9.5m, 10.5m, ["SPOT"]));
+
+        var umbral = analizador.Analizar("SIT", "8.5-9.5bb", "SPOT", "A8o")!.Umbral;
+
+        Assert.Single(umbral);
+        Assert.Equal("8.5-9.5bb…9.5-10.5bb", umbral[0].ClaveDeStack);
     }
 }

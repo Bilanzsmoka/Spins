@@ -123,8 +123,16 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
         if (stacks is null) return [];
 
         var bandas = new List<BandaDeStack>();
-        foreach (var tabla in stacks)
+        // Índice, en la lista de stacks ya ordenada por MinBB, del último
+        // stack que aportó a la banda abierta. La banda sólo se extiende si
+        // el stack de esta vuelta es justo el siguiente de la lista: por
+        // posición, no por aritmética de BB, que con stacks decimales miente
+        // en las dos direcciones (contiguos que no fusionan, huecos que sí).
+        var indiceDelUltimoQueAporto = -1;
+
+        for (var indice = 0; indice < stacks.Count; indice++)
         {
+            var tabla = stacks[indice];
             var accion = tabla.Spot(claveDeSpot)?.AccionDe(mano);
             if (accion is null) continue;
 
@@ -136,7 +144,9 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             // dice nada y fingir continuidad sería inventar.
             var continua = ultima is not null
                 && Igual(ultima.Accion, accion)
-                && ultima.MaxBB == tabla.Stack.MinBB - 1;
+                && indiceDelUltimoQueAporto == indice - 1;
+
+            indiceDelUltimoQueAporto = indice;
 
             if (continua)
                 bandas[^1] = ultima! with
