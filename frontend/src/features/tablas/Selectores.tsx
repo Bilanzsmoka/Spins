@@ -5,24 +5,40 @@ interface Props {
   situacion: string
   stack: string
   spot: string
+  onFormato: (formato: string) => void
   onSituacion: (clave: string) => void
   onStack: (clave: string) => void
   onSpot: (clave: string) => void
 }
 
 export function Selectores({
-  situaciones, situacion, stack, spot, onSituacion, onStack, onSpot,
+  situaciones, situacion, stack, spot, onFormato, onSituacion, onStack, onSpot,
 }: Props) {
   // Todas las opciones salen del catalogo. No hay listas en el front.
   const situacionActiva = situaciones.find((s) => s.clave === situacion)
   const stackActivo = situacionActiva?.stacks.find((t) => t.clave === stack)
 
+  // El formato no es estado propio: es el de la situacion activa. Asi un
+  // dictado que cambia de situacion mueve este selector solo, en vez de
+  // quedar peleado con lo que se eligio a mano.
+  const formatoActivo = situacionActiva?.formato ?? ''
+  const formatos = [...new Set(situaciones.map((s) => s.formato))]
+  const deEsteFormato = situaciones.filter((s) => s.formato === formatoActivo)
+
   return (
     <div className="selectores">
       <label>
+        Formato
+        <select value={formatoActivo} onChange={(e) => onFormato(e.target.value)}>
+          {formatos.map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+      </label>
+      <label>
         Situación
         <select value={situacion} onChange={(e) => onSituacion(e.target.value)}>
-          {situaciones.map((s) => (
+          {deEsteFormato.map((s) => (
             <option key={s.clave} value={s.clave}>{s.etiqueta}</option>
           ))}
         </select>

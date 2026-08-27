@@ -22,6 +22,8 @@ export interface StackResumen {
 export interface SituacionResumen {
   clave: string
   etiqueta: string
+  /** El formato de mesa ("HU", "3-max"), declarado por el archivo de la tabla. */
+  formato: string
   stacks: StackResumen[]
 }
 

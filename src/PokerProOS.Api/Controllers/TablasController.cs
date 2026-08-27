@@ -45,6 +45,7 @@ public sealed class TablasController(
         {
             s.Clave,
             s.Etiqueta,
+            s.Formato,
             stacks = s.Stacks.Select(t => new
             {
                 t.Stack.Clave,

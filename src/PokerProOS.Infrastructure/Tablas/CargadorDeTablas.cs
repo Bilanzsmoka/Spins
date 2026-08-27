@@ -14,8 +14,9 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 directorio, "", "", $"No existe el directorio de tablas: {directorio}")]);
 
         var problemas = new List<ProblemaDeTabla>();
-        var stacksPorSituacion = new Dictionary<string, (string Etiqueta, List<TablaDeStack> Stacks)>(
-            StringComparer.OrdinalIgnoreCase);
+        var stacksPorSituacion =
+            new Dictionary<string, (string Etiqueta, string Formato, List<TablaDeStack> Stacks)>(
+                StringComparer.OrdinalIgnoreCase);
 
         foreach (var archivo in Directory.GetFiles(directorio, "*.json").OrderBy(a => a))
         {
@@ -46,6 +47,7 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
             .Select(par => new SituacionDeTabla(
                 par.Key,
                 par.Value.Etiqueta,
+                par.Value.Formato,
                 par.Value.Stacks.OrderBy(t => t.Stack.MinBB).ToList()))
             .ToList();
 
@@ -54,7 +56,7 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
 
     private void LeerArchivo(
         string archivo,
-        Dictionary<string, (string Etiqueta, List<TablaDeStack> Stacks)> acumulador,
+        Dictionary<string, (string Etiqueta, string Formato, List<TablaDeStack> Stacks)> acumulador,
         List<ProblemaDeTabla> problemas)
     {
         var nombreArchivo = Path.GetFileName(archivo);
@@ -64,8 +66,17 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
         var claveSituacion = situacion.GetProperty("key").GetString()!;
         var etiquetaSituacion = situacion.GetProperty("label").GetString()!;
 
+        // Sin formato declarado la situación seguiría cargando pero quedaría
+        // fuera de todo grupo en pantalla, o sea invisible. Cae a "Otros":
+        // se ve, se usa, y salta a la vista que al archivo le falta el campo.
+        var formato = situacion.TryGetProperty("formato", out var declarado)
+            && declarado.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(declarado.GetString())
+                ? declarado.GetString()!
+                : "Otros";
+
         if (!acumulador.TryGetValue(claveSituacion, out var entrada))
-            acumulador[claveSituacion] = entrada = (etiquetaSituacion, []);
+            acumulador[claveSituacion] = entrada = (etiquetaSituacion, formato, []);
 
         foreach (var stack in raiz.GetProperty("stacks").EnumerateArray())
         {

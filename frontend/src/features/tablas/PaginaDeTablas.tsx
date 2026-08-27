@@ -73,6 +73,18 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
     if (ultimo.manoInterpretada) setManoAbierta(ultimo.manoInterpretada)
   }, [ultimo])
 
+  // Al cambiar de situacion el stack activo casi nunca existe ahi: las claves
+  // no se comparten entre situaciones ("10bb" en HU SB OR, "9-11bb" en BB vs
+  // limp). Sin esto la pantalla pide un spot inexistente y queda en blanco.
+  useEffect(() => {
+    if (!catalogo || !situacion) return
+    const situacionActiva = catalogo.situaciones.find((s) => s.clave === situacion)
+    if (!situacionActiva) return
+    if (!situacionActiva.stacks.some((t) => t.clave === stack))
+      // oxlint-disable-next-line set-state-in-effect
+      setStack(situacionActiva.stacks[0]?.clave ?? '')
+  }, [catalogo, situacion, stack])
+
   // Al cambiar de stack, el spot activo puede no existir ahi (los stacks
   // chicos tienen 3 spots y los demas 5). Caer al primero disponible.
   useEffect(() => {
@@ -242,6 +254,12 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
         situacion={situacion}
         stack={stack}
         spot={spot}
+        onFormato={(formato) => {
+          // El formato no se guarda: se elige moviendo la situacion a la
+          // primera de ese formato, y los efectos acomodan stack y spot.
+          const primera = catalogo.situaciones.find((s) => s.formato === formato)
+          if (primera) setSituacion(primera.clave)
+        }}
         onSituacion={setSituacion}
         onStack={setStack}
         onSpot={setSpot}

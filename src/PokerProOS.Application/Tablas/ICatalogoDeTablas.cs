@@ -34,7 +34,13 @@ public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)
         Spots.FirstOrDefault(s => string.Equals(s.Clave, clave, StringComparison.OrdinalIgnoreCase));
 }
 
-public record SituacionDeTabla(string Clave, string Etiqueta, IReadOnlyList<TablaDeStack> Stacks);
+/// <summary>
+/// El formato de mesa al que pertenece la situación ("HU", "3-max"). Lo
+/// declara el archivo, no lo deduce el código de la clave: agregar un formato
+/// nuevo tiene que ser dejar un JSON, igual que agregar una tabla.
+/// </summary>
+public record SituacionDeTabla(
+    string Clave, string Etiqueta, string Formato, IReadOnlyList<TablaDeStack> Stacks);
 
 public interface ICatalogoDeTablas
 {
