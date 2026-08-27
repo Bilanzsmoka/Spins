@@ -1,0 +1,411 @@
+{
+  "situation": {
+    "key": "HU_BB_VS_LIMP_FISH",
+    "label": "HU BB vs limp | fish"
+  },
+  "stacks": [
+    {
+      "key": "1-5bb",
+      "minBB": 1,
+      "maxBB": 5,
+      "spots": [
+        {
+          "key": "BB_VS_SB_LIMP",
+          "label": "Mi acción · BB vs limp",
+          "actions": {
+            "CHECK": [
+              "AA",
+              "KK",
+              "QQ",
+              "JJ",
+              "J4s",
+              "J3s",
+              "J2s",
+              "JTo",
+              "T8s",
+              "T7s",
+              "T6s",
+              "T5s",
+              "T4s",
+              "T3s",
+              "T2s",
+              "T9o",
+              "98s",
+              "97s",
+              "96s",
+              "95s",
+              "94s",
+              "93s",
+              "92s",
+              "T8o",
+              "98o",
+              "87s",
+              "86s",
+              "85s",
+              "84s",
+              "83s",
+              "82s",
+              "T7o",
+              "97o",
+              "87o",
+              "76s",
+              "75s",
+              "74s",
+              "73s",
+              "72s",
+              "T6o",
+              "96o",
+              "86o",
+              "76o",
+              "65s",
+              "64s",
+              "63s",
+              "62s",
+              "J5o",
+              "T5o",
+              "95o",
+              "85o",
+              "75o",
+              "65o",
+              "54s",
+              "53s",
+              "52s",
+              "J4o",
+              "T4o",
+              "94o",
+              "84o",
+              "74o",
+              "64o",
+              "54o",
+              "43s",
+              "42s",
+              "J3o",
+              "T3o",
+              "93o",
+              "83o",
+              "73o",
+              "63o",
+              "53o",
+              "43o",
+              "32s",
+              "J2o",
+              "T2o",
+              "92o",
+              "82o",
+              "72o",
+              "62o",
+              "52o",
+              "42o",
+              "32o"
+            ],
+            "ALL-IN": "REST"
+          }
+        },
+        {
+          "key": "VS_SB_ALL_IN",
+          "label": "Después · SB all-in",
+          "actions": {
+            "CALL": [
+              "AA",
+              "KK",
+              "KQs",
+              "KJs",
+              "KTs",
+              "K9s",
+              "QQ",
+              "QJs",
+              "QTs",
+              "Q9s",
+              "JJ",
+              "JTs",
+              "J9s",
+              "TT",
+              "T9s",
+              "99"
+            ],
+            "FOLD": "REST"
+          }
+        },
+        {
+          "key": "VS_SB_3BET",
+          "label": "Después · SB 3-bet",
+          "actions": {
+            "ALL-IN": [
+              "AA",
+              "KK",
+              "KQs",
+              "KJs",
+              "KTs",
+              "K9s",
+              "QQ",
+              "QJs",
+              "QTs",
+              "Q9s",
+              "JJ",
+              "JTs",
+              "J9s",
+              "TT",
+              "T9s",
+              "99"
+            ],
+            "FOLD": "REST"
+          }
+        }
+      ]
+    },
+    {
+      "key": "6-8bb",
+      "minBB": 6,
+      "maxBB": 8,
+      "spots": [
+        {
+          "key": "BB_VS_SB_LIMP",
+          "label": "Mi acción · BB vs limp",
+          "actions": {
+            "ALL-IN": [
+              "A7s",
+              "A6s",
+              "A5s",
+              "A4s",
+              "A3s",
+              "A2s",
+              "AKo",
+              "K7s",
+              "K6s",
+              "K5s",
+              "K4s",
+              "K3s",
+              "K2s",
+              "AQo",
+              "Q3s",
+              "Q2s",
+              "AJo",
+              "KJo",
+              "ATo",
+              "KTo",
+              "A9o",
+              "K9o",
+              "A8o",
+              "K8o",
+              "87s",
+              "86s",
+              "85s",
+              "A7o",
+              "K7o",
+              "77",
+              "76s",
+              "75s",
+              "A6o",
+              "K6o",
+              "66",
+              "65s",
+              "64s",
+              "A5o",
+              "K5o",
+              "Q5o",
+              "55",
+              "54s",
+              "A4o",
+              "K4o",
+              "Q4o",
+              "44",
+              "A3o",
+              "K3o",
+              "Q3o",
+              "33",
+              "A2o",
+              "K2o",
+              "Q2o",
+              "22"
+            ],
+            "RAISE_X2_5": [
+              "AA",
+              "KK",
+              "KQs",
+              "KJs",
+              "KTs",
+              "QQ",
+              "QJs",
+              "QTs",
+              "Q9s",
+              "JJ",
+              "JTs",
+              "J9s",
+              "J5o",
+              "T5o",
+              "95o",
+              "85o",
+              "J4o",
+              "T4o",
+              "94o",
+              "84o",
+              "74o",
+              "J3o",
+              "73o",
+              "J2o"
+            ],
+            "RAISE_X3_5": [
+              "AKs",
+              "AQs",
+              "AJs",
+              "ATs",
+              "A9s",
+              "A8s",
+              "K9s",
+              "K8s",
+              "KQo",
+              "QJo",
+              "QTo",
+              "JTo",
+              "TT",
+              "T9s",
+              "99",
+              "88"
+            ],
+            "CHECK": "REST"
+          },
+          "mixes": {
+            "J9o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "J8o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "J7o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "J6o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "T6o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "96o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "T3o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "93o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "83o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "63o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "T2o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "92o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "82o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "72o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            },
+            "62o": {
+              "CHECK": 50,
+              "RAISE_X2_5": 50
+            }
+          }
+        },
+        {
+          "key": "VS_SB_ALL_IN",
+          "label": "Después · SB all-in",
+          "actions": {
+            "CALL": [
+              "AA",
+              "AKs",
+              "AQs",
+              "AJs",
+              "ATs",
+              "A9s",
+              "A8s",
+              "AKo",
+              "KK",
+              "KQs",
+              "KJs",
+              "KTs",
+              "K9s",
+              "K8s",
+              "K7s",
+              "AQo",
+              "KQo",
+              "QQ",
+              "QJs",
+              "QTs",
+              "Q9s",
+              "Q8s",
+              "AJo",
+              "KJo",
+              "QJo",
+              "JJ",
+              "JTs",
+              "J9s",
+              "J8s",
+              "ATo",
+              "KTo",
+              "QTo",
+              "JTo",
+              "TT",
+              "T9s",
+              "T8s",
+              "99",
+              "88"
+            ],
+            "FOLD": "REST"
+          }
+        },
+        {
+          "key": "VS_SB_3BET",
+          "label": "Después · SB 3-bet",
+          "actions": {
+            "ALL-IN": [
+              "AA",
+              "AKs",
+              "AQs",
+              "AJs",
+              "ATs",
+              "A9s",
+              "A8s",
+              "KK",
+              "KQs",
+              "KJs",
+              "KTs",
+              "K9s",
+              "K8s",
+              "QQ",
+              "QJs",
+              "QTs",
+              "JJ",
+              "JTs",
+              "TT",
+              "T9s",
+              "99",
+              "88"
+            ],
+            "FOLD": "REST"
+          }
+        }
+      ]
+    }
+  ]
+}

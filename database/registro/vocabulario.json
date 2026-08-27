@@ -166,6 +166,29 @@
         "versus iso all in",
         "iso all in"
       ]
+    },
+    {
+      "clave": "BB_VS_SB_LIMP",
+      "dichos": [
+        "contra limp",
+        "vs limp",
+        "me limpeo",
+        "limpeo"
+      ]
+    },
+    {
+      "clave": "VS_SB_ALL_IN",
+      "dichos": [
+        "contra ese be all in",
+        "ese be all in"
+      ]
+    },
+    {
+      "clave": "VS_SB_3BET",
+      "dichos": [
+        "contra ese be tres bet",
+        "ese be tres bet"
+      ]
     }
   ],
   "situaciones": [
@@ -176,6 +199,14 @@
         "hu fish",
         "contra fish",
         "fish"
+      ]
+    },
+    {
+      "clave": "HU_BB_VS_LIMP_FISH",
+      "dichos": [
+        "be be contra limp",
+        "defendiendo limp",
+        "contra limp de fish"
       ]
     }
   ]
