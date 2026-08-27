@@ -152,4 +152,55 @@ public class AnalizadorDeMemoriaTests
         Assert.NotEmpty(umbral);
         Assert.All(umbral, banda => Assert.False(string.IsNullOrEmpty(banda.Accion)));
     }
+
+    [Fact]
+    public void Las_familias_emparentadas_son_las_dos_del_rango_alto_y_los_pares()
+    {
+        var familias = Ficha("A8o").Familias;
+
+        // new[] y ToArray(): una expresión de colección como argumento de
+        // Assert.Equal no tiene tipo destino y no resuelve la sobrecarga.
+        Assert.Equal(new[] { "Axs", "Axo", "Pares" }, familias.Select(f => f.Familia).ToArray());
+
+        var suited = familias.Single(f => f.Familia == "Axs");
+        Assert.Equal("AKs", suited.Tope);
+        Assert.Equal("A7s", suited.Fondo);
+        Assert.Equal("RAISE_X2", suited.Accion);
+        Assert.Equal("A6s", suited.Siguiente);
+
+        var offsuit = familias.Single(f => f.Familia == "Axo");
+        Assert.Equal("A9o", offsuit.Fondo);
+
+        var pares = familias.Single(f => f.Familia == "Pares");
+        Assert.Equal("55", pares.Fondo);
+        Assert.Equal("44", pares.Siguiente);
+        Assert.Equal("ALL-IN", pares.AccionSiguiente);
+    }
+
+    [Fact]
+    public void Una_pareja_solo_empareja_con_los_pares()
+        => Assert.Equal(new[] { "Pares" }, Ficha("77").Familias.Select(f => f.Familia).ToArray());
+
+    [Fact]
+    public void La_linea_recorre_los_spots_del_stack_en_orden()
+    {
+        var linea = Ficha("A8o").Linea;
+
+        Assert.Equal(
+            new[] { "SB_OR", "VS_BB_ALL_IN", "VS_BB_3BET", "VS_BB_ISO_3BB", "VS_BB_ISO_ALL_IN" },
+            linea.Select(p => p.Spot).ToArray());
+        Assert.Equal("Mi acción · SB OR", linea[0].Etiqueta);
+        Assert.True(linea[0].EsElConsultado);
+        Assert.All(linea.Skip(1), paso => Assert.False(paso.EsElConsultado));
+        Assert.All(linea, paso => Assert.False(string.IsNullOrEmpty(paso.Accion)));
+    }
+
+    [Fact]
+    public void Un_stack_con_un_solo_spot_da_una_linea_de_un_paso()
+    {
+        var ficha = Ficha("A8o",
+            situacion: "HU_BB_VS_MR_FISH", stack: "1-5bb", spot: "BB_VS_SB_MR");
+        Assert.Single(ficha.Linea);
+        Assert.True(ficha.Linea[0].EsElConsultado);
+    }
 }

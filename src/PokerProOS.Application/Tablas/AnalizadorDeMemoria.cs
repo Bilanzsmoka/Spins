@@ -23,8 +23,8 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             Pesos(spot),
             Ancla(spot, celda.Mano),
             Umbral(situacion, claveDeStack, claveDeSpot, celda.Mano),
-            [],
-            [],
+            Familias(spot, celda.Mano),
+            Linea(situacion, claveDeStack, claveDeSpot, celda.Mano),
             null);
     }
 
@@ -162,5 +162,47 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
     {
         var primero = acumulado.Split('…')[0];
         return primero == ultimo ? ultimo : $"{primero}…{ultimo}";
+    }
+
+    /// <summary>
+    /// Las familias que comparten sangre con la mano: las dos de su rango alto
+    /// y los pares. Se reporta el bloque que encabeza cada una —"sube hasta
+    /// acá"—, que es la forma en que se recuerdan estos rangos. Una familia
+    /// uniforme no aporta corte y se descarta.
+    /// </summary>
+    private static IReadOnlyList<AnclaDeFamilia> Familias(SpotDeTabla spot, string mano)
+    {
+        var cabezas = new List<string>();
+        if (mano.Length > 2)
+        {
+            var alto = mano[0];
+            var siguiente = MatrizDeManos.Rangos[MatrizDeManos.IndiceDeRango(alto) + 1];
+            cabezas.Add($"{alto}{siguiente}s");
+            cabezas.Add($"{alto}{siguiente}o");
+        }
+        cabezas.Add($"{MatrizDeManos.Rangos[0]}{MatrizDeManos.Rangos[0]}");
+
+        return cabezas
+            .Select(cabeza => Ancla(spot, cabeza))
+            .OfType<AnclaDeFamilia>()
+            .ToList();
+    }
+
+    /// <summary>
+    /// Qué hace esa misma mano en cada spot del stack, en el orden en que el
+    /// JSON los declara — que ya es el orden en que pasan las cosas en la
+    /// mano: primero la mía, después lo que el rival me haga.
+    /// </summary>
+    private IReadOnlyList<PasoDeLinea> Linea(
+        string situacion, string claveDeStack, string claveDeSpot, string mano)
+    {
+        var tabla = catalogo.StackPorClave(situacion, claveDeStack);
+        if (tabla is null) return [];
+
+        return tabla.Spots
+            .Select(s => new PasoDeLinea(
+                s.Clave, s.Etiqueta, s.AccionDe(mano) ?? "", Igual(s.Clave, claveDeSpot)))
+            .Where(paso => paso.Accion.Length > 0)
+            .ToList();
     }
 }
