@@ -25,7 +25,8 @@ public class CopilotoDeVozTests
             new ResolverManoHandler(catalogo),
             new RedactorDeRespuesta(acciones, vocabulario),
             memoria,
-            new AnalizadorDeMemoria(catalogo));
+            new AnalizadorDeMemoria(catalogo),
+            catalogo);
         copiloto.Conectar();
         return (copiloto, reconocedor, sintetizador, memoria);
     }
@@ -198,6 +199,88 @@ public class CopilotoDeVozTests
         var (copiloto, _, _, _) = Armar();
         var evento = copiloto.Procesar(Dictado("X", "8"));
         Assert.Null(evento.Ficha);
+    }
+
+    /// <summary>
+    /// Un dictado sin mano es una orden de contexto: "heads up", "contra min
+    /// raise", "nueve be be". Mueve la memoria, se confirma hablando y no
+    /// resuelve nada, porque no hay mano que resolver.
+    /// </summary>
+    private static DictadoReconocido Contexto(
+        string? situacion = null, decimal? stack = null, string? spot = null) =>
+        new(stack, spot, situacion, "", "", null, 0.9f, "contexto");
+
+    [Fact]
+    public void Un_dictado_sin_mano_cambia_la_situacion()
+    {
+        var (copiloto, _, _, memoria) = Armar();
+        copiloto.Procesar(Contexto(situacion: "HU_BB_VS_LIMP_FISH"));
+        Assert.Equal("HU_BB_VS_LIMP_FISH", memoria.Situacion);
+    }
+
+    [Fact]
+    public void Un_dictado_sin_mano_cambia_el_stack_y_el_spot()
+    {
+        var (copiloto, _, _, memoria) = Armar();
+        copiloto.Procesar(Contexto(stack: 15, spot: "VS_BB_ALL_IN"));
+        Assert.Equal(15, memoria.StackBB);
+        Assert.Equal("VS_BB_ALL_IN", memoria.Spot);
+    }
+
+    [Fact]
+    public void Un_dictado_sin_mano_no_resuelve_ninguna_mano()
+    {
+        var (copiloto, _, _, _) = Armar();
+        var evento = copiloto.Procesar(Contexto(stack: 15));
+
+        Assert.False(evento.Resuelta);
+        Assert.Empty(evento.ManoInterpretada);
+        Assert.Null(evento.Ficha);
+    }
+
+    [Fact]
+    public void Un_dictado_sin_mano_se_confirma_hablando()
+    {
+        var (copiloto, _, sintetizador, _) = Armar();
+        copiloto.Procesar(Contexto(situacion: "HU_BB_VS_LIMP_FISH", stack: 15));
+
+        // Contra el mensaje de error, no a favor de una frase exacta: sin esto
+        // "Ese spot no existe a 15-17bb" pasaría por confirmación, porque
+        // también contiene el 15.
+        var dicho = Assert.Single(sintetizador.Dicho);
+        Assert.DoesNotContain("no existe", dicho, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("No reconozco", dicho, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("No tengo tabla", dicho, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("No te entendí", dicho, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("15", dicho);
+    }
+
+    /// <summary>
+    /// Cambiar de situación dejaba pegado el spot anterior, que casi nunca
+    /// existe en la nueva: a partir de ahí TODA consulta fallaba con "ese spot
+    /// no existe" hasta volver a nombrarlo. Ahora cae al primero del stack.
+    /// </summary>
+    [Fact]
+    public void Al_cambiar_de_situacion_un_spot_que_no_existe_cae_al_primero()
+    {
+        var (copiloto, _, _, memoria) = Armar();
+        memoria.Spot = "VS_BB_ISO_ALL_IN"; // solo existe en HU_SB_OR_FISH
+
+        copiloto.Procesar(Contexto(situacion: "HU_BB_VS_LIMP_FISH", stack: 9));
+
+        Assert.Equal("BB_VS_SB_LIMP", memoria.Spot);
+    }
+
+    [Fact]
+    public void Con_el_spot_corregido_la_mano_siguiente_resuelve()
+    {
+        var (copiloto, _, _, _) = Armar();
+        copiloto.Procesar(Contexto(situacion: "HU_BB_VS_LIMP_FISH", stack: 9));
+
+        var evento = copiloto.Procesar(Dictado("A", "A"));
+
+        Assert.True(evento.Resuelta);
+        Assert.Equal("AA", evento.ManoInterpretada);
     }
 
     [Fact]

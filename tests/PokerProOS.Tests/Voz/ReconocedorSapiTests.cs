@@ -57,6 +57,33 @@ public class ReconocedorSapiTests : IDisposable
         }
     }
 
+    /// <summary>
+    /// Una orden de contexto se dicta sola, sin mano: es lo que permite
+    /// encadenar "heads up" → "contra limp" → "nueve be be" y recién después
+    /// nombrar manos. Antes la gramática exigía los dos rangos en cada frase.
+    /// </summary>
+    [Theory]
+    [InlineData("nueve be be", 9, null, null)]
+    [InlineData("contra limp", null, "BB_VS_SB_LIMP", null)]
+    [InlineData("defendiendo limp", null, null, "HU_BB_VS_LIMP_FISH")]
+    public void Reconoce_una_orden_de_contexto_sin_mano(
+        string frase, int? stack, string? spot, string? situacion)
+    {
+        var (reconocedor, sintetizador) = Armar();
+        using (reconocedor)
+        using (sintetizador)
+        {
+            var dictado = reconocedor.ReconocerArchivo(Sintetizar(sintetizador, frase));
+
+            Assert.NotNull(dictado);
+            Assert.Equal("", dictado!.RangoAlto);
+            Assert.Equal("", dictado.RangoBajo);
+            Assert.Equal(stack, dictado.StackBB);
+            if (spot is not null) Assert.Equal(spot, dictado.Spot);
+            if (situacion is not null) Assert.Equal(situacion, dictado.Situacion);
+        }
+    }
+
     [Fact]
     public void No_reconoce_una_frase_fuera_de_la_gramatica()
     {

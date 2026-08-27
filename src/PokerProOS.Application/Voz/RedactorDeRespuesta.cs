@@ -9,6 +9,30 @@ namespace PokerProOS.Application.Voz;
 /// </summary>
 public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroDeVocabulario vocabulario)
 {
+    /// <summary>
+    /// La confirmación de un dictado de contexto. Repite solo lo que el
+    /// dictado cambió: sin esto no hay forma de saber si la orden entró, y
+    /// repetir las tres piezas cada vez sería más largo que la consulta.
+    /// Las palabras salen de la forma canónica del vocabulario —el primer
+    /// dicho—, no de literales, para que cambiar el JSON cambie lo que se oye.
+    /// </summary>
+    public string RedactarContexto(string? situacion, decimal? stackBB, string? spot)
+    {
+        var piezas = new List<string>();
+        if (situacion is { Length: > 0 }) piezas.Add(Canonico(vocabulario.Situaciones, situacion));
+        if (stackBB is { } bb) piezas.Add($"{bb:0.##} {PalabraDeStack()}");
+        if (spot is { Length: > 0 }) piezas.Add(Canonico(vocabulario.Spots, spot));
+
+        return piezas.Count == 0 ? "Listo." : $"{string.Join(", ", piezas)}.";
+    }
+
+    private string PalabraDeStack() => vocabulario.PalabrasDeStack.FirstOrDefault() ?? "be be";
+
+    private static string Canonico(IReadOnlyList<FormasHabladas> formas, string clave)
+        => formas.FirstOrDefault(f =>
+               string.Equals(f.Clave, clave, StringComparison.OrdinalIgnoreCase))
+           ?.Dichos.FirstOrDefault() ?? clave;
+
     public string Redactar(ResultadoDeConsulta resultado)
     {
         if (resultado.Respuesta is null)

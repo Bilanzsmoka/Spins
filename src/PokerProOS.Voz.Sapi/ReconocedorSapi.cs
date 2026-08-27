@@ -218,16 +218,26 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
 
         var alta = Texto("alta");
         var baja = Texto("baja");
-        if (alta is null || baja is null) return null;
 
         decimal? stack = Texto("stack") is { } crudo &&
                          decimal.TryParse(crudo, NumberStyles.Any, CultureInfo.InvariantCulture, out var bb)
             ? bb
             : null;
+        var spot = Texto("spot");
+        var situacion = Texto("situacion");
 
+        // Sin mano el dictado sigue valiendo: es una orden de contexto
+        // ("heads up", "nueve be be", "contra limp"). Lo que no vale es un
+        // reconocimiento sin NADA, ni mano ni contexto.
+        var hayMano = alta is not null && baja is not null;
+        var hayContexto = stack is not null || spot is not null || situacion is not null;
+        if (!hayMano && !hayContexto) return null;
+
+        // Los dos rangos van juntos o no van: media mano reconocida se trata
+        // como contexto sin mano, no como una consulta a medio armar.
         return new DictadoReconocido(
-            stack, Texto("spot"), Texto("situacion"),
-            alta, baja, Texto("palo"),
+            stack, spot, situacion,
+            hayMano ? alta! : "", hayMano ? baja! : "", hayMano ? Texto("palo") : null,
             resultado.Confidence, resultado.Text);
     }
 
