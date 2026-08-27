@@ -28,12 +28,16 @@ public class RegistroDeAccionesTests : IDisposable
         Assert.Equal(claves.Count, claves.Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
 
+    // Los hex son los que declaran las tablas del usuario, que es su memoria
+    // visual ya entrenada. Si cambian ahi, cambian aca: no son decoracion.
     [Theory]
-    [InlineData("ALL-IN", "#43bf55")]
-    [InlineData("CALL", "#ffb743")]
-    [InlineData("RAISE_X2", "#7c86dc")]
-    [InlineData("FOLD", "#edf3fb")]
-    public void Conserva_los_colores_del_proyecto_original(string clave, string color)
+    [InlineData("ALL-IN", "#4CAF50")]
+    [InlineData("CALL", "#FFB74D")]
+    [InlineData("CHECK", "#FFB74D")]
+    [InlineData("RAISE_X2_5", "#7986CB")]
+    [InlineData("RAISE_X3_5", "#8D6E63")]
+    [InlineData("FOLD", "#E0E0E0")]
+    public void Conserva_los_colores_de_las_tablas(string clave, string color)
         => Assert.Equal(color, RegistroDeAccionesJson.Cargar(Ruta).Obtener(clave).Color);
 
     [Fact]
