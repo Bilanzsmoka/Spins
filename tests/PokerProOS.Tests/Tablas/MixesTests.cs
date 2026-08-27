@@ -108,6 +108,30 @@ public class MixesTests : IDisposable
     }
 
     [Fact]
+    public void Una_mano_solo_mixta_cuenta_como_cubierta()
+    {
+        // Sin REST y sin estar en ninguna lista: la mano existe solo en el
+        // bloque mixes. Igual esta cubierta.
+        File.WriteAllText(Path.Combine(_directorio, "solomix.json"), """
+            {
+              "situation": { "key": "SOLOMIX", "label": "Solo mix" },
+              "stacks": [{
+                "key": "8bb", "minBB": 8, "maxBB": 8,
+                "spots": [{
+                  "key": "SB_OR", "label": "x",
+                  "actions": { "FOLD": "REST" },
+                  "mixes": { "J9o": { "ALL-IN": 50, "FOLD": 50 } }
+                }]
+              }]
+            }
+            """);
+
+        var catalogo = Catalogo();
+        Assert.DoesNotContain(catalogo.Problemas, p => p.Mensaje.Contains("169"));
+        Assert.True(catalogo.Spot("SOLOMIX", "8bb", "SB_OR")!.CeldaDe("J9o")!.EsMixta);
+    }
+
+    [Fact]
     public void Un_mix_que_no_suma_cien_se_reporta()
     {
         File.WriteAllText(Path.Combine(_directorio, "rota.json"), """

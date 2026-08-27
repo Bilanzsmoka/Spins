@@ -13,7 +13,7 @@ public class CatalogoEnMemoriaTests
     }
 
     [Fact]
-    public void Carga_las_once_tablas_sin_problemas()
+    public void Carga_todas_las_tablas_sin_problemas()
         => Assert.Empty(Catalogo().Problemas);
 
     [Fact]
