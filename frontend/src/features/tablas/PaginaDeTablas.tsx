@@ -23,6 +23,14 @@ interface Props {
   voz: PropsDeVoz
 }
 
+/** Qué evento de voz sembró la ficha, y para qué combinación exacta. */
+interface MarcaDeFichaPorVoz {
+  situacion: string
+  stack: string
+  spot: string
+  mano: string
+}
+
 export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: Props) {
   const { catalogo, error } = useCatalogo()
 
@@ -86,51 +94,83 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
     return () => { cancelado = true }
   }, [situacion, stack, spot, recarga])
 
-  // El evento de voz ya trae la ficha calculada (CopilotoDeVoz la manda en
-  // el SSE): si lo que hay en pantalla es justo lo que ese evento resolvió,
-  // usarla ahorra calcularla dos veces y un viaje de red. Se sirve a lo sumo
-  // una vez por evento — la referencia guardada acá es la marca de "ya la
-  // usé" — para que un efecto que corre por otra razón (tocar una celda a
-  // mano, o `recarga` tras guardar un tip o una celda) no siga sirviendo una
-  // ficha vieja sólo porque los campos coinciden por casualidad.
-  const fichaDeVozUsadaRef = useRef<EventoDeVoz | null>(null)
+  // Qué combinación (situación/stack/spot/mano) sembró el último evento de
+  // voz que trajo ficha, para que el efecto de abajo la use sin pedirla de
+  // nuevo. Se consume una sola vez — el efecto de la mano abierta la borra
+  // apenas la mira, la haya usado o no — para que sólo cuente en el render
+  // inmediato siguiente a ese evento, nunca en uno posterior (tocar otra
+  // celda, o `recarga` tras guardar, con la casualidad de que los campos
+  // coincidan).
+  const marcaDeVozRef = useRef<MarcaDeFichaPorVoz | null>(null)
 
-  // La ficha se pide al backend en vez de derivarse de `datos`: las piezas que
-  // la arman (umbral, familias) miran otros stacks y otros spots, que la
-  // pantalla no tiene cargados.
+  // Efecto B — la ficha que llega por voz. CopilotoDeVoz ya la manda
+  // calculada en cada EventoDeCopiloto: sembrarla acá ahorra calcularla dos
+  // veces y un viaje de red. Depende sólo de `ultimo`, nada más: así un
+  // dictado no resuelto (o cualquier evento, resuelva lo que resuelva) no
+  // toca errores ni dispara un fetch — eso es enteramente el trabajo del
+  // efecto de abajo, que ni se entera de que hubo un evento de voz salvo por
+  // esta marca.
   //
-  // Los errores de guardado son estado de la mano abierta, no del boton que se
-  // toco para cerrar: mueren aca, en las dos ramas, cada vez que este efecto
+  // No compara contra `situacion`/`stack`/`spot`/`manoAbierta` de estado: en
+  // el mismo commit en que este efecto corre, el de los selectores (arriba)
+  // todavía no aplicó los campos del evento — leerlos acá los vería viejos.
+  // La correspondencia real la valida el efecto de la mano abierta, un
+  // render más tarde, cuando esos campos ya están puestos.
+  useEffect(() => {
+    if (!ultimo?.resuelta || !ultimo.ficha) return
+    // oxlint-disable-next-line set-state-in-effect
+    setFicha(ultimo.ficha)
+    if (ultimo.situacion && ultimo.claveDeStack && ultimo.spot) {
+      marcaDeVozRef.current = {
+        situacion: ultimo.situacion,
+        stack: ultimo.claveDeStack,
+        spot: ultimo.spot,
+        mano: ultimo.manoInterpretada,
+      }
+    }
+  }, [ultimo])
+
+  // Efecto A — la mano abierta. La ficha se pide al backend en vez de
+  // derivarse de `datos`: las piezas que la arman (umbral, familias) miran
+  // otros stacks y otros spots, que la pantalla no tiene cargados.
+  //
+  // Los errores de guardado son estado de la mano abierta, no del evento que
+  // la haya abierto: mueren aca, en las dos ramas, cada vez que este efecto
   // corre — asi ningun camino de cierre (Cerrar, Escape, click en el fondo, o
-  // abrir otra mano) tiene que acordarse de limpiarlos por su cuenta.
+  // abrir otra mano) tiene que acordarse de limpiarlos por su cuenta. No
+  // depende de `ultimo`: un dictado que no cambia mano/stack/spot (uno sin
+  // resolver, por ejemplo) no tiene por qué re-correr esto ni re-limpiar un
+  // error que el usuario está leyendo.
   useEffect(() => {
     // oxlint-disable-next-line set-state-in-effect
     setErrorAlEditar(null)
     setErrorAlGuardarTip(null)
+
+    const marca = marcaDeVozRef.current
+    marcaDeVozRef.current = null // se usa (o se descarta) una sola vez
+
     if (!manoAbierta || !situacion || !stack || !spot) {
       setFicha(null)
       return
     }
 
+    // El Efecto B ya sembró esta misma ficha un render antes: pedirla nos
+    // volvería a pegar exactamente el doble fetch que el Arreglo 3 vino a
+    // evitar.
     if (
-      ultimo?.ficha
-      && ultimo !== fichaDeVozUsadaRef.current
-      && ultimo.situacion === situacion
-      && ultimo.claveDeStack === stack
-      && ultimo.spot === spot
-      && ultimo.manoInterpretada === manoAbierta
-    ) {
-      fichaDeVozUsadaRef.current = ultimo
-      setFicha(ultimo.ficha)
-      return
-    }
+      marca
+      && marca.situacion === situacion
+      && marca.stack === stack
+      && marca.spot === spot
+      && marca.mano === manoAbierta
+    ) return
 
     let cancelado = false
     obtenerFicha(situacion, stack, spot, manoAbierta)
       .then((f) => { if (!cancelado) setFicha(f) })
       .catch(() => { if (!cancelado) setFicha(null) })
     return () => { cancelado = true }
-  }, [situacion, stack, spot, manoAbierta, recarga, ultimo])
+  }, [situacion, stack, spot, manoAbierta, recarga])
 
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
   if (!catalogo) return <p className="cargando">Cargando…</p>
