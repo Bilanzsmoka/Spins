@@ -20,19 +20,20 @@ public class RedactorDeRespuestaTests
         => Assert.Equal("ALL-IN.", Redactor().Redactar(Con("A9s", "ALL-IN", 113, false, false)));
 
     [Fact]
-    public void Agrega_el_borde_y_el_conteo_cuando_la_mano_esta_en_el_limite()
-        => Assert.Equal("ALL-IN. En el borde, 113 manos.",
-            Redactor().Redactar(Con("A9s", "ALL-IN", 113, true, false)));
+    public void No_habla_del_borde_del_rango()
+    {
+        // "En el borde, N manos" contaba casillas de la grilla y no decía
+        // contra qué limita: eso ahora se lee en la ficha, no se escucha.
+        var frase = Redactor().Redactar(Con("A9s", "ALL-IN", 113, true, false));
+
+        Assert.Equal("ALL-IN.", frase);
+        Assert.DoesNotContain("borde", frase, StringComparison.OrdinalIgnoreCase);
+    }
 
     [Fact]
     public void Repite_la_mano_cuando_se_asumio_el_palo()
         => Assert.Equal("A K offsuit: CALL.",
             Redactor().Redactar(Con("AKo", "CALL", 43, false, true)));
-
-    [Fact]
-    public void Repite_la_mano_y_avisa_del_borde()
-        => Assert.Equal("A K offsuit: CALL. En el borde, 43 manos.",
-            Redactor().Redactar(Con("AKo", "CALL", 43, true, true)));
 
     [Fact]
     public void Usa_la_etiqueta_del_registro_y_no_la_clave()

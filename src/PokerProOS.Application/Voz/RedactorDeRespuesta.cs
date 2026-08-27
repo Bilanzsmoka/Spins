@@ -34,9 +34,6 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
             ? $"{Deletrear(r.Mano)}: {etiqueta}."
             : $"{etiqueta}.";
 
-        if (r.EnElBorde)
-            frase += $" En el borde, {r.ManosEnLaAccion} manos.";
-
         return frase;
     }
 
