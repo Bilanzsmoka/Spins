@@ -21,7 +21,7 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             celda.Accion,
             claveDeStack,
             Pesos(spot),
-            null,
+            Ancla(spot, celda.Mano),
             [],
             [],
             [],
@@ -56,4 +56,58 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
         void Sumar(string accion, double cuantos)
             => combos[accion] = combos.GetValueOrDefault(accion) + cuantos;
     }
+
+    /// <summary>
+    /// La familia de una mano, ordenada de mayor a menor: los pares, o el
+    /// rango alto contra cada kicker. Es el eje por el que se recuerda un
+    /// rango — "hasta A9o" dice más que trece manos sueltas.
+    /// </summary>
+    private static (string Nombre, List<string> Manos) Familia(string mano)
+    {
+        if (mano.Length == 2)
+            return ("Pares", MatrizDeManos.Rangos.Select(r => $"{r}{r}").ToList());
+
+        var alto = mano[0];
+        var palo = mano[2];
+        var manos = MatrizDeManos.Rangos
+            .Skip(MatrizDeManos.IndiceDeRango(alto) + 1)
+            .Select(bajo => $"{alto}{bajo}{palo}")
+            .ToList();
+        return ($"{alto}x{palo}", manos);
+    }
+
+    /// <summary>
+    /// El bloque contiguo de la familia que contiene a la mano y comparte su
+    /// acción. Si la familia entera hace lo mismo no hay nada que anclar: el
+    /// ancla existe para marcar dónde se corta.
+    /// </summary>
+    private static AnclaDeFamilia? Ancla(SpotDeTabla spot, string mano)
+    {
+        var (nombre, familia) = Familia(mano);
+        var accion = spot.AccionDe(mano);
+        if (accion is null) return null;
+
+        var indice = familia.IndexOf(mano);
+        if (indice < 0) return null;
+
+        var desde = indice;
+        while (desde > 0 && Igual(spot.AccionDe(familia[desde - 1]), accion)) desde--;
+
+        var hasta = indice;
+        while (hasta < familia.Count - 1 && Igual(spot.AccionDe(familia[hasta + 1]), accion)) hasta++;
+
+        if (desde == 0 && hasta == familia.Count - 1) return null;
+
+        var siguiente = hasta < familia.Count - 1 ? familia[hasta + 1] : null;
+        return new AnclaDeFamilia(
+            nombre,
+            familia[desde],
+            familia[hasta],
+            accion,
+            siguiente,
+            siguiente is null ? null : spot.AccionDe(siguiente));
+    }
+
+    private static bool Igual(string? a, string? b)
+        => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 }

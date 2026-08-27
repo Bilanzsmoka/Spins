@@ -59,4 +59,46 @@ public class AnalizadorDeMemoriaTests
         var pesos = Ficha("A8o").Pesos.Select(p => p.Combos).ToList();
         Assert.Equal(pesos.OrderByDescending(c => c).ToList(), pesos);
     }
+
+    [Fact]
+    public void El_ancla_dice_donde_se_corta_la_familia()
+    {
+        var ancla = Ficha("A8o").Ancla!;
+        Assert.Equal("Axo", ancla.Familia);
+        Assert.Equal("A8o", ancla.Tope);
+        Assert.Equal("A2o", ancla.Fondo);
+        Assert.Equal("CALL", ancla.Accion);
+        // El bloque de CALL llega hasta el final de la familia.
+        Assert.Null(ancla.Siguiente);
+    }
+
+    [Fact]
+    public void El_ancla_de_la_mano_de_arriba_apunta_a_la_que_rompe()
+    {
+        var ancla = Ficha("AKo").Ancla!;
+        Assert.Equal("Axo", ancla.Familia);
+        Assert.Equal("AKo", ancla.Tope);
+        Assert.Equal("A9o", ancla.Fondo);
+        Assert.Equal("RAISE_X2", ancla.Accion);
+        Assert.Equal("A8o", ancla.Siguiente);
+        Assert.Equal("CALL", ancla.AccionSiguiente);
+    }
+
+    [Fact]
+    public void El_ancla_de_una_pareja_se_mide_contra_los_pares()
+    {
+        var ancla = Ficha("77").Ancla!;
+        Assert.Equal("Pares", ancla.Familia);
+        Assert.Equal("AA", ancla.Tope);
+        Assert.Equal("55", ancla.Fondo);
+        Assert.Equal("44", ancla.Siguiente);
+        Assert.Equal("ALL-IN", ancla.AccionSiguiente);
+    }
+
+    [Fact]
+    public void Una_familia_entera_de_la_misma_accion_no_tiene_ancla()
+    {
+        // A 8bb el spot no tiene folds y todo Axo es ALL-IN.
+        Assert.Null(Ficha("A8o", stack: "8bb").Ancla);
+    }
 }
