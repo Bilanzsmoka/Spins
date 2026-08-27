@@ -22,7 +22,7 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             claveDeStack,
             Pesos(spot),
             Ancla(spot, celda.Mano),
-            [],
+            Umbral(situacion, claveDeStack, claveDeSpot, celda.Mano),
             [],
             [],
             null);
@@ -110,4 +110,57 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
 
     private static bool Igual(string? a, string? b)
         => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// La misma mano a lo largo de todos los stacks de la situación,
+    /// colapsada en tramos de igual acción. Es la forma en que se estudian
+    /// estos rangos: no trece tablas sueltas, sino dos o tres cortes.
+    /// </summary>
+    private IReadOnlyList<BandaDeStack> Umbral(
+        string situacion, string claveDeStack, string claveDeSpot, string mano)
+    {
+        var stacks = catalogo.Situacion(situacion)?.Stacks;
+        if (stacks is null) return [];
+
+        var bandas = new List<BandaDeStack>();
+        foreach (var tabla in stacks)
+        {
+            var accion = tabla.Spot(claveDeSpot)?.AccionDe(mano);
+            if (accion is null) continue;
+
+            var esElActual = Igual(tabla.Stack.Clave, claveDeStack);
+            var ultima = bandas.Count > 0 ? bandas[^1] : null;
+
+            // Se extiende sólo si el stack anterior pega con éste: un stack
+            // sin este spot corta el tramo, porque entre medio la tabla no
+            // dice nada y fingir continuidad sería inventar.
+            var continua = ultima is not null
+                && Igual(ultima.Accion, accion)
+                && ultima.MaxBB == tabla.Stack.MinBB - 1;
+
+            if (continua)
+                bandas[^1] = ultima! with
+                {
+                    ClaveDeStack = Unir(ultima.ClaveDeStack, tabla.Stack.Clave),
+                    MaxBB = tabla.Stack.MaxBB,
+                    // La banda es la actual si CUALQUIERA de los stacks que
+                    // absorbió lo es, no sólo el primero.
+                    EsElActual = ultima.EsElActual || esElActual,
+                };
+            else
+                bandas.Add(new BandaDeStack(
+                    tabla.Stack.Clave, tabla.Stack.MinBB, tabla.Stack.MaxBB, accion, esElActual));
+        }
+        return bandas;
+    }
+
+    /// <summary>
+    /// El nombre de una banda que abarca varios stacks: sus extremos. Se
+    /// recorta lo ya unido para que tres stacks no den "a…b…c".
+    /// </summary>
+    private static string Unir(string acumulado, string ultimo)
+    {
+        var primero = acumulado.Split('…')[0];
+        return primero == ultimo ? ultimo : $"{primero}…{ultimo}";
+    }
 }

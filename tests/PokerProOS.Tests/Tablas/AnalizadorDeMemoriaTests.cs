@@ -101,4 +101,55 @@ public class AnalizadorDeMemoriaTests
         // A 8bb el spot no tiene folds y todo Axo es ALL-IN.
         Assert.Null(Ficha("A8o", stack: "8bb").Ancla);
     }
+
+    [Fact]
+    public void El_umbral_colapsa_los_stacks_que_hacen_lo_mismo()
+    {
+        var umbral = Ficha("A8o").Umbral;
+
+        Assert.Equal(3, umbral.Count);
+
+        Assert.Equal("ALL-IN", umbral[0].Accion);
+        Assert.Equal(1m, umbral[0].MinBB);
+        Assert.Equal(16m, umbral[0].MaxBB);
+
+        Assert.Equal("CALL", umbral[1].Accion);
+        Assert.Equal(17m, umbral[1].MinBB);
+        Assert.Equal(18m, umbral[1].MaxBB);
+        Assert.Equal("17-18bb", umbral[1].ClaveDeStack);
+        Assert.True(umbral[1].EsElActual);
+        Assert.False(umbral[0].EsElActual);
+        Assert.False(umbral[2].EsElActual);
+
+        Assert.Equal("RAISE_X2", umbral[2].Accion);
+        Assert.Equal(19m, umbral[2].MinBB);
+        Assert.Equal(99m, umbral[2].MaxBB);
+    }
+
+    [Fact]
+    public void Una_banda_de_varios_stacks_nombra_sus_extremos()
+    {
+        // Extremos por CLAVE, no por número: el último tramo entra con su
+        // nombre entero. Nueve stacks (1-4bb … 13-16bb) colapsan en uno.
+        Assert.Equal("1-4bb…13-16bb", Ficha("A8o").Umbral[0].ClaveDeStack);
+    }
+
+    [Fact]
+    public void La_banda_actual_se_marca_aunque_este_fusionada()
+    {
+        // A 10bb, A8o cae adentro de la banda ALL-IN que junta nueve stacks.
+        // Comparar claves no serviría: la banda no se llama "10bb".
+        var umbral = Ficha("A8o", stack: "10bb").Umbral;
+        var actual = umbral.Single(b => b.EsElActual);
+        Assert.Equal("ALL-IN", actual.Accion);
+        Assert.Equal("1-4bb…13-16bb", actual.ClaveDeStack);
+    }
+
+    [Fact]
+    public void El_umbral_de_una_mano_fuerte_igual_se_calcula()
+    {
+        var umbral = Ficha("AA").Umbral;
+        Assert.NotEmpty(umbral);
+        Assert.All(umbral, banda => Assert.False(string.IsNullOrEmpty(banda.Accion)));
+    }
 }
