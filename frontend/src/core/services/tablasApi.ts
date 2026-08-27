@@ -1,6 +1,6 @@
 import type {
   Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada, EstadoDeVoz,
-  CategoriaDeVocabulario, HabitoDefinido, ParteDeMix, ProgresoDeHabitos,
+  CategoriaDeVocabulario, FichaDeMemoria, HabitoDefinido, ParteDeMix, ProgresoDeHabitos,
   SpotCompleto, Vocabulario,
 } from '../models/catalogo.model'
 
@@ -39,6 +39,30 @@ export async function editarCelda(
   const respuesta = await fetch(
     `/api/tablas/${situacion}/${stack}/${spot}/${mano}`,
     { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) },
+  )
+  if (!respuesta.ok) {
+    const error = await respuesta.json().catch(() => null) as { error?: string } | null
+    throw new Error(error?.error ?? `${respuesta.status} ${respuesta.statusText}`)
+  }
+}
+
+export const obtenerFicha = (situacion: string, stack: string, spot: string, mano: string) =>
+  pedir<FichaDeMemoria>(
+    `/api/tablas/ficha?situacion=${encodeURIComponent(situacion)}`
+    + `&stack=${encodeURIComponent(stack)}`
+    + `&spot=${encodeURIComponent(spot)}`
+    + `&mano=${encodeURIComponent(mano)}`)
+
+export async function guardarTip(
+  situacion: string, stack: string, spot: string, texto: string | null,
+): Promise<void> {
+  const respuesta = await fetch(
+    `/api/tablas/${situacion}/${stack}/${spot}/tip`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto }),
+    },
   )
   if (!respuesta.ok) {
     const error = await respuesta.json().catch(() => null) as { error?: string } | null

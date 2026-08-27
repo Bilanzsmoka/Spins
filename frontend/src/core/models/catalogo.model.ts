@@ -58,6 +58,50 @@ export interface SpotCompleto {
   conteos: Record<string, number>
 }
 
+export interface PesoDeAccion {
+  accion: string
+  combos: number
+  porcentajeDeBaraja: number
+}
+
+/** El bloque de una familia que comparte acción, y la mano que lo rompe. */
+export interface AnclaDeFamilia {
+  familia: string
+  tope: string
+  fondo: string
+  accion: string
+  siguiente: string | null
+  accionSiguiente: string | null
+}
+
+export interface BandaDeStack {
+  claveDeStack: string
+  minBB: number
+  maxBB: number
+  accion: string
+  /** Si el stack consultado cae adentro de esta banda. */
+  esElActual: boolean
+}
+
+export interface PasoDeLinea {
+  spot: string
+  etiqueta: string
+  accion: string
+  esElConsultado: boolean
+}
+
+export interface FichaDeMemoria {
+  mano: string
+  accion: string
+  claveDeStack: string
+  pesos: PesoDeAccion[]
+  ancla: AnclaDeFamilia | null
+  umbral: BandaDeStack[]
+  familias: AnclaDeFamilia[]
+  linea: PasoDeLinea[]
+  tip: string | null
+}
+
 export interface EventoDeVoz {
   textoCrudo: string
   manoInterpretada: string
@@ -67,6 +111,7 @@ export interface EventoDeVoz {
   situacion: string | null
   claveDeStack: string | null
   spot: string | null
+  ficha: FichaDeMemoria | null
 }
 
 export interface EstadoDeVoz {
