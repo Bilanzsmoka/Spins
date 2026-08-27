@@ -51,4 +51,26 @@ public class MatrizDeManosTests
         foreach (var mano in todas)
             Assert.All(MatrizDeManos.Vecinas(mano), v => Assert.Contains(v, todas));
     }
+
+    [Theory]
+    [InlineData("AA", 6)]
+    [InlineData("22", 6)]
+    [InlineData("AKs", 4)]
+    [InlineData("72s", 4)]
+    [InlineData("AKo", 12)]
+    [InlineData("72o", 12)]
+    public void Cuenta_los_combos_de_cada_forma_de_mano(string mano, int esperados)
+        => Assert.Equal(esperados, MatrizDeManos.Combos(mano));
+
+    [Fact]
+    public void Los_combos_de_las_169_manos_son_la_baraja_entera()
+    {
+        var suma = MatrizDeManos.Todas().Sum(MatrizDeManos.Combos);
+        Assert.Equal(1326, MatrizDeManos.CombosTotales);
+        Assert.Equal(MatrizDeManos.CombosTotales, suma);
+    }
+
+    [Fact]
+    public void Una_mano_desconocida_no_tiene_combos()
+        => Assert.Throws<ArgumentException>(() => MatrizDeManos.Combos("XX"));
 }

@@ -11,6 +11,28 @@ public static class MatrizDeManos
 
     private static readonly IReadOnlyList<string> _todas = Construir();
 
+    /// <summary>
+    /// La otra constante que el póker no cambia. De acá se derivan los combos:
+    /// no se escriben 4, 6, 12 ni 1326 en ninguna parte del proyecto.
+    /// </summary>
+    public const int PalosPorRango = 4;
+
+    /// <summary>C(52,2): todas las manos iniciales posibles de la baraja.</summary>
+    public static int CombosTotales { get; } = _todas.Sum(Combos);
+
+    /// <summary>
+    /// Cuántas manos reales de la baraja representa una casilla de la grilla.
+    /// Una pareja son las combinaciones de dos palos entre los cuatro, C(4,2);
+    /// una suited es una por palo; una offsuit es cada palo del rango alto
+    /// contra cada palo distinto del bajo.
+    /// </summary>
+    public static int Combos(string etiqueta)
+    {
+        var (fila, columna) = Coordenadas(etiqueta);
+        if (fila == columna) return PalosPorRango * (PalosPorRango - 1) / 2;
+        return etiqueta[2] == 's' ? PalosPorRango : PalosPorRango * (PalosPorRango - 1);
+    }
+
     public static IReadOnlyList<string> Todas() => _todas;
 
     public static string Etiqueta(int fila, int columna)
