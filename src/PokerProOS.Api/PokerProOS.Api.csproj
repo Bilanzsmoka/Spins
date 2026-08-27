@@ -34,13 +34,22 @@
 
   <!-- MSBuild copia los archivos de datos nuevos, pero no borra de la salida
        los que se sacaron del proyecto: una tabla eliminada seguia viva en
-       bin/ y la aplicacion la seguia leyendo. Vaciar la carpeta antes de
-       cada copia hace que la salida sea siempre un espejo del proyecto.
-       Va en PrepareForBuild y no en Build: Build corre DESPUES de sus
-       dependencias, entre ellas la copia, asi que enganchado ahi borraria
-       justo lo que acaba de copiar. -->
-  <Target Name="LimpiarDatosDeSalida" BeforeTargets="PrepareForBuild">
-    <RemoveDir Directories="$(OutDir)database" />
+       bin/ y la aplicacion la seguia leyendo.
+
+       Se borran DESPUES de copiar y solo los sobrantes, no la carpeta
+       entera: vaciarla antes dejaba la salida sin datos si la compilacion
+       fallaba despues (por ejemplo con la aplicacion corriendo y los dll
+       bloqueados), y entonces la app arrancaba sin ninguna tabla. -->
+  <Target Name="BorrarDatosSobrantes" AfterTargets="Build">
+    <ItemGroup>
+      <DatosEnSalida Include="$(OutDir)database\**\*.json" />
+      <DatosDelProyecto Include="..\..\database\**\*.json" />
+      <DatosEsperados Include="@(DatosDelProyecto->'$(OutDir)database\%(RecursiveDir)%(Filename)%(Extension)')" />
+      <DatosSobrantes Include="@(DatosEnSalida)" Exclude="@(DatosEsperados)" />
+    </ItemGroup>
+    <Message Importance="normal" Condition="'@(DatosSobrantes)' != ''"
+             Text="Quitando de la salida datos que ya no estan en el proyecto: @(DatosSobrantes)" />
+    <Delete Files="@(DatosSobrantes)" />
   </Target>
 
   <Target Name="ConstruirFrontend" BeforeTargets="Build"
