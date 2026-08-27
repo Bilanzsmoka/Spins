@@ -637,7 +637,7 @@ Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situac
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `dotnet test PokerProOS.slnx --filter "FullyQualifiedName~AnalizadorDeMemoriaTests"`
-Expected: PASS, los trece.
+Expected: PASS, los catorce.
 
 - [ ] **Step 5: Commit**
 
@@ -775,7 +775,7 @@ Cambiar el séptimo y octavo argumento de `new FichaDeMemoria(...)` de `[]`, `[]
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `dotnet test PokerProOS.slnx --filter "FullyQualifiedName~AnalizadorDeMemoriaTests"`
-Expected: PASS, los diecisiete.
+Expected: PASS, los dieciocho.
 
 - [ ] **Step 5: Commit**
 
