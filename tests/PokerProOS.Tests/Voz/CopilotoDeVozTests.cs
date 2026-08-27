@@ -24,7 +24,8 @@ public class CopilotoDeVozTests
             reconocedor, sintetizador,
             new ResolverManoHandler(catalogo),
             new RedactorDeRespuesta(acciones, vocabulario),
-            memoria);
+            memoria,
+            new AnalizadorDeMemoria(catalogo));
         copiloto.Conectar();
         return (copiloto, reconocedor, sintetizador, memoria);
     }
@@ -177,6 +178,26 @@ public class CopilotoDeVozTests
         copiloto.Procesar(Dictado("A", "A"));
 
         Assert.Same(fallo, capturado);
+    }
+
+    [Fact]
+    public void El_evento_trae_la_ficha_de_la_mano_resuelta()
+    {
+        var (copiloto, _, _, _) = Armar();
+        var evento = copiloto.Procesar(Dictado("A", "8", stack: 17, spot: "SB_OR"));
+
+        Assert.NotNull(evento.Ficha);
+        Assert.Equal("A8o", evento.Ficha!.Mano);
+        Assert.Equal("CALL", evento.Ficha.Accion);
+        Assert.NotEmpty(evento.Ficha.Umbral);
+    }
+
+    [Fact]
+    public void Un_dictado_que_no_resuelve_no_trae_ficha()
+    {
+        var (copiloto, _, _, _) = Armar();
+        var evento = copiloto.Procesar(Dictado("X", "8"));
+        Assert.Null(evento.Ficha);
     }
 
     [Fact]

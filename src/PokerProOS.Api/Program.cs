@@ -72,6 +72,7 @@ builder.Services.AddSingleton<IReconocedorDeVoz, ReconocedorSapi>();
 builder.Services.AddSingleton<ISintetizadorDeVoz, SintetizadorSapi>();
 builder.Services.AddSingleton<ResolverManoHandler>();
 builder.Services.AddSingleton<RedactorDeRespuesta>();
+builder.Services.AddSingleton<AnalizadorDeMemoria>();
 builder.Services.AddSingleton(new MemoriaDeContexto
 {
     Situacion = catalogo.Situaciones.FirstOrDefault()?.Clave ?? "",

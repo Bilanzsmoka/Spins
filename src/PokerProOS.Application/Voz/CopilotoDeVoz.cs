@@ -10,7 +10,12 @@ public record EventoDeCopiloto(
     bool Resuelta,
     string? Situacion,
     string? ClaveDeStack,
-    string? Spot);
+    string? Spot,
+    /// <summary>
+    /// Lo que hay que saber de esa mano, para leer. Nulo si el dictado no
+    /// resolvió: no hay nada que explicar de una mano que no se entendió.
+    /// </summary>
+    FichaDeMemoria? Ficha = null);
 
 /// <summary>
 /// Une el reconocedor, la memoria de contexto, el resolvedor de tabla y el
@@ -23,7 +28,8 @@ public sealed class CopilotoDeVoz(
     ISintetizadorDeVoz sintetizador,
     ResolverManoHandler resolver,
     RedactorDeRespuesta redactor,
-    MemoriaDeContexto memoria)
+    MemoriaDeContexto memoria,
+    AnalizadorDeMemoria analizador)
 {
     private bool _conectado;
 
@@ -55,6 +61,14 @@ public sealed class CopilotoDeVoz(
             memoria.Situacion, memoria.StackBB, memoria.Spot,
             dictado.RangoAlto, dictado.RangoBajo, dictado.Palo));
 
+        // Resolver y explicar son dos cosas distintas: ResolverManoHandler
+        // sigue respondiendo "qué hago" y el analizador agrega el "por qué".
+        var ficha = resultado.Respuesta is null
+            ? null
+            : analizador.Analizar(
+                memoria.Situacion, resultado.Respuesta.ClaveDeStack,
+                memoria.Spot, resultado.Respuesta.Mano);
+
         var evento = new EventoDeCopiloto(
             dictado.TextoCrudo,
             resultado.Respuesta?.Mano ?? "",
@@ -63,7 +77,8 @@ public sealed class CopilotoDeVoz(
             resultado.Respuesta is not null,
             memoria.Situacion,
             resultado.Respuesta?.ClaveDeStack,
-            memoria.Spot);
+            memoria.Spot,
+            ficha);
 
         Publicar(evento);
         return evento;
