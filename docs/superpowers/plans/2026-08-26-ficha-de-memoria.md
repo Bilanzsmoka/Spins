@@ -129,7 +129,7 @@ git commit -m "feat: combos de baraja por casilla de la grilla"
 - Produces:
   - `record PesoDeAccion(string Accion, double Combos, double PorcentajeDeBaraja)`
   - `record AnclaDeFamilia(string Familia, string Tope, string Fondo, string Accion, string? Siguiente, string? AccionSiguiente)`
-  - `record BandaDeStack(string ClaveDeStack, decimal MinBB, decimal MaxBB, string Accion)`
+  - `record BandaDeStack(string ClaveDeStack, decimal MinBB, decimal MaxBB, string Accion, bool EsElActual)`
   - `record PasoDeLinea(string Spot, string Etiqueta, string Accion, bool EsElConsultado)`
   - `record FichaDeMemoria(string Mano, string Accion, string ClaveDeStack, IReadOnlyList<PesoDeAccion> Pesos, AnclaDeFamilia? Ancla, IReadOnlyList<BandaDeStack> Umbral, IReadOnlyList<AnclaDeFamilia> Familias, IReadOnlyList<PasoDeLinea> Linea, string? Tip)`
   - `sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)` con `FichaDeMemoria? Analizar(string situacion, string claveDeStack, string claveDeSpot, string mano)`
@@ -246,7 +246,17 @@ public record AnclaDeFamilia(
     string? AccionSiguiente);
 
 /// <summary>Un tramo de stacks donde la mano hace siempre lo mismo.</summary>
-public record BandaDeStack(string ClaveDeStack, decimal MinBB, decimal MaxBB, string Accion);
+/// <param name="ClaveDeStack">
+/// La clave del stack, o "{primero}…{ultimo}" si la banda junta varios.
+/// </param>
+/// <param name="EsElActual">
+/// Si el stack consultado cae adentro de esta banda. Se marca acá y no se
+/// deduce comparando claves en la pantalla: una banda que junta varios
+/// stacks no lleva la clave de ninguno de ellos, así que la comparación
+/// fallaría justo cuando el stack que estás jugando quedó fusionado.
+/// </param>
+public record BandaDeStack(
+    string ClaveDeStack, decimal MinBB, decimal MaxBB, string Accion, bool EsElActual);
 
 /// <summary>Un spot del stack y lo que esa mano hace ahí.</summary>
 public record PasoDeLinea(string Spot, string Etiqueta, string Accion, bool EsElConsultado);
@@ -499,9 +509,9 @@ git commit -m "feat: mano ancla dentro de su familia"
 
 **Interfaces:**
 - Consumes: `BandaDeStack` (Task 2), `Igual` (Task 3), `ICatalogoDeTablas.Situacion`, `SituacionDeTabla.Stacks`, `TablaDeStack.Stack` (`RangoDeStack` con `Clave`, `MinBB`, `MaxBB`), `TablaDeStack.Spot`.
-- Produces: `FichaDeMemoria.Umbral` poblado. Métodos privados `Umbral(string situacion, string claveDeSpot, string mano)` y `Unir(string acumulado, string ultimo)`.
+- Produces: `FichaDeMemoria.Umbral` poblado. Métodos privados `Umbral(string situacion, string claveDeStack, string claveDeSpot, string mano)` y `Unir(string acumulado, string ultimo)`.
 
-**Definición.** Recorrer los stacks de la situación (ya vienen ordenados por `MinBB` desde `CargadorDeTablas`), tomar la acción de esa mano en ese spot, y colapsar tramos consecutivos de igual acción en una sola banda. Un stack que no declara el spot corta el tramo. La `ClaveDeStack` de una banda que abarca varios stacks es `"{primera}…{última}"`; `MinBB`/`MaxBB` son los extremos reales.
+**Definición.** Recorrer los stacks de la situación (ya vienen ordenados por `MinBB` desde `CargadorDeTablas`), tomar la acción de esa mano en ese spot, y colapsar tramos consecutivos de igual acción en una sola banda. Un stack que no declara el spot corta el tramo. La `ClaveDeStack` de una banda que abarca varios stacks es `"{primera}…{última}"` — claves, no números, así que la última conserva su nombre entero (`"1-4bb…13-16bb"`, no `"1-4bb…16bb"`); `MinBB`/`MaxBB` son los extremos reales. `EsElActual` se marca en la banda que contiene el stack consultado, sea sola o fusionada.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -521,6 +531,9 @@ git commit -m "feat: mano ancla dentro de su familia"
         Assert.Equal(17m, umbral[1].MinBB);
         Assert.Equal(18m, umbral[1].MaxBB);
         Assert.Equal("17-18bb", umbral[1].ClaveDeStack);
+        Assert.True(umbral[1].EsElActual);
+        Assert.False(umbral[0].EsElActual);
+        Assert.False(umbral[2].EsElActual);
 
         Assert.Equal("RAISE_X2", umbral[2].Accion);
         Assert.Equal(19m, umbral[2].MinBB);
@@ -529,7 +542,22 @@ git commit -m "feat: mano ancla dentro de su familia"
 
     [Fact]
     public void Una_banda_de_varios_stacks_nombra_sus_extremos()
-        => Assert.Equal("1-4bb…16bb", Ficha("A8o").Umbral[0].ClaveDeStack);
+    {
+        // Extremos por CLAVE, no por número: el último tramo entra con su
+        // nombre entero. Nueve stacks (1-4bb … 13-16bb) colapsan en uno.
+        Assert.Equal("1-4bb…13-16bb", Ficha("A8o").Umbral[0].ClaveDeStack);
+    }
+
+    [Fact]
+    public void La_banda_actual_se_marca_aunque_este_fusionada()
+    {
+        // A 10bb, A8o cae adentro de la banda ALL-IN que junta nueve stacks.
+        // Comparar claves no serviría: la banda no se llama "10bb".
+        var umbral = Ficha("A8o", stack: "10bb").Umbral;
+        var actual = umbral.Single(b => b.EsElActual);
+        Assert.Equal("ALL-IN", actual.Accion);
+        Assert.Equal("1-4bb…13-16bb", actual.ClaveDeStack);
+    }
 
     [Fact]
     public void El_umbral_de_una_mano_fuerte_igual_se_calcula()
@@ -547,7 +575,7 @@ Expected: FAIL — `umbral.Count` es 0, no 3.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situacion, claveDeSpot, celda.Mano)`, y agregar:
+Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situacion, claveDeStack, claveDeSpot, celda.Mano)`, y agregar:
 
 ```csharp
     /// <summary>
@@ -555,7 +583,8 @@ Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situac
     /// colapsada en tramos de igual acción. Es la forma en que se estudian
     /// estos rangos: no trece tablas sueltas, sino dos o tres cortes.
     /// </summary>
-    private IReadOnlyList<BandaDeStack> Umbral(string situacion, string claveDeSpot, string mano)
+    private IReadOnlyList<BandaDeStack> Umbral(
+        string situacion, string claveDeStack, string claveDeSpot, string mano)
     {
         var stacks = catalogo.Situacion(situacion)?.Stacks;
         if (stacks is null) return [];
@@ -566,6 +595,7 @@ Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situac
             var accion = tabla.Spot(claveDeSpot)?.AccionDe(mano);
             if (accion is null) continue;
 
+            var esElActual = Igual(tabla.Stack.Clave, claveDeStack);
             var ultima = bandas.Count > 0 ? bandas[^1] : null;
 
             // Se extiende sólo si el stack anterior pega con éste: un stack
@@ -580,10 +610,13 @@ Cambiar el sexto argumento de `new FichaDeMemoria(...)` de `[]` a `Umbral(situac
                 {
                     ClaveDeStack = Unir(ultima.ClaveDeStack, tabla.Stack.Clave),
                     MaxBB = tabla.Stack.MaxBB,
+                    // La banda es la actual si CUALQUIERA de los stacks que
+                    // absorbió lo es, no sólo el primero.
+                    EsElActual = ultima.EsElActual || esElActual,
                 };
             else
                 bandas.Add(new BandaDeStack(
-                    tabla.Stack.Clave, tabla.Stack.MinBB, tabla.Stack.MaxBB, accion));
+                    tabla.Stack.Clave, tabla.Stack.MinBB, tabla.Stack.MaxBB, accion, esElActual));
         }
         return bandas;
     }
@@ -1343,6 +1376,8 @@ export interface BandaDeStack {
   minBB: number
   maxBB: number
   accion: string
+  /** Si el stack consultado cae adentro de esta banda. */
+  esElActual: boolean
 }
 
 export interface PasoDeLinea {
@@ -1541,7 +1576,7 @@ export function FichaDeMemoria({
               {ficha.umbral.map((banda) => (
                 <li
                   key={banda.claveDeStack}
-                  className={banda.claveDeStack === ficha.claveDeStack ? 'ficha-banda-actual' : ''}
+                  className={banda.esElActual ? 'ficha-banda-actual' : ''}
                 >
                   <span className="ficha-banda-stack">{banda.minBB}–{banda.maxBB}bb</span>
                   <span className="ficha-chip" style={pintar(banda.accion)}>
