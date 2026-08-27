@@ -41,7 +41,7 @@ public class AnalizadorDeMemoriaTests
             .ToList();
 
         var catalogo = new CatalogoEnMemoria(
-            [new SituacionDeTabla(situacion, situacion, tablas)], []);
+            [new SituacionDeTabla(situacion, situacion, "HU", tablas)], []);
         return new AnalizadorDeMemoria(catalogo);
     }
 
@@ -130,8 +130,8 @@ public class AnalizadorDeMemoriaTests
     [Fact]
     public void Una_familia_entera_de_la_misma_accion_no_tiene_ancla()
     {
-        // A 8bb el spot no tiene folds y todo Axo es ALL-IN.
-        Assert.Null(Ficha("A8o", stack: "8bb").Ancla);
+        // A 8-8bb el spot no tiene folds y todo Axo es ALL-IN.
+        Assert.Null(Ficha("A8o", stack: "8-8bb").Ancla);
     }
 
     [Fact]
@@ -169,9 +169,9 @@ public class AnalizadorDeMemoriaTests
     [Fact]
     public void La_banda_actual_se_marca_aunque_este_fusionada()
     {
-        // A 10bb, A8o cae adentro de la banda ALL-IN que junta nueve stacks.
-        // Comparar claves no serviría: la banda no se llama "10bb".
-        var umbral = Ficha("A8o", stack: "10bb").Umbral;
+        // A 10-10bb, A8o cae adentro de la banda ALL-IN que junta nueve stacks.
+        // Comparar claves no serviría: la banda no se llama "10-10bb".
+        var umbral = Ficha("A8o", stack: "10-10bb").Umbral;
         var actual = umbral.Single(b => b.EsElActual);
         Assert.Equal("ALL-IN", actual.Accion);
         Assert.Equal("1-4bb…13-16bb", actual.ClaveDeStack);
@@ -194,7 +194,7 @@ public class AnalizadorDeMemoriaTests
         Assert.False(umbral[0].EsElActual);
 
         Assert.Equal("CALL", umbral[1].Accion);
-        Assert.Equal("5bb…11-12bb", umbral[1].ClaveDeStack);
+        Assert.Equal("5-5bb…11-12bb", umbral[1].ClaveDeStack);
         Assert.Equal(5m, umbral[1].MinBB);
         Assert.Equal(12m, umbral[1].MaxBB);
         Assert.False(umbral[1].EsElActual);

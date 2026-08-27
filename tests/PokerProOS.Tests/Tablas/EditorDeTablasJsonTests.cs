@@ -71,7 +71,7 @@ public class EditorDeTablasJsonTests : IDisposable
     // (UbicarSpot con firma nueva, GuardarYRecargar extraído) tocan este
     // camino, y no había ningún test que lo ejerciera. Estos cuatro cubren
     // ese hueco. Los valores concretos (mano, acción de partida) están
-    // tomados de lo que hoy dice hu-sb-or-fish-17-18bb.json: en el spot
+    // tomados de lo que hoy dice hu-sb-or-fish.json: en el spot
     // SB_OR, "AA" y "KQo" no están en ninguna lista explícita (CALL,
     // ALL-IN), así que hoy les toca RAISE_X2 por ser el REST del spot.
 
@@ -122,7 +122,7 @@ public class EditorDeTablasJsonTests : IDisposable
         // No alcanza con lo que dice el catálogo recargado: hay que confirmar
         // que Aplicar sacó la mano del bloque "mixes" en el archivo mismo,
         // no solo que el catálogo la resuelve distinto.
-        var archivo = Path.Combine(_directorio, "hu-sb-or-fish-17-18bb.json");
+        var archivo = Path.Combine(_directorio, "hu-sb-or-fish.json");
         var raiz = JsonNode.Parse(await File.ReadAllTextAsync(archivo))!.AsObject();
         var spot = raiz["stacks"]!.AsArray()
             .Select(n => n!.AsObject())

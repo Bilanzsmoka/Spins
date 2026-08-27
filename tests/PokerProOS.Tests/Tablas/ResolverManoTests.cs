@@ -125,7 +125,7 @@ public class ResolverManoTests
         var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
         return new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas)
-            .Spot("HU_SB_OR_FISH", "10bb", "SB_OR")!;
+            .Spot("HU_SB_OR_FISH", "10-10bb", "SB_OR")!;
     }
 
     private static (string Alto, string Bajo, string? Palo) Descomponer(string mano) =>

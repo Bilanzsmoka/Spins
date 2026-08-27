@@ -188,6 +188,107 @@
         "contra ese be tres bet",
         "ese be tres bet"
       ]
+    },
+    {
+      "clave": "BB_VS_SB_MR",
+      "dichos": [
+        "contra min raise",
+        "vs min raise",
+        "me subio"
+      ]
+    },
+    {
+      "clave": "BB_VS_SB_OS",
+      "dichos": [
+        "contra open shove",
+        "vs open shove",
+        "me empujo"
+      ]
+    },
+    {
+      "clave": "BTN_OR",
+      "dichos": [
+        "boton o erre",
+        "mi accion en el boton",
+        "abrir en el boton"
+      ]
+    },
+    {
+      "clave": "SB_VS_BTN_LIMP",
+      "dichos": [
+        "contra limp del boton",
+        "limpea el boton"
+      ]
+    },
+    {
+      "clave": "VS_BTN_ALL_IN",
+      "dichos": [
+        "contra all in del boton",
+        "boton all in"
+      ]
+    },
+    {
+      "clave": "VS_BTN_3BET",
+      "dichos": [
+        "contra tres bet del boton",
+        "boton tres bet"
+      ]
+    },
+    {
+      "clave": "SB_VS_BTN_MR",
+      "dichos": [
+        "contra min raise del boton",
+        "sube el boton"
+      ]
+    },
+    {
+      "clave": "SB_VS_BB",
+      "dichos": [
+        "contra be be",
+        "el boton se fue"
+      ]
+    },
+    {
+      "clave": "SB_VS_BTN_OS",
+      "dichos": [
+        "contra open shove del boton",
+        "el boton empujo"
+      ]
+    },
+    {
+      "clave": "BB_VS_BTN_MR",
+      "dichos": [
+        "be be contra min raise del boton",
+        "el boton me subio"
+      ]
+    },
+    {
+      "clave": "BB_VS_3WAY_MR",
+      "dichos": [
+        "contra min raise a tres",
+        "min raise a tres"
+      ]
+    },
+    {
+      "clave": "BB_VS_3WAY_LIMP",
+      "dichos": [
+        "contra limp a tres",
+        "limp a tres"
+      ]
+    },
+    {
+      "clave": "BB_VS_BTN_LIMP",
+      "dichos": [
+        "contra limp del boton en be be",
+        "el boton limpeo"
+      ]
+    },
+    {
+      "clave": "BB_VS_BTN_OS",
+      "dichos": [
+        "contra open shove del boton en be be",
+        "el boton se fue all in"
+      ]
     }
   ],
   "situaciones": [
@@ -205,6 +306,111 @@
       "dichos": [
         "be be contra limp",
         "defendiendo limp"
+      ]
+    },
+    {
+      "clave": "HU_BB_VS_MR_FISH",
+      "dichos": [
+        "be be contra min raise",
+        "defendiendo min raise"
+      ]
+    },
+    {
+      "clave": "HU_BB_VS_OS_FISH",
+      "dichos": [
+        "be be contra open shove",
+        "defendiendo open shove"
+      ]
+    },
+    {
+      "clave": "3MAX_BTN_OR_FISH_FISH",
+      "dichos": [
+        "tres max fish fish",
+        "tres max contra dos fish"
+      ]
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_LIMP_FISH_FISH",
+      "dichos": [
+        "tres max ese be contra limp",
+        "ese be defendiendo limp"
+      ]
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_MR_FISH_FISH",
+      "dichos": [
+        "tres max ese be contra min raise",
+        "ese be defendiendo min raise"
+      ]
+    },
+    {
+      "clave": "3MAX_SB_VS_BB_FISH_FISH",
+      "dichos": [
+        "tres max ese be be be",
+        "tres max sin boton"
+      ]
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_OS_REG_REG",
+      "dichos": [
+        "tres max ese be contra open shove",
+        "tres max contra regs"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_MR_FISH_FISH",
+      "dichos": [
+        "tres max be be contra min raise",
+        "tres max be be defendiendo"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_MR_FISH_FISH",
+      "dichos": [
+        "tres max be be contra ese be",
+        "tres max be be contra min raise del ese be"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_3WAY_MR_FISH_FISH",
+      "dichos": [
+        "tres max be be a tres contra min raise",
+        "tres max tres bandas min raise"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_3WAY_LIMP_FISH_FISH",
+      "dichos": [
+        "tres max be be a tres contra limp",
+        "tres max tres bandas limp"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_LIMP_FISH_FISH",
+      "dichos": [
+        "tres max be be contra limp del boton",
+        "tres max be be limp boton"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_LIMP_FISH_FISH",
+      "dichos": [
+        "tres max be be contra limp del ese be",
+        "tres max be be limp ese be"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_OS_FISH_FISH",
+      "dichos": [
+        "tres max be be contra open shove del ese be",
+        "tres max be be shove ese be"
+      ]
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_OS_REG_REG",
+      "dichos": [
+        "tres max be be contra open shove del boton",
+        "tres max be be shove boton"
       ]
     }
   ]

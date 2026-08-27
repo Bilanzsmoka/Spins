@@ -31,6 +31,47 @@ public class CatalogoEnMemoriaTests
         => Assert.Equal(11, Catalogo().Situacion("HU_SB_OR_FISH")!.Stacks.Count);
 
     [Fact]
+    public void Cada_situacion_declara_su_formato()
+        => Assert.All(Catalogo().Situaciones, s => Assert.False(string.IsNullOrWhiteSpace(s.Formato)));
+
+    [Theory]
+    [InlineData("HU_SB_OR_FISH", "HU")]
+    [InlineData("HU_BB_VS_LIMP_FISH", "HU")]
+    [InlineData("3MAX_BTN_OR_FISH_FISH", "3-max")]
+    [InlineData("3MAX_SB_VS_BTN_LIMP_FISH_FISH", "3-max")]
+    public void Lee_el_formato_declarado_por_el_archivo(string clave, string esperado)
+        => Assert.Equal(esperado, Catalogo().Situacion(clave)!.Formato);
+
+    /// <summary>
+    /// Un archivo que no declara formato no puede quedar invisible en la
+    /// pantalla: cae a un grupo con nombre en vez de a cadena vacía.
+    /// </summary>
+    [Fact]
+    public void Una_situacion_sin_formato_declarado_cae_a_Otros()
+    {
+        var directorio = Path.Combine(Path.GetTempPath(), $"tablas-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directorio);
+        try
+        {
+            File.WriteAllText(Path.Combine(directorio, "sin-formato.json"),
+                """
+                {"situation":{"key":"X","label":"X"},"stacks":[{"key":"5bb","minBB":5,"maxBB":5,
+                   "spots":[{"key":"SB_OR","label":"x","actions":{"CALL":["AA"],"FOLD":"REST"}}]}]}
+                """);
+
+            var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
+            var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
+                .CargarDirectorio(directorio);
+
+            Assert.Equal("Otros", catalogo.Situacion("X")!.Formato);
+        }
+        finally
+        {
+            Directory.Delete(directorio, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Cada_spot_cubre_las_169_manos()
     {
         foreach (var situacion in Catalogo().Situaciones)
@@ -40,7 +81,7 @@ public class CatalogoEnMemoriaTests
     }
 
     [Theory]
-    [InlineData(7, "7bb")]
+    [InlineData(7, "7-7bb")]
     [InlineData(13, "13-16bb")]
     [InlineData(16, "13-16bb")]
     [InlineData(2, "1-4bb")]
@@ -55,7 +96,7 @@ public class CatalogoEnMemoriaTests
     [Fact]
     public void Expande_la_accion_marcada_como_resto()
     {
-        var spot = Catalogo().Spot("HU_SB_OR_FISH", "10bb", "SB_OR")!;
+        var spot = Catalogo().Spot("HU_SB_OR_FISH", "10-10bb", "SB_OR")!;
         Assert.Equal("CALL", spot.AccionDe("AA"));
         Assert.Equal("ALL-IN", spot.AccionDe("A9s"));
         Assert.Equal("CALL", spot.AccionDe("32o"));
@@ -64,7 +105,7 @@ public class CatalogoEnMemoriaTests
     [Fact]
     public void Cuenta_las_manos_por_accion()
     {
-        var conteos = Catalogo().Spot("HU_SB_OR_FISH", "10bb", "SB_OR")!.Conteos;
+        var conteos = Catalogo().Spot("HU_SB_OR_FISH", "10-10bb", "SB_OR")!.Conteos;
         Assert.Equal(123, conteos["CALL"]);
         Assert.Equal(46, conteos["ALL-IN"]);
         Assert.Equal(169, conteos.Values.Sum());
@@ -75,7 +116,7 @@ public class CatalogoEnMemoriaTests
     {
         var catalogo = Catalogo();
         Assert.Equal(3, catalogo.StackPorClave("HU_SB_OR_FISH", "1-4bb")!.Spots.Count);
-        Assert.Equal(5, catalogo.StackPorClave("HU_SB_OR_FISH", "6bb")!.Spots.Count);
+        Assert.Equal(5, catalogo.StackPorClave("HU_SB_OR_FISH", "6-6bb")!.Spots.Count);
     }
 
     [Fact]
@@ -167,16 +208,17 @@ public class CatalogoEnMemoriaTests
         Directory.CreateDirectory(directorio);
         try
         {
-            var original = Path.Combine(Rutas.SemillasDeTablas, "hu-sb-or-fish-7bb.json");
-            File.Copy(original, Path.Combine(directorio, "hu-sb-or-fish-7bb.json"));
-            File.Copy(original, Path.Combine(directorio, "hu-sb-or-fish-7bb-copia.json"));
+            var original = Path.Combine(Rutas.SemillasDeTablas, "hu-sb-or-fish.json");
+            File.Copy(original, Path.Combine(directorio, "hu-sb-or-fish.json"));
+            File.Copy(original, Path.Combine(directorio, "hu-sb-or-fish-copia.json"));
 
             var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
             var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
                 .CargarDirectorio(directorio);
 
-            Assert.Single(catalogo.Situacion("HU_SB_OR_FISH")!.Stacks);
-            Assert.Contains(catalogo.Problemas, p => p.Stack == "7bb");
+            // El archivo trae los once stacks: duplicarlo no puede duplicarlos.
+            Assert.Equal(11, catalogo.Situacion("HU_SB_OR_FISH")!.Stacks.Count);
+            Assert.Contains(catalogo.Problemas, p => p.Stack == "7-7bb");
         }
         finally
         {
