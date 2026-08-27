@@ -55,9 +55,15 @@ situación, ordenados por `minBB` y colapsados en bandas contiguas de igual acci
 Ejemplo: A8o SB_OR → *"ALL-IN ≤16bb · CALL 17-18bb · RAISE X2 19bb+"*. Un stack
 que no declara ese spot se salta; si eso parte una banda, quedan dos bandas.
 
-**Familias.** En el spot actual, el ancla de cada familia que tenga más de una
-acción. Ejemplo a 17-18bb SB_OR: *"ases suited hasta A7s · ases offsuit hasta A9o
-· pares hasta 55"*. Las familias uniformes no se listan.
+**Familias.** En el spot actual, el ancla del bloque que encabeza cada familia
+emparentada con la mano: su familia suited, su familia offsuit (las dos del mismo
+rango alto) y los pares. Ejemplo para A8o a 17-18bb SB_OR: *"Axs sube hasta A7s ·
+Axo sube hasta A9o · pares suben hasta 55"*. Una familia uniforme no tiene ancla
+y no se lista. Una pareja sólo empareja con los pares, así que lista una sola.
+
+Las familias se nombran en notación de póker (`Axs`, `Axo`, `Pares`), no en
+castellano: evita inventar plurales en el código y es lo que ya se lee en
+cualquier chart.
 
 **Peso.** Por cada acción del spot, su porcentaje de la baraja medido en combos.
 El de la acción de la mano consultada va destacado. Una celda mixta reparte sus
@@ -67,8 +73,9 @@ combos entre sus acciones según la frecuencia declarada (una casilla offsuit al
 **La línea.** Los otros spots del mismo stack, en el orden en que el JSON los
 declara — que ya es el orden en que ocurren en la mano (`SB_OR`,
 `VS_BB_ALL_IN`, `VS_BB_3BET`, `VS_BB_ISO_3BB`, `VS_BB_ISO_ALL_IN`) — con la
-acción de esa misma mano en cada uno. Un stack con un solo spot devuelve la línea
-vacía.
+acción de esa misma mano en cada uno, incluido el spot consultado, marcado como
+tal. Un stack con un solo spot devuelve una línea de un paso, y la pantalla la
+esconde: no hay plan que mostrar.
 
 ### 2. Combos (Domain)
 
@@ -96,8 +103,9 @@ verdad; la pantalla es sólo otra forma de escribirlo.
 
 ### 4. API
 
-`ResultadoDeConsulta` gana `Ficha`, y el evento SSE de `/api/voz/eventos` la
-lleva: al dictar, la ficha aparece sola.
+`ResolverManoHandler` no se toca: resolver una mano y explicarla son dos cosas.
+`CopilotoDeVoz` recibe el analizador y `EventoDeCopiloto` gana `Ficha`, así que el
+evento SSE de `/api/voz/eventos` la lleva y al dictar la ficha aparece sola.
 
 Nuevo `GET /api/tablas/ficha?situacion=&stack=&spot=&mano=`, para tocar cualquier
 celda de la grilla y leer su ficha sin dictar — estudiar sin micrófono.
