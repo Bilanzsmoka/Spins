@@ -80,8 +80,8 @@
     {
       "clave": "RAISE_X3",
       "etiqueta": "RAISE X3",
-      "color": "#7986CB",
-      "colorTexto": "#0a1024",
+      "color": "#8D6E63",
+      "colorTexto": "#f7f1ec",
       "orden": 7,
       "dichos": [
         "raise tres",
@@ -124,8 +124,8 @@
     {
       "clave": "RAISE_X6",
       "etiqueta": "RAISE X6",
-      "color": "#8D6E63",
-      "colorTexto": "#f7f1ec",
+      "color": "#6A1B9A",
+      "colorTexto": "#f4ecf7",
       "orden": 11,
       "dichos": [
         "raise seis",
@@ -135,12 +135,45 @@
     {
       "clave": "RAISE_X8",
       "etiqueta": "RAISE X8",
-      "color": "#8D6E63",
-      "colorTexto": "#f7f1ec",
+      "color": "#6A1B9A",
+      "colorTexto": "#f4ecf7",
       "orden": 12,
       "dichos": [
         "raise ocho",
         "subir ocho"
+      ]
+    },
+    {
+      "clave": "RAISE_X10",
+      "etiqueta": "RAISE X10",
+      "color": "#6A1B9A",
+      "colorTexto": "#f4ecf7",
+      "orden": 13,
+      "dichos": [
+        "raise diez",
+        "subir diez"
+      ]
+    },
+    {
+      "clave": "RAISE_X5",
+      "etiqueta": "RAISE X5",
+      "color": "#6A1B9A",
+      "colorTexto": "#f4ecf7",
+      "orden": 14,
+      "dichos": [
+        "raise cinco",
+        "subir cinco"
+      ]
+    },
+    {
+      "clave": "RAISE_X2_2",
+      "etiqueta": "RAISE X2.2",
+      "color": "#7986CB",
+      "colorTexto": "#0a1024",
+      "orden": 15,
+      "dichos": [
+        "raise dos coma dos",
+        "subir dos coma dos"
       ]
     }
   ]
