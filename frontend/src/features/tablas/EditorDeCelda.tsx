@@ -6,14 +6,17 @@ interface Props {
   acciones: AccionDefinida[]
   guardando: boolean
   onGuardar: (accion: string | null, mix: ParteDeMix[] | null) => void
-  onCerrar: () => void
 }
 
 /**
  * Corrige lo que la tabla prescribe para una mano. Escribe en el JSON, que es
  * la fuente de verdad — corregir acá es corregir el dato, no una copia.
+ *
+ * Vive siempre adentro del popup de la ficha: no tiene su propio "Cerrar" —
+ * el del popup (mas Escape y el click en el fondo) ya cierra todo, y un
+ * segundo boton con el mismo texto y el mismo efecto solo confunde.
  */
-export function EditorDeCelda({ celda, acciones, guardando, onGuardar, onCerrar }: Props) {
+export function EditorDeCelda({ celda, acciones, guardando, onGuardar }: Props) {
   const [modo, setModo] = useState<'pura' | 'mix'>(celda.mix ? 'mix' : 'pura')
   const [primera, setPrimera] = useState(celda.mix?.[0]?.accion ?? celda.accion)
   const [segunda, setSegunda] = useState(celda.mix?.[1]?.accion ?? '')
@@ -31,7 +34,6 @@ export function EditorDeCelda({ celda, acciones, guardando, onGuardar, onCerrar 
           <button type="button" className={modo === 'mix' ? 'modo-activo' : ''}
             onClick={() => setModo('mix')}>Mix</button>
         </div>
-        <button type="button" className="boton-tenue" onClick={onCerrar}>Cerrar</button>
       </header>
 
       {modo === 'pura' ? (

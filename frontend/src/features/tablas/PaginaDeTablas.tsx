@@ -89,9 +89,16 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   // La ficha se pide al backend en vez de derivarse de `datos`: las piezas que
   // la arman (umbral, familias) miran otros stacks y otros spots, que la
   // pantalla no tiene cargados.
+  //
+  // Los errores de guardado son estado de la mano abierta, no del boton que se
+  // toco para cerrar: mueren aca, en las dos ramas, cada vez que este efecto
+  // corre — asi ningun camino de cierre (Cerrar, Escape, click en el fondo, o
+  // abrir otra mano) tiene que acordarse de limpiarlos por su cuenta.
   useEffect(() => {
+    // oxlint-disable-next-line set-state-in-effect
+    setErrorAlEditar(null)
+    setErrorAlGuardarTip(null)
     if (!manoAbierta || !situacion || !stack || !spot) {
-      // oxlint-disable-next-line set-state-in-effect
       setFicha(null)
       return
     }
@@ -226,7 +233,6 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
                   celda={celda}
                   acciones={catalogo.acciones}
                   guardando={guardando}
-                  onCerrar={() => setManoAbierta(null)}
                   onGuardar={(accion: string | null, mix: ParteDeMix[] | null) => {
                     setGuardando(true)
                     setErrorAlEditar(null)
