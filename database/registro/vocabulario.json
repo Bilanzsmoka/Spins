@@ -192,6 +192,16 @@
         "ese be tres bet",
         "contra tres bet de ese be"
       ]
+    },
+    {
+      "clave": "BB_VS_SB_MR",
+      "dichos": [
+        "contra minraise",
+        "vs minraise",
+        "contra min raise",
+        "me subio",
+        "contra subida"
+      ]
     }
   ],
   "situaciones": [
@@ -211,6 +221,14 @@
         "desde be be",
         "be be fish",
         "defendiendo"
+      ]
+    },
+    {
+      "clave": "HU_BB_VS_MR_FISH",
+      "dichos": [
+        "be be contra minraise",
+        "contra minraise de ese be",
+        "defendiendo minraise"
       ]
     }
   ]
