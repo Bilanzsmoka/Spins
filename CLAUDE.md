@@ -112,6 +112,11 @@ action. A file may optionally include `expectedCounts` and `checks` blocks as se
 present, the validator checks them against what the file actually resolves to and reports a problem if
 they disagree — they are not decorative.
 
+Un spot puede además declarar `"tip"`: una frase escrita a mano con el porqué
+estratégico de esa tabla. Es opcional, se edita desde el popup de la ficha (que
+escribe el JSON vía `IEditorDeTablas`, igual que la corrección de celdas), y el
+validador sólo se queja si la clave existe pero está vacía.
+
 ### Hand-label conventions
 
 Two independent generators must stay in agreement: `MatrizDeManos` (C#, in `PokerProOS.Domain.Manos`) and
@@ -136,6 +141,23 @@ speaks it through `ISintetizadorDeVoz`, and publishes an `EventoDeCopiloto`. `Se
 cell in the grid and color the spoken-response text with that action's color; `/api/voz/estado` reports
 whether the recognizer is listening and the last failure, if any. If the microphone or speech engine
 isn't available at all, the app still serves the charts — it just runs without a voice.
+
+### La ficha de memoria
+
+`AnalizadorDeMemoria` (Application, `Tablas/`) explica una mano en vez de sólo
+responderla: deduce del catálogo la **mano ancla** de su familia (hasta dónde
+llega el bloque que comparte su acción), el **umbral de stack** (la misma mano a
+través de todos los stacks, colapsada en bandas), las **familias emparentadas**,
+el **peso de baraja** de cada acción del spot —en combos, no en casillas: una
+casilla suited son 4 manos reales y una offsuit 12— y **la línea** de spots del
+stack en el orden en que ocurren. Todo sale del catálogo en memoria, así que
+corregir una tabla cambia la explicación en el acto; la única pieza escrita a
+mano es el `tip` del spot.
+
+La ficha viaja en el `EventoDeCopiloto` (y por lo tanto en el SSE) y también se
+pide sola en `GET /api/tablas/ficha`, para estudiar tocando la grilla sin
+micrófono. La pantalla la muestra en un popup que además aloja el editor de
+celda. La voz, en cambio, quedó corta a propósito: dice la acción y nada más.
 
 ## Agregar una tabla nueva
 
