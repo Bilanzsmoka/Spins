@@ -552,3 +552,56 @@ kbd {
 }
 .editor-mix input:disabled { opacity: .55; }
 .editor-porciento { color: var(--apagado); font-size: 13px; }
+
+/* ---------- Vocabulario de voz ---------- */
+
+.explicacion {
+  max-width: 640px; padding: 12px 15px; margin-bottom: 18px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.explicacion p { margin: 0 0 9px; color: var(--apagado); font-size: 13px; line-height: 1.55; }
+.explicacion p:last-child { margin-bottom: 0; }
+.explicacion strong { color: var(--texto); }
+
+.grupo-vocabulario { max-width: 640px; margin-bottom: 22px; }
+.grupo-vocabulario h2 {
+  margin: 0 0 3px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--apagado);
+}
+.grupo-ayuda { margin: 0 0 10px; color: var(--apagado); font-size: 12px; line-height: 1.45; }
+
+.lista-vocabulario { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.lista-vocabulario li {
+  padding: 9px 11px; border-radius: 8px;
+  background: var(--panel); border: 1px solid var(--borde);
+}
+.entrada-cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.entrada-clave { font-size: 14px; letter-spacing: .03em; margin-right: auto; }
+.boton-grabar {
+  padding: 5px 12px; border-radius: 6px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  color: var(--texto); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.boton-grabar:hover:not(:disabled) { border-color: var(--acento); }
+.boton-grabar:disabled { opacity: .45; cursor: default; }
+
+.dichos { display: flex; gap: 5px; flex-wrap: wrap; }
+.dicho {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 5px 3px 9px; border-radius: 999px;
+  background: var(--panel-2); font-size: 12px;
+}
+.dicho button {
+  width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
+  background: transparent; color: var(--apagado);
+  font: inherit; font-size: 14px; line-height: 1; cursor: pointer;
+}
+.dicho button:hover { color: #ff6868; }
+
+.capturado {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 9px; padding: 9px 11px;
+  border: 1px solid var(--acento); border-radius: 7px; background: var(--panel-2);
+  font-size: 13px;
+}
+.capturado strong { font-style: italic; }

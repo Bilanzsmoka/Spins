@@ -194,3 +194,21 @@ export interface EntradaEnviada {
   habitos: Record<string, number>
   notasDeHabitos: Record<string, string>
 }
+
+/* ---------- Vocabulario de voz ---------- */
+
+export interface FormasHabladas {
+  clave: string
+  dichos: string[]
+}
+
+export interface Vocabulario {
+  palabrasDeStack: string[]
+  rangos: FormasHabladas[]
+  palos: FormasHabladas[]
+  spots: FormasHabladas[]
+  situaciones: FormasHabladas[]
+}
+
+export type CategoriaDeVocabulario =
+  | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack'

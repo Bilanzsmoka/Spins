@@ -30,8 +30,11 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
     // el pedido explícito de volver a escuchar.
     private bool _detenidoPorError;
 
+    private readonly GeneradorDeGramatica _generador;
+
     public ReconocedorSapi(GeneradorDeGramatica generador, OpcionesDeVoz opciones)
     {
+        _generador = generador;
         _opciones = opciones;
         _motor = new SpeechRecognitionEngine(new CultureInfo(opciones.Cultura));
         _motor.LoadGrammar(generador.Construir());
@@ -86,6 +89,38 @@ public sealed class ReconocedorSapi : IReconocedorDeVoz
             _motor.RecognizeAsync(RecognizeMode.Multiple);
             _motorEnEjecucion = true;
         }
+    }
+
+    /// <summary>
+    /// Usa un motor aparte y descartable en vez de cambiarle la gramática al
+    /// vivo: la máquina de estados del reconocedor continuo fue endurecida
+    /// para el bucle del copiloto y meterle un modo temporal por el medio es
+    /// la forma más fácil de romperla. El motor vivo solo se pausa.
+    /// </summary>
+    public string? CapturarDictadoLibre(TimeSpan espera)
+    {
+        Pausar();
+        try
+        {
+            using var temporal = new SpeechRecognitionEngine(new CultureInfo(_opciones.Cultura));
+            temporal.LoadGrammar(new DictationGrammar());
+            temporal.SetInputToDefaultAudioDevice();
+            var resultado = temporal.Recognize(espera);
+            temporal.SetInputToNull();
+            return string.IsNullOrWhiteSpace(resultado?.Text) ? null : resultado.Text;
+        }
+        finally
+        {
+            Reanudar();
+        }
+    }
+
+    public void RecargarGramatica()
+    {
+        // Descargar y volver a cargar no interrumpe el reconocimiento en
+        // curso: SAPI acepta el cambio de gramaticas con el motor andando.
+        _motor.UnloadAllGrammars();
+        _motor.LoadGrammar(_generador.Construir());
     }
 
     public DictadoReconocido? ReconocerArchivo(string rutaWav)

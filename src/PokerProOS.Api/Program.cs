@@ -42,19 +42,24 @@ var acciones = CargarRegistroOTerminar(() =>
     RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json")));
 var vocabulario = CargarRegistroOTerminar(() =>
     RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
+// Vivo: el editor de vocabulario lo reemplaza y rearma la gramatica.
 var habitos = CargarRegistroOTerminar(() =>
     RegistroDeHabitosJson.Cargar(Path.Combine(carpetaDatos, "registro", "habitos.json")));
+var rutaDeVocabulario = Path.Combine(carpetaDatos, "registro", "vocabulario.json");
+var vocabularioVivo = new VocabularioVivo(vocabulario);
 var carpetaDeTablas = Path.Combine(carpetaDatos, "seed-data");
 var cargador = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones);
 // Vivo: el editor reescribe el JSON y reemplaza el catálogo sin reiniciar.
 var catalogo = new CatalogoVivo(cargador.CargarDirectorio(carpetaDeTablas));
 
 builder.Services.AddSingleton(acciones);
-builder.Services.AddSingleton(vocabulario);
+builder.Services.AddSingleton<IRegistroDeVocabulario>(vocabularioVivo);
 builder.Services.AddSingleton(habitos);
 builder.Services.AddSingleton<ICatalogoDeTablas>(catalogo);
 builder.Services.AddSingleton<IEditorDeTablas>(
     new EditorDeTablasJson(carpetaDeTablas, catalogo, cargador));
+builder.Services.AddSingleton<IEditorDeVocabulario>(sp => new EditorDeVocabularioJson(
+    rutaDeVocabulario, vocabularioVivo, sp.GetRequiredService<IReconocedorDeVoz>()));
 builder.Services.AddSingleton(new OpcionesDeVoz
 {
     Cultura = builder.Configuration["Voz:Cultura"] ?? "es-ES",

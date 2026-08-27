@@ -3,6 +3,7 @@ import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
 import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
 import { PaginaDeHabitos } from './features/diario/PaginaDeHabitos'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
+import { PaginaDeVocabulario } from './features/voz/PaginaDeVocabulario'
 import { Aplicacion, type GrupoDeModulos } from './shared/Aplicacion'
 
 export default function App() {
@@ -58,6 +59,19 @@ export default function App() {
           etiqueta: 'Sesiones',
           descripcion: 'Volumen y resultados',
           disponible: false,
+        },
+      ],
+    },
+    {
+      clave: 'ajustes',
+      etiqueta: 'Ajustes',
+      modulos: [
+        {
+          clave: 'voz',
+          etiqueta: 'Voz',
+          descripcion: 'Como decis vos cada cosa',
+          disponible: true,
+          contenido: <PaginaDeVocabulario />,
         },
       ],
     },

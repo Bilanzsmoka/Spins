@@ -18,4 +18,15 @@ public interface IReconocedorDeVoz : IDisposable
     void Pausar();
     void Reanudar();
     DictadoReconocido? ReconocerArchivo(string rutaWav);
+
+    /// <summary>
+    /// Escucha una vez con dictado libre y devuelve el texto crudo, o nulo si
+    /// no captó nada. Sirve para aprender cómo dice el usuario algo que la
+    /// gramática restringida rechazaría: no importa que el dictado se
+    /// equivoque, importa que se equivoque siempre igual.
+    /// </summary>
+    string? CapturarDictadoLibre(TimeSpan espera);
+
+    /// <summary>Rearma la gramática. Se llama tras editar el vocabulario.</summary>
+    void RecargarGramatica();
 }

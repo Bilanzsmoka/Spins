@@ -15,6 +15,13 @@ public sealed class ReconocedorFalso : IReconocedorDeVoz
     public void Reanudar() => Pausado = false;
     public DictadoReconocido? ReconocerArchivo(string rutaWav) => null;
 
+    /// <summary>Lo que el doble devolvera al pedirle un dictado libre.</summary>
+    public string? DictadoDevuelto { get; set; }
+    public int VecesQueRecargoGramatica { get; private set; }
+
+    public string? CapturarDictadoLibre(TimeSpan espera) => DictadoDevuelto;
+    public void RecargarGramatica() => VecesQueRecargoGramatica++;
+
     public void Emitir(DictadoReconocido dictado) => Reconocido?.Invoke(this, dictado);
     public void EmitirFallo(string texto) => NoReconocido?.Invoke(this, texto);
     public void Dispose() { }

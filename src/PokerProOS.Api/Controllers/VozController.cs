@@ -1,15 +1,65 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using PokerProOS.Api.Voz;
+using PokerProOS.Application.Voz;
 
 namespace PokerProOS.Api.Controllers;
+
+public record DichoEnviado(string Dicho);
 
 [ApiController]
 [Route("api/voz")]
 public sealed class VozController(
     CanalDeEventos canal,
-    ServicioDeCopiloto copiloto) : ControllerBase
+    ServicioDeCopiloto copiloto,
+    IRegistroDeVocabulario vocabulario,
+    IEditorDeVocabulario editor,
+    IReconocedorDeVoz reconocedor) : ControllerBase
 {
+    /// <summary>Todo el vocabulario, para el módulo de configuración.</summary>
+    [HttpGet("vocabulario")]
+    public IActionResult Vocabulario() => Ok(new
+    {
+        palabrasDeStack = vocabulario.PalabrasDeStack,
+        rangos = vocabulario.Rangos,
+        palos = vocabulario.Palos,
+        spots = vocabulario.Spots,
+        situaciones = vocabulario.Situaciones,
+    });
+
+    /// <summary>
+    /// Escucha una vez con dictado libre y devuelve lo que entendió, tal cual.
+    /// No busca acertar: busca capturar cómo suena esta persona diciendo eso,
+    /// para agregarlo como forma válida.
+    /// </summary>
+    [HttpPost("capturar")]
+    public IActionResult Capturar([FromQuery] int segundos = 6)
+    {
+        if (!copiloto.Escuchando)
+            return StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
+
+        var texto = reconocedor.CapturarDictadoLibre(TimeSpan.FromSeconds(Math.Clamp(segundos, 2, 15)));
+        return Ok(new { texto });
+    }
+
+    [HttpPost("vocabulario/{categoria}/{clave}")]
+    public async Task<IActionResult> Agregar(
+        CategoriaDeVocabulario categoria, string clave,
+        [FromBody] DichoEnviado enviado, CancellationToken ct)
+    {
+        var resultado = await editor.AgregarAsync(categoria, clave, enviado.Dicho, ct);
+        return resultado.Exito ? Ok() : BadRequest(new { error = resultado.Error });
+    }
+
+    [HttpDelete("vocabulario/{categoria}/{clave}")]
+    public async Task<IActionResult> Quitar(
+        CategoriaDeVocabulario categoria, string clave,
+        [FromQuery] string dicho, CancellationToken ct)
+    {
+        var resultado = await editor.QuitarAsync(categoria, clave, dicho, ct);
+        return resultado.Exito ? Ok() : BadRequest(new { error = resultado.Error });
+    }
+
     // JsonSerializer.Serialize sin opciones no aplica la politica camelCase
     // que si usan los controladores via Ok(...); sin esto el SSE manda las
     // propiedades en PascalCase y el front (que espera camelCase, igual que
