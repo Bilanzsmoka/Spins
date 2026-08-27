@@ -101,6 +101,29 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
         }
     }
 
+    /// <summary>La de mayor frecuencia; si empatan, la primera declarada.</summary>
+    private static string Dominante(IReadOnlyList<ParteDeMix> partes)
+        => partes.Aggregate((mejor, parte) => parte.Frecuencia > mejor.Frecuencia ? parte : mejor).Accion;
+
+    /// <summary>
+    /// El bloque "mixes" es opcional y es la última palabra sobre esas manos:
+    /// pisa lo que les hubiera tocado por lista explícita o por REST.
+    /// </summary>
+    private Dictionary<string, IReadOnlyList<ParteDeMix>> LeerMixes(JsonElement spot)
+    {
+        var mixtas = new Dictionary<string, IReadOnlyList<ParteDeMix>>(StringComparer.OrdinalIgnoreCase);
+        if (!spot.TryGetProperty("mixes", out var bloque)) return mixtas;
+
+        foreach (var entrada in bloque.EnumerateObject())
+        {
+            var partes = entrada.Value.EnumerateObject()
+                .Select(p => new ParteDeMix(registro.Obtener(p.Name).Clave, p.Value.GetInt32()))
+                .ToList();
+            if (partes.Count > 0) mixtas[entrada.Name] = partes;
+        }
+        return mixtas;
+    }
+
     private SpotDeTabla LeerSpot(JsonElement spot)
     {
         var asignadas = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -136,8 +159,14 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
             foreach (var mano in MatrizDeManos.Todas())
                 asignadas.TryAdd(mano, resto);
 
+        // Las manos mixtas pisan lo que les hubiera tocado arriba: el bloque
+        // "mixes" es la ultima palabra sobre esa mano.
+        var mixtas = LeerMixes(spot);
+
         var celdas = MatrizDeManos.Todas()
-            .Select(mano => new CeldaDeTabla(mano, asignadas[mano]))
+            .Select(mano => mixtas.TryGetValue(mano, out var partes)
+                ? new CeldaDeTabla(mano, Dominante(partes), partes)
+                : new CeldaDeTabla(mano, registro.Obtener(asignadas[mano]).Clave))
             .ToList();
 
         return new SpotDeTabla(

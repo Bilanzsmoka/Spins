@@ -17,6 +17,19 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
         var r = resultado.Respuesta;
         var etiqueta = acciones.Existe(r.Accion) ? acciones.Obtener(r.Accion).Etiqueta : r.Accion;
 
+        // Una mano mixta se dice como mix: mientras jugas, lo que necesitas
+        // saber es que la tabla NO tiene una respuesta unica ahi, no el
+        // numero exacto. Decir "cincuenta por ciento" en cada consulta seria
+        // mas largo y menos util que decir que esta repartida.
+        if (r.Mix is { Count: > 1 } partes)
+        {
+            var reparto = string.Join(", ", partes.Select(p =>
+                $"{Frecuencia(p.Frecuencia)} {Etiqueta(p.Accion)}"));
+            return r.PaloAsumido
+                ? $"{Deletrear(r.Mano)}: mix, {reparto}."
+                : $"Mix: {reparto}.";
+        }
+
         var frase = r.PaloAsumido
             ? $"{Deletrear(r.Mano)}: {etiqueta}."
             : $"{etiqueta}.";
@@ -32,6 +45,16 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
     /// del palo sale del registro de vocabulario (su forma canónica, el primer dicho),
     /// no de un literal, para que cambiar el JSON cambie lo que se dice.
     /// </summary>
+    private string Etiqueta(string clave)
+        => acciones.Existe(clave) ? acciones.Obtener(clave).Etiqueta : clave;
+
+    /// <summary>
+    /// "mitad" suena mejor hablado que "cincuenta por ciento", y el reparto
+    /// más común con diferencia es el 50/50.
+    /// </summary>
+    private static string Frecuencia(int porcentaje)
+        => porcentaje == 50 ? "mitad" : $"{porcentaje} por ciento";
+
     private string Deletrear(string mano)
     {
         var rangos = $"{mano[0]} {mano[1]}";

@@ -38,9 +38,17 @@ export interface Catalogo {
   problemas: ProblemaDeTabla[]
 }
 
+export interface ParteDeMix {
+  accion: string
+  frecuencia: number
+}
+
 export interface Celda {
   mano: string
+  /** La acción dominante. En un mix, la de mayor frecuencia. */
   accion: string
+  /** Las partes cuando la tabla prescribe una estrategia mixta. Nulo si es pura. */
+  mix: ParteDeMix[] | null
 }
 
 export interface SpotCompleto {

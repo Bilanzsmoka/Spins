@@ -161,7 +161,53 @@ public sealed class ValidadorDeTabla(IRegistroDeAcciones registro)
                 .GroupBy(a => a)
                 .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
 
-            if (spot.TryGetProperty("expectedCounts", out var esperados))
+            // Un mix pisa la asignacion de arriba, asi que se valida aparte y
+        // antes de contar: sus acciones tienen que existir en el registro y
+        // las frecuencias tienen que sumar 100.
+        if (spot.TryGetProperty("mixes", out var mixes))
+        {
+            if (mixes.ValueKind != JsonValueKind.Object)
+                Anotar("'mixes' tiene que ser un objeto de mano a frecuencias.");
+            else foreach (var entrada in mixes.EnumerateObject())
+            {
+                var mano = entrada.Name;
+                if (!ManosValidas.Contains(mano))
+                {
+                    Anotar($"El mix declara la mano '{mano}', que no existe en la matriz de 169.");
+                    continue;
+                }
+                if (entrada.Value.ValueKind != JsonValueKind.Object)
+                {
+                    Anotar($"El mix de '{mano}' tiene que ser un objeto de acción a frecuencia.");
+                    continue;
+                }
+
+                var suma = 0;
+                var partes = 0;
+                foreach (var parte in entrada.Value.EnumerateObject())
+                {
+                    if (!registro.Existe(parte.Name))
+                    {
+                        Anotar($"El mix de '{mano}' usa la acción '{parte.Name}', que no está en el registro.");
+                        continue;
+                    }
+                    if (!parte.Value.TryGetInt32(out var frecuencia))
+                    {
+                        Anotar($"La frecuencia de '{parte.Name}' en el mix de '{mano}' no es un número entero.");
+                        continue;
+                    }
+                    suma += frecuencia;
+                    partes++;
+                }
+
+                if (partes < 2)
+                    Anotar($"El mix de '{mano}' declara {partes} acción(es): un mix necesita al menos dos.");
+                else if (suma != 100)
+                    Anotar($"Las frecuencias del mix de '{mano}' suman {suma} y deben sumar 100.");
+            }
+        }
+
+        if (spot.TryGetProperty("expectedCounts", out var esperados))
                 foreach (var esperado in esperados.EnumerateObject())
                 {
                     if (!esperado.Value.TryGetInt32(out var declarado))

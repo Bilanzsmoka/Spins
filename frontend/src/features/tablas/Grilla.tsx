@@ -17,7 +17,7 @@ function etiqueta(fila: number, columna: number): string {
 }
 
 export function Grilla({ spot, acciones, manoResaltada }: Props) {
-  const porMano = new Map(spot.celdas.map((c) => [c.mano, c.accion]))
+  const porMano = new Map(spot.celdas.map((c) => [c.mano, c]))
   const porClave = new Map(acciones.map((a) => [a.clave, a]))
 
   return (
@@ -31,11 +31,14 @@ export function Grilla({ spot, acciones, manoResaltada }: Props) {
           <div className="grilla-encabezado">{rangoFila}</div>
           {RANGOS.map((_, columna) => {
             const mano = etiqueta(fila, columna)
+            const celda = porMano.get(mano)
             return (
               <Celda
                 key={mano}
                 mano={mano}
-                accion={porClave.get(porMano.get(mano) ?? '')}
+                accion={porClave.get(celda?.accion ?? '')}
+                mix={celda?.mix ?? null}
+                acciones={acciones}
                 resaltada={mano === manoResaltada}
               />
             )

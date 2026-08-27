@@ -11,7 +11,13 @@ public record SpotDeTabla(string Clave, string Etiqueta, IReadOnlyList<CeldaDeTa
         .GroupBy(c => c.Accion, StringComparer.OrdinalIgnoreCase)
         .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
 
+    private readonly Dictionary<string, CeldaDeTabla> _celdaPorMano =
+        Celdas.ToDictionary(c => c.Mano, c => c, StringComparer.OrdinalIgnoreCase);
+
     public string? AccionDe(string mano) => _porMano.GetValueOrDefault(mano);
+
+    /// <summary>La celda completa, con su mix si lo tiene.</summary>
+    public CeldaDeTabla? CeldaDe(string mano) => _celdaPorMano.GetValueOrDefault(mano);
 }
 
 public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)

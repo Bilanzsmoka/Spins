@@ -1,3 +1,5 @@
+using PokerProOS.Domain.Tablas;
+
 namespace PokerProOS.Application.Tablas;
 
 public record ConsultaDeMano(
@@ -14,7 +16,12 @@ public record RespuestaDeMano(
     int ManosEnLaAccion,
     bool EnElBorde,
     bool PaloAsumido,
-    string ClaveDeStack);
+    string ClaveDeStack,
+    /// <summary>
+    /// Las partes cuando la tabla prescribe una estrategia mixta. Nulo si la
+    /// mano es pura. <see cref="Accion"/> sigue trayendo la dominante.
+    /// </summary>
+    IReadOnlyList<ParteDeMix>? Mix = null);
 
 public enum MotivoSinRespuesta
 {

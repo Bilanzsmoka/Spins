@@ -30,8 +30,13 @@ public sealed class ResolverManoHandler(ICatalogoDeTablas catalogo)
         if (accion is null)
             return Sin(MotivoSinRespuesta.ManoInvalida, $"No reconozco la mano {mano}.");
 
-        var enElBorde = MatrizDeManos.Vecinas(mano)
-            .Any(vecina => !string.Equals(spot.AccionDe(vecina), accion, StringComparison.OrdinalIgnoreCase));
+        var celda = spot.CeldaDe(mano);
+
+        // Una mano mixta es un borde por definicion: la tabla misma dice que
+        // no hay una respuesta unica ahi.
+        var enElBorde = celda?.EsMixta == true
+            || MatrizDeManos.Vecinas(mano)
+                .Any(vecina => !string.Equals(spot.AccionDe(vecina), accion, StringComparison.OrdinalIgnoreCase));
 
         return new ResultadoDeConsulta(
             new RespuestaDeMano(
@@ -40,7 +45,8 @@ public sealed class ResolverManoHandler(ICatalogoDeTablas catalogo)
                 spot.Conteos.GetValueOrDefault(accion),
                 enElBorde,
                 paloAsumido,
-                tabla.Stack.Clave),
+                tabla.Stack.Clave,
+                celda?.EsMixta == true ? celda.Mix : null),
             null,
             null);
     }

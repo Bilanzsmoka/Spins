@@ -503,3 +503,7 @@ kbd {
 .repaso-controles { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
 .repaso-controles .boton-tenue:disabled { opacity: .35; cursor: default; }
 .repaso-nota { margin: 12px 0 0; color: var(--apagado); font-size: 12px; line-height: 1.5; }
+
+/* Un mix lleva borde punteado ademas del fondo partido: el color no puede
+   ser la unica senal de que la mano no tiene respuesta unica. */
+.celda-mixta { border: 1px dashed rgba(237, 243, 251, .55); }

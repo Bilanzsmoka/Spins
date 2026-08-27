@@ -300,6 +300,16 @@
             "RAISE_X3_5": 16,
             "CHECK": 60,
             "TOTAL": 169
+          },
+          "mixes": {
+            "J9o": {
+              "RAISE_X2_5": 50,
+              "CHECK": 50
+            },
+            "J8o": {
+              "RAISE_X2_5": 50,
+              "CHECK": 50
+            }
           }
         },
         {
