@@ -7,6 +7,8 @@ namespace PokerProOS.Api.Controllers;
 
 public record DichoEnviado(string Dicho);
 
+public record ContextoEnviado(string Situacion, decimal StackBB, string Spot);
+
 [ApiController]
 [Route("api/voz")]
 public sealed class VozController(
@@ -14,8 +16,25 @@ public sealed class VozController(
     ServicioDeCopiloto copiloto,
     IRegistroDeVocabulario vocabulario,
     IEditorDeVocabulario editor,
-    IReconocedorDeVoz reconocedor) : ControllerBase
+    IReconocedorDeVoz reconocedor,
+    MemoriaDeContexto memoria) : ControllerBase
 {
+    /// <summary>
+    /// La tabla que la pantalla tiene abierta. Sin esto la pantalla y la voz
+    /// llevan dos contextos separados: al dictar una mano el copiloto la
+    /// resuelve contra el suyo —el de arranque o el del último dictado— y el
+    /// evento publicado arrastra la pantalla hasta ahí, sacando al usuario de
+    /// la tabla que estaba mirando.
+    /// </summary>
+    [HttpPut("contexto")]
+    public IActionResult Contexto([FromBody] ContextoEnviado enviado)
+    {
+        memoria.Situacion = enviado.Situacion;
+        memoria.StackBB = enviado.StackBB;
+        memoria.Spot = enviado.Spot;
+        return Ok(new { memoria.Situacion, memoria.StackBB, memoria.Spot });
+    }
+
     /// <summary>Todo el vocabulario, para el módulo de configuración.</summary>
     [HttpGet("vocabulario")]
     public IActionResult Vocabulario() => Ok(new

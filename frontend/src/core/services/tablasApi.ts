@@ -125,3 +125,20 @@ export const quitarDicho = (cat: CategoriaDeVocabulario, clave: string, dicho: s
   vocabulario(
     `/api/voz/vocabulario/${cat}/${encodeURIComponent(clave)}?dicho=${encodeURIComponent(dicho)}`,
     'DELETE')
+
+/**
+ * Le avisa a la voz qué tabla está abierta en pantalla. Sin esto la pantalla
+ * y el copiloto llevan dos contextos separados, y al dictar una mano el
+ * evento publicado arrastra la pantalla a la tabla del copiloto.
+ */
+export async function fijarContextoDeVoz(
+  situacion: string, stackBB: number, spot: string,
+): Promise<void> {
+  await fetch('/api/voz/contexto', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ situacion, stackBB, spot }),
+  }).catch(() => {
+    // Que la voz no se entere no puede romper la pantalla: se estudia igual.
+  })
+}

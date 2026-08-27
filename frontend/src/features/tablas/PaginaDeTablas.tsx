@@ -4,7 +4,9 @@ import type {
   ConsultaRegistrada, EventoDeVoz, ParteDeMix, SpotCompleto,
   FichaDeMemoria as FichaModelo,
 } from '../../core/models/catalogo.model'
-import { editarCelda, guardarTip, obtenerFicha, obtenerSpot } from '../../core/services/tablasApi'
+import {
+  editarCelda, fijarContextoDeVoz, guardarTip, obtenerFicha, obtenerSpot,
+} from '../../core/services/tablasApi'
 import { EditorDeCelda } from './EditorDeCelda'
 import { FichaDeMemoria } from './FichaDeMemoria'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
@@ -95,6 +97,19 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
     if (stackActivo && !stackActivo.spots.some((p) => p.clave === spot))
       // oxlint-disable-next-line set-state-in-effect
       setSpot(stackActivo.spots[0]?.clave ?? '')
+  }, [catalogo, situacion, stack, spot])
+
+  // La tabla abierta en pantalla es la que la voz tiene que usar. Sin esto son
+  // dos contextos separados: dictar una mano la resuelve contra el del
+  // copiloto y el evento arrastra la pantalla hasta allá, sacándote de donde
+  // estabas. Se manda el minBB del stack porque la voz razona en BB, no en
+  // claves, y ese número cae dentro de la cobertura de este stack.
+  useEffect(() => {
+    if (!catalogo || !situacion || !stack || !spot) return
+    const rango = catalogo.situaciones
+      .find((s) => s.clave === situacion)?.stacks
+      .find((t) => t.clave === stack)
+    if (rango) void fijarContextoDeVoz(situacion, rango.minBB, spot)
   }, [catalogo, situacion, stack, spot])
 
   useEffect(() => {
