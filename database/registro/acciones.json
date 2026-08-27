@@ -31,7 +31,7 @@
     {
       "clave": "RAISE_X2",
       "etiqueta": "RAISE X2",
-      "color": "#7c86dc",
+      "color": "#7986cb",
       "colorTexto": "#081025",
       "orden": 3,
       "dichos": [
@@ -69,7 +69,7 @@
     {
       "clave": "RAISE_X2_5",
       "etiqueta": "RAISE X2.5",
-      "color": "#6f7ad2",
+      "color": "#7986cb",
       "colorTexto": "#081025",
       "orden": 6,
       "dichos": [
@@ -80,7 +80,7 @@
     {
       "clave": "RAISE_X3",
       "etiqueta": "RAISE X3",
-      "color": "#626ec8",
+      "color": "#7986cb",
       "colorTexto": "#081025",
       "orden": 7,
       "dichos": [
@@ -91,8 +91,8 @@
     {
       "clave": "RAISE_X3_5",
       "etiqueta": "RAISE X3.5",
-      "color": "#5562be",
-      "colorTexto": "#edf3fb",
+      "color": "#8d6e63",
+      "colorTexto": "#f5efe9",
       "orden": 8,
       "dichos": [
         "raise tres y medio",
@@ -102,8 +102,8 @@
     {
       "clave": "RAISE_X4",
       "etiqueta": "RAISE X4",
-      "color": "#4856b4",
-      "colorTexto": "#edf3fb",
+      "color": "#8d6e63",
+      "colorTexto": "#f5efe9",
       "orden": 9,
       "dichos": [
         "raise cuatro",
@@ -113,8 +113,8 @@
     {
       "clave": "RAISE_X4_5",
       "etiqueta": "RAISE X4.5",
-      "color": "#3b4aaa",
-      "colorTexto": "#edf3fb",
+      "color": "#8d6e63",
+      "colorTexto": "#f5efe9",
       "orden": 10,
       "dichos": [
         "raise cuatro y medio",
@@ -124,8 +124,8 @@
     {
       "clave": "RAISE_X6",
       "etiqueta": "RAISE X6",
-      "color": "#2e3ea0",
-      "colorTexto": "#edf3fb",
+      "color": "#8d6e63",
+      "colorTexto": "#f5efe9",
       "orden": 11,
       "dichos": [
         "raise seis",
@@ -135,8 +135,8 @@
     {
       "clave": "RAISE_X8",
       "etiqueta": "RAISE X8",
-      "color": "#213296",
-      "colorTexto": "#edf3fb",
+      "color": "#8d6e63",
+      "colorTexto": "#f5efe9",
       "orden": 12,
       "dichos": [
         "raise ocho",

@@ -13,9 +13,9 @@ interface Props {
  * Una celda de la matriz. El color nunca es la única señal: la etiqueta de la
  * mano va siempre visible encima.
  *
- * Una mano mixta se pinta partida en diagonal con los colores de sus partes,
- * en proporción a sus frecuencias — que es como la muestran las tablas de las
- * que salen estos datos, y por lo tanto lo que el usuario ya reconoce.
+ * Una mano mixta se pinta partida en bandas horizontales, en proporción a sus
+ * frecuencias: el mix ES un porcentaje, y una banda horizontal se lee como
+ * "tanto de esto, tanto de aquello" mejor que un corte diagonal.
  */
 export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props) {
   const colorDe = (clave: string) =>
@@ -24,7 +24,7 @@ export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props
   const esMix = mix !== null && mix.length > 1
 
   const fondo = esMix
-    ? `linear-gradient(135deg, ${tramos(mix, colorDe)})`
+    ? `linear-gradient(to bottom, ${tramos(mix, colorDe)})`
     : (accion?.color ?? 'var(--desconocido)')
 
   const titulo = esMix
@@ -54,7 +54,8 @@ export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props
 /**
  * Convierte las partes en paradas de gradiente duras, para que se vean bandas
  * netas en lugar de un degradado difuso: la celda tiene que leerse de un
- * vistazo, no interpretarse.
+ * vistazo, no interpretarse. La altura de cada banda es su frecuencia, asi que
+ * un 70/30 se ve distinto de un 50/50 sin leer ningun numero.
  */
 function tramos(mix: ParteDeMix[], colorDe: (clave: string) => string): string {
   const total = mix.reduce((suma, p) => suma + p.frecuencia, 0) || 100
