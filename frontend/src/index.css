@@ -553,6 +553,83 @@ kbd {
 .editor-mix input:disabled { opacity: .55; }
 .editor-porciento { color: var(--apagado); font-size: 13px; }
 
+/* ---------- Ficha de memoria ---------- */
+
+.ficha-fondo {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 16px; overflow-y: auto;
+  background: rgba(4, 8, 14, .72);
+}
+.ficha-popup {
+  width: 100%; max-width: 560px; padding: 16px 18px 18px;
+  border: 1px solid var(--acento); border-radius: 12px; background: var(--panel);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+}
+.ficha-cabecera { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+
+/* El mismo cuadro que en la grilla: el ojo lo reconoce sin leer. */
+.ficha-casilla {
+  display: grid; place-items: center; width: 54px; height: 54px;
+  border-radius: 8px; font-size: 15px; font-weight: 800; letter-spacing: .03em;
+}
+.ficha-titulo { display: grid; gap: 2px; }
+.ficha-titulo strong { font-size: 16px; letter-spacing: .04em; }
+.ficha-stack { color: var(--apagado); font-size: 12px; }
+.ficha-peso {
+  margin-left: auto; color: var(--apagado);
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+
+.ficha-bloque { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--borde); }
+.ficha-bloque h3 {
+  margin: 0 0 8px; color: var(--apagado);
+  font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+}
+.ficha-bloque p { margin: 0; font-size: 13px; line-height: 1.65; }
+
+.ficha-chip {
+  display: inline-block; padding: 2px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 800; letter-spacing: .02em; vertical-align: baseline;
+}
+
+.ficha-umbral, .ficha-familias, .ficha-linea {
+  margin: 0; padding: 0; list-style: none; display: grid; gap: 6px;
+}
+.ficha-umbral li, .ficha-linea li { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.ficha-familias li {
+  display: flex; align-items: center; gap: 7px; font-size: 13px; flex-wrap: wrap;
+}
+.ficha-banda-stack, .ficha-paso-spot {
+  min-width: 96px; color: var(--apagado); font-variant-numeric: tabular-nums;
+}
+.ficha-banda-actual, .ficha-paso-actual { font-weight: 700; }
+.ficha-banda-actual .ficha-banda-stack, .ficha-paso-actual .ficha-paso-spot { color: var(--texto); }
+
+.ficha-tip { display: flex; align-items: flex-start; gap: 10px; }
+.ficha-tip p { flex: 1; font-size: 13px; line-height: 1.65; }
+.ficha-tip-vacio { color: var(--apagado); font-style: italic; }
+.ficha-tip-editor { display: grid; gap: 8px; }
+.ficha-tip-editor textarea {
+  width: 100%; resize: vertical;
+  background: var(--panel-2); color: var(--texto);
+  border: 1px solid var(--borde); border-radius: 6px;
+  padding: 8px 10px; font: inherit; font-size: 13px; line-height: 1.6;
+}
+.ficha-tip-botones { display: flex; gap: 7px; }
+.ficha-tip-botones button:first-child {
+  padding: 7px 13px; border-radius: 6px; border: 1px solid var(--acento);
+  background: var(--panel-2); color: var(--texto);
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.ficha-tip-botones button:disabled { opacity: .55; cursor: default; }
+
+/* Adentro del popup el editor de celda no necesita su propio marco. */
+.ficha-popup .editor-celda {
+  margin-top: 15px; padding: 13px 0 0;
+  border: 0; border-top: 1px solid var(--borde); border-radius: 0; background: none;
+}
+
 /* ---------- Vocabulario de voz ---------- */
 
 .explicacion {
