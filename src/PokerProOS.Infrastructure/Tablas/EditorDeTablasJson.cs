@@ -45,29 +45,64 @@ public sealed class EditorDeTablasJson(
                     $"No encontré ningún archivo con {edicion.Situacion} / {edicion.ClaveDeStack}.", []);
 
             var raiz = JsonNode.Parse(await File.ReadAllTextAsync(archivo, ct))!.AsObject();
-            var spot = UbicarSpot(raiz, edicion);
+            var spot = UbicarSpot(raiz, edicion.ClaveDeStack, edicion.Spot);
             if (spot is null)
                 return new ResultadoDeEdicion(false,
                     $"No encontré {edicion.ClaveDeStack}/{edicion.Spot} en ese archivo.", []);
 
             Aplicar(spot, edicion);
 
-            // Escribir a un temporal y mover: si el proceso muere a mitad de
-            // camino, el archivo original queda intacto en vez de truncado.
-            var temporal = archivo + ".tmp";
-            await File.WriteAllTextAsync(temporal,
-                raiz.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), ct);
-            File.Move(temporal, archivo, overwrite: true);
-
-            var recargado = cargador.CargarDirectorio(directorio);
-            catalogo.Reemplazar(recargado);
-
-            return new ResultadoDeEdicion(true, null, recargado.Problemas);
+            return await GuardarYRecargar(archivo, raiz, ct);
         }
         finally
         {
             _turno.Release();
         }
+    }
+
+    public async Task<ResultadoDeEdicion> EditarTipAsync(EdicionDeTip edicion, CancellationToken ct)
+    {
+        await _turno.WaitAsync(ct);
+        try
+        {
+            var archivo = UbicarArchivo(edicion.Situacion, edicion.ClaveDeStack);
+            if (archivo is null)
+                return new ResultadoDeEdicion(false,
+                    $"No encontré ningún archivo con {edicion.Situacion} / {edicion.ClaveDeStack}.", []);
+
+            var raiz = JsonNode.Parse(await File.ReadAllTextAsync(archivo, ct))!.AsObject();
+            var spot = UbicarSpot(raiz, edicion.ClaveDeStack, edicion.Spot);
+            if (spot is null)
+                return new ResultadoDeEdicion(false,
+                    $"No encontré {edicion.ClaveDeStack}/{edicion.Spot} en ese archivo.", []);
+
+            if (string.IsNullOrWhiteSpace(edicion.Texto)) spot.Remove("tip");
+            else spot["tip"] = edicion.Texto.Trim();
+
+            return await GuardarYRecargar(archivo, raiz, ct);
+        }
+        finally
+        {
+            _turno.Release();
+        }
+    }
+
+    /// <summary>
+    /// Escribe a un temporal y mueve: si el proceso muere a mitad de camino, el
+    /// archivo original queda intacto en vez de truncado. Después recarga el
+    /// catálogo, para que la pantalla vea el cambio sin reiniciar.
+    /// </summary>
+    private async Task<ResultadoDeEdicion> GuardarYRecargar(
+        string archivo, JsonObject raiz, CancellationToken ct)
+    {
+        var temporal = archivo + ".tmp";
+        await File.WriteAllTextAsync(temporal,
+            raiz.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), ct);
+        File.Move(temporal, archivo, overwrite: true);
+
+        var recargado = cargador.CargarDirectorio(directorio);
+        catalogo.Reemplazar(recargado);
+        return new ResultadoDeEdicion(true, null, recargado.Problemas);
     }
 
     /// <summary>
@@ -92,13 +127,13 @@ public sealed class EditorDeTablasJson(
             catch { return false; }
         });
 
-    private static JsonObject? UbicarSpot(JsonObject raiz, EdicionDeCelda edicion)
+    private static JsonObject? UbicarSpot(JsonObject raiz, string claveDeStack, string spot)
         => raiz["stacks"]?.AsArray()
             .Select(n => n!.AsObject())
-            .FirstOrDefault(s => s["key"]?.GetValue<string>() == edicion.ClaveDeStack)
+            .FirstOrDefault(s => s["key"]?.GetValue<string>() == claveDeStack)
             ?["spots"]?.AsArray()
             .Select(n => n!.AsObject())
-            .FirstOrDefault(s => s["key"]?.GetValue<string>() == edicion.Spot);
+            .FirstOrDefault(s => s["key"]?.GetValue<string>() == spot);
 
     private static void Aplicar(JsonObject spot, EdicionDeCelda edicion)
     {
