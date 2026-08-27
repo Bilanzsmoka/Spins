@@ -32,6 +32,17 @@
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- MSBuild copia los archivos de datos nuevos, pero no borra de la salida
+       los que se sacaron del proyecto: una tabla eliminada seguia viva en
+       bin/ y la aplicacion la seguia leyendo. Vaciar la carpeta antes de
+       cada copia hace que la salida sea siempre un espejo del proyecto.
+       Va en PrepareForBuild y no en Build: Build corre DESPUES de sus
+       dependencias, entre ellas la copia, asi que enganchado ahi borraria
+       justo lo que acaba de copiar. -->
+  <Target Name="LimpiarDatosDeSalida" BeforeTargets="PrepareForBuild">
+    <RemoveDir Directories="$(OutDir)database" />
+  </Target>
+
   <Target Name="ConstruirFrontend" BeforeTargets="Build"
           Condition="'$(SaltearFrontend)' != 'true'">
     <Exec Command="npm install" WorkingDirectory="../../frontend"
