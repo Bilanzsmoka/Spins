@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type {
   ConsultaRegistrada, EventoDeVoz, ParteDeMix, SpotCompleto,
+  FichaDeMemoria as FichaModelo,
 } from '../../core/models/catalogo.model'
-import { editarCelda, obtenerSpot } from '../../core/services/tablasApi'
+import { editarCelda, guardarTip, obtenerFicha, obtenerSpot } from '../../core/services/tablasApi'
 import { EditorDeCelda } from './EditorDeCelda'
+import { FichaDeMemoria } from './FichaDeMemoria'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
 import { ControlDeVoz, type PropsDeVoz } from './ControlDeVoz'
 import { Grilla } from './Grilla'
@@ -30,7 +32,10 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   const [datos, setDatos] = useState<SpotCompleto | null>(null)
   const [repasando, setRepasando] = useState(false)
   const [editando, setEditando] = useState(false)
-  const [manoEnEdicion, setManoEnEdicion] = useState<string | null>(null)
+  const [manoAbierta, setManoAbierta] = useState<string | null>(null)
+  const [ficha, setFicha] = useState<FichaModelo | null>(null)
+  const [guardandoTip, setGuardandoTip] = useState(false)
+  const [errorAlGuardarTip, setErrorAlGuardarTip] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
   const [errorAlEditar, setErrorAlEditar] = useState<string | null>(null)
   const [recarga, setRecarga] = useState(0)
@@ -57,6 +62,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
     if (ultimo.claveDeStack) setStack(ultimo.claveDeStack)
     if (ultimo.spot) setSpot(ultimo.spot)
     if (ultimo.situacion) setSituacion(ultimo.situacion)
+    if (ultimo.manoInterpretada) setManoAbierta(ultimo.manoInterpretada)
   }, [ultimo])
 
   // Al cambiar de stack, el spot activo puede no existir ahi (los stacks
@@ -79,6 +85,22 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
       .catch(() => { if (!cancelado) setDatos(null) })
     return () => { cancelado = true }
   }, [situacion, stack, spot, recarga])
+
+  // La ficha se pide al backend en vez de derivarse de `datos`: las piezas que
+  // la arman (umbral, familias) miran otros stacks y otros spots, que la
+  // pantalla no tiene cargados.
+  useEffect(() => {
+    if (!manoAbierta || !situacion || !stack || !spot) {
+      // oxlint-disable-next-line set-state-in-effect
+      setFicha(null)
+      return
+    }
+    let cancelado = false
+    obtenerFicha(situacion, stack, spot, manoAbierta)
+      .then((f) => { if (!cancelado) setFicha(f) })
+      .catch(() => { if (!cancelado) setFicha(null) })
+    return () => { cancelado = true }
+  }, [situacion, stack, spot, manoAbierta, recarga])
 
   if (error) return <p className="error">No pude cargar el catálogo: {error}</p>
   if (!catalogo) return <p className="cargando">Cargando…</p>
@@ -112,7 +134,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
           <button
             type="button"
             className={`boton-repaso${editando ? ' boton-editando' : ''}`}
-            onClick={() => { setEditando(!editando); setManoEnEdicion(null) }}
+            onClick={() => setEditando(!editando)}
           >
             {editando ? 'Terminar edicion' : 'Corregir tabla'}
           </button>
@@ -163,30 +185,8 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
                 spot={datos}
                 acciones={catalogo.acciones}
                 manoResaltada={ultimo?.manoInterpretada || null}
-                onTocarCelda={editando ? setManoEnEdicion : undefined}
+                onTocarCelda={setManoAbierta}
               />
-              {errorAlEditar && <p className="error">{errorAlEditar}</p>}
-              {manoEnEdicion && (() => {
-                const celda = datos.celdas.find((c) => c.mano === manoEnEdicion)
-                if (!celda) return null
-                return (
-                  <EditorDeCelda
-                    celda={celda}
-                    acciones={catalogo.acciones}
-                    guardando={guardando}
-                    onCerrar={() => setManoEnEdicion(null)}
-                    onGuardar={(accion: string | null, mix: ParteDeMix[] | null) => {
-                      setGuardando(true)
-                      setErrorAlEditar(null)
-                      editarCelda(situacion, stack, spot, manoEnEdicion, { accion, mix })
-                        .then(() => { setManoEnEdicion(null); setRecarga((n) => n + 1) })
-                        .catch((e: unknown) =>
-                          setErrorAlEditar(e instanceof Error ? e.message : 'No pude guardar'))
-                        .finally(() => setGuardando(false))
-                    }}
-                  />
-                )
-              })()}
               <Leyenda acciones={catalogo.acciones} spot={datos} />
             </>
           )}
@@ -198,6 +198,50 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
           onLimpiar={onLimpiarHistorial}
         />
       </div>
+
+      {ficha && (
+        <FichaDeMemoria
+          ficha={ficha}
+          acciones={catalogo.acciones}
+          guardandoTip={guardandoTip}
+          errorAlGuardarTip={errorAlGuardarTip}
+          onCerrar={() => { setManoAbierta(null); setErrorAlGuardarTip(null) }}
+          onGuardarTip={(texto) => {
+            setGuardandoTip(true)
+            setErrorAlGuardarTip(null)
+            guardarTip(situacion, stack, spot, texto)
+              .then(() => setRecarga((n) => n + 1))
+              .catch((e: unknown) =>
+                setErrorAlGuardarTip(e instanceof Error ? e.message : 'No pude guardar el tip'))
+              .finally(() => setGuardandoTip(false))
+          }}
+        >
+          {editando && (() => {
+            const celda = datos?.celdas.find((c) => c.mano === ficha.mano)
+            if (!celda) return null
+            return (
+              <>
+                {errorAlEditar && <p className="error">{errorAlEditar}</p>}
+                <EditorDeCelda
+                  celda={celda}
+                  acciones={catalogo.acciones}
+                  guardando={guardando}
+                  onCerrar={() => setManoAbierta(null)}
+                  onGuardar={(accion: string | null, mix: ParteDeMix[] | null) => {
+                    setGuardando(true)
+                    setErrorAlEditar(null)
+                    editarCelda(situacion, stack, spot, ficha.mano, { accion, mix })
+                      .then(() => setRecarga((n) => n + 1))
+                      .catch((e: unknown) =>
+                        setErrorAlEditar(e instanceof Error ? e.message : 'No pude guardar'))
+                      .finally(() => setGuardando(false))
+                  }}
+                />
+              </>
+            )
+          })()}
+        </FichaDeMemoria>
+      )}
     </div>
   )
 }

@@ -34,8 +34,8 @@ export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props
   const clases = `celda${resaltada ? ' celda-resaltada' : ''}${esMix ? ' celda-mixta' : ''}`
   const estilo = { background: fondo, color: accion?.colorTexto ?? 'var(--texto)' }
 
-  // Solo es interactiva cuando hay editor: una grilla de 169 botones sin nada
-  // que hacer estorba al navegar con teclado.
+  // La celda es interactiva siempre: haya o no editor activo, tocarla abre la
+  // ficha de la mano, que siempre hay algo que ver.
   if (!onTocar) return <div className={clases} style={estilo} title={titulo}>{mano}</div>
 
   return (
@@ -43,7 +43,7 @@ export function Celda({ mano, accion, mix, acciones, resaltada, onTocar }: Props
       type="button"
       className={`${clases} celda-editable`}
       style={estilo}
-      title={`${titulo} - toca para corregir`}
+      title={`${titulo} - toca para ver la ficha`}
       onClick={() => onTocar(mano)}
     >
       {mano}
