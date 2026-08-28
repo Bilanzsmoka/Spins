@@ -35,7 +35,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         // "be be contra min raise del boton", 7 palabras) y esa dejaría
         // "del boton" sueltos: la frase entera se rechazaría y el spot nunca
         // resolvería por su dicho canónico.
-        var (formato, situacion, spot, palo) = ConsumirDichos(libres);
+        var (formato, situacion, spot, palo, mano) = ConsumirDichos(libres);
 
         // El stack va DESPUÉS de la pasada de dichos: si fuera antes, "be be"
         // de una frase de situación se lo llevaría el stack en vez de quedar
@@ -50,20 +50,28 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         // Sobró algo que el vocabulario no explica: no es una orden.
         if (libres.Any(t => t is not null)) return null;
 
-        var hayMano = rangos.Count == 2;
+        // Una mano guardada entera manda sobre los rangos sueltos. Quien la
+        // enseñó lo hizo justamente porque los dos rangos le llegaban fundidos
+        // en algo que no se podía partir, así que ahí no hay rangos que leer.
+        var rangoAlto = "";
+        var rangoBajo = "";
+        string? paloResuelto = null;
+
+        if (mano is not null) (rangoAlto, rangoBajo, paloResuelto) = Partir(mano);
+        else if (rangos.Count == 2) (rangoAlto, rangoBajo, paloResuelto) = (rangos[0], rangos[1], palo);
+
+        var hayMano = rangoAlto.Length > 0;
         var hayContexto = formato is not null || situacion is not null
                           || spot is not null || stack is not null;
         if (!hayMano && !hayContexto) return null;
 
         // Un rango suelto es media mano: no alcanza para consultar, y como
         // contexto no significa nada.
-        if (rangos.Count == 1) return null;
+        if (mano is null && rangos.Count == 1) return null;
 
         return new DictadoReconocido(
             stack, spot, situacion, formato,
-            hayMano ? rangos[0] : "",
-            hayMano ? rangos[1] : "",
-            hayMano ? palo : null,
+            rangoAlto, rangoBajo, paloResuelto,
             confianza,
             texto.Trim());
     }
@@ -106,7 +114,15 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         return null;
     }
 
-    private enum CategoriaDeDicho { Formato, Situacion, Spot, Palo }
+    /// <summary>
+    /// Parte una clave de la matriz en sus dos rangos y su palo. Un par
+    /// ("AA") no tiene palo: son dos cartas del mismo rango y no hay suited
+    /// ni offsuit que elegir.
+    /// </summary>
+    private static (string Alto, string Bajo, string? Palo) Partir(string mano)
+        => (mano[..1], mano.Substring(1, 1), mano.Length > 2 ? mano[2..] : null);
+
+    private enum CategoriaDeDicho { Formato, Situacion, Spot, Palo, Mano }
 
     /// <summary>
     /// Situaciones, spots y palos, todos juntos en una sola cola ordenada de
@@ -118,8 +134,8 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
     /// como prefijo (un spot de 7 palabras que empieza igual), dejando el
     /// resto del spot suelto y la frase entera rechazada.
     /// </summary>
-    private (string? Formato, string? Situacion, string? Spot, string? Palo) ConsumirDichos(
-        List<string?> libres)
+    private (string? Formato, string? Situacion, string? Spot, string? Palo, string? Mano)
+        ConsumirDichos(List<string?> libres)
     {
         IEnumerable<(CategoriaDeDicho Categoria, string Clave, List<string> Palabras)> Formas(
             CategoriaDeDicho categoria, IReadOnlyList<FormasHabladas> formas) =>
@@ -129,9 +145,13 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             .Concat(Formas(CategoriaDeDicho.Situacion, vocabulario.Situaciones))
             .Concat(Formas(CategoriaDeDicho.Spot, vocabulario.Spots))
             .Concat(Formas(CategoriaDeDicho.Palo, vocabulario.Palos))
+            // Las manos entran en la MISMA pasada: sus formas son las mas
+            // especificas que hay y tienen que poder ganarle a un dicho corto
+            // de otra categoria que sea prefijo suyo.
+            .Concat(Formas(CategoriaDeDicho.Mano, vocabulario.Manos))
             .OrderByDescending(c => c.Palabras.Count);
 
-        string? formato = null, situacion = null, spot = null, palo = null;
+        string? formato = null, situacion = null, spot = null, palo = null, manoDicha = null;
 
         foreach (var (categoria, clave, palabras) in candidatas)
         {
@@ -142,7 +162,8 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
                 CategoriaDeDicho.Formato => formato is not null,
                 CategoriaDeDicho.Situacion => situacion is not null,
                 CategoriaDeDicho.Spot => spot is not null,
-                _ => palo is not null
+                CategoriaDeDicho.Palo => palo is not null,
+                _ => manoDicha is not null
             };
             if (yaResuelta) continue;
 
@@ -155,11 +176,12 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
                 case CategoriaDeDicho.Formato: formato = clave; break;
                 case CategoriaDeDicho.Situacion: situacion = clave; break;
                 case CategoriaDeDicho.Spot: spot = clave; break;
-                default: palo = clave; break;
+                case CategoriaDeDicho.Palo: palo = clave; break;
+                default: manoDicha = clave; break;
             }
         }
 
-        return (formato, situacion, spot, palo);
+        return (formato, situacion, spot, palo, manoDicha);
     }
 
     /// <summary>

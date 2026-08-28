@@ -17,4 +17,16 @@ public interface IRegistroDeVocabulario
     /// en pantalla pero la voz no tenia como nombrarlo.
     /// </summary>
     IReadOnlyList<FormasHabladas> Formatos { get; }
+
+    /// <summary>
+    /// Manos enteras, con clave de la matriz ("AKo"). Existe porque enseñar
+    /// rangos sueltos no siempre alcanza: el navegador funde "as rey" en una
+    /// palabra que no se puede partir en dos, y entonces no hay rango que
+    /// enseñar. Arranca vacía; se llena sola desde la pantalla.
+    ///
+    /// Enseñar el rango es lo que generaliza —una forma nueva de "nueve"
+    /// arregla todas las manos con un nueve—, así que esto es la excepción,
+    /// no el camino principal.
+    /// </summary>
+    IReadOnlyList<FormasHabladas> Manos { get; }
 }

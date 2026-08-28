@@ -47,6 +47,7 @@ public sealed class VozController(
         palos = vocabulario.Palos,
         spots = vocabulario.Spots,
         situaciones = vocabulario.Situaciones,
+        manos = vocabulario.Manos,
     });
 
     [HttpPost("vocabulario/{categoria}/{clave}")]

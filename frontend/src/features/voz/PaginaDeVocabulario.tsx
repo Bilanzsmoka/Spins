@@ -124,6 +124,14 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
       categoria: 'Situaciones', titulo: 'Situaciones', entradas: vocabulario.situaciones,
       ayuda: 'Cómo pedís cambiar de tabla completa.',
     },
+    // Arranca vacío y se llena solo, desde el panel de frases sin entender de
+    // la pantalla de entrenamiento: acá se repasan y se borran las que
+    // quedaron mal. No se pueden agregar de cero porque la clave es una de
+    // las 169 manos, y elegirla es justo lo que ese panel ya hace.
+    {
+      categoria: 'Manos', titulo: 'Manos enteras', entradas: vocabulario.manos,
+      ayuda: 'Cuando el navegador funde las dos cartas en algo que no se puede partir. Enseñar el rango rinde más: arregla todas las manos que lo lleven.',
+    },
   ]
 
   return (

@@ -11,9 +11,10 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
         IReadOnlyList<FormasHabladas> palos,
         IReadOnlyList<FormasHabladas> spots,
         IReadOnlyList<FormasHabladas> situaciones,
-        IReadOnlyList<FormasHabladas> formatos)
-        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones, Formatos)
-            = (palabrasDeStack, rangos, palos, spots, situaciones, formatos);
+        IReadOnlyList<FormasHabladas> formatos,
+        IReadOnlyList<FormasHabladas> manos)
+        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones, Formatos, Manos)
+            = (palabrasDeStack, rangos, palos, spots, situaciones, formatos, manos);
 
     public IReadOnlyList<string> PalabrasDeStack { get; }
     public IReadOnlyList<FormasHabladas> Rangos { get; }
@@ -21,6 +22,7 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
     public IReadOnlyList<FormasHabladas> Spots { get; }
     public IReadOnlyList<FormasHabladas> Situaciones { get; }
     public IReadOnlyList<FormasHabladas> Formatos { get; }
+    public IReadOnlyList<FormasHabladas> Manos { get; }
 
     public static IRegistroDeVocabulario Cargar(string ruta)
     {
@@ -44,7 +46,10 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
                 Leer(raiz, "situaciones"),
                 // Opcional: un vocabulario viejo no lo tiene y la app tiene que
                 // arrancar igual, solo sin poder dictar el formato.
-                raiz.TryGetProperty("formatos", out _) ? Leer(raiz, "formatos") : []);
+                raiz.TryGetProperty("formatos", out _) ? Leer(raiz, "formatos") : [],
+                // Tambien opcional, y ademas normalmente vacia: la seccion no
+                // existe hasta que se ensena la primera mano desde la pantalla.
+                raiz.TryGetProperty("manos", out _) ? Leer(raiz, "manos") : []);
         }
         catch (Exception ex)
         {

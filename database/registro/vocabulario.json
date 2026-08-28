@@ -5,7 +5,7 @@
     "blinds",
     "ciegas",
     "bebes",
-    "beb\u00E9s"
+    "bebés"
   ],
   "rangos": [
     {
@@ -234,7 +234,9 @@
       "dichos": [
         "boton o erre",
         "mi accion en el boton",
-        "abrir en el boton"
+        "abrir en el boton",
+        "btn o r",
+        "vpn o r"
       ]
     },
     {
@@ -336,14 +338,17 @@
       "clave": "HU_BB_VS_MR_FISH",
       "dichos": [
         "be be contra min raise",
-        "defendiendo min raise"
+        "defendiendo min raise",
+        "bebé versus minrise"
       ]
     },
     {
       "clave": "HU_BB_VS_OS_FISH",
       "dichos": [
         "be be contra open shove",
-        "defendiendo open shove"
+        "defendiendo open shove",
+        "dd versus openshot",
+        "bebé versus openshop"
       ]
     },
     {
@@ -446,7 +451,11 @@
         "hu",
         "mano a mano",
         "cabeza a cabeza",
-        "whatsapp"
+        "whatsapp",
+        "headsap",
+        "gets up",
+        "set up",
+        "quetzat"
       ]
     },
     {

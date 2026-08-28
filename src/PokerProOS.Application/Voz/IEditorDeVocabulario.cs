@@ -12,6 +12,12 @@ public enum CategoriaDeVocabulario
     Situaciones,
     Formatos,
     PalabrasDeStack,
+    /// <summary>
+    /// Una mano entera ("AKo") dicha de una sola forma. A diferencia del
+    /// resto, sus claves son las 169 de la matriz y no están listadas de
+    /// antemano: la entrada se crea al guardar la primera forma.
+    /// </summary>
+    Manos,
 }
 
 public record ResultadoDeVocabulario(bool Exito, string? Error);

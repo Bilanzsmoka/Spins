@@ -262,7 +262,10 @@ export interface Vocabulario {
   palos: FormasHabladas[]
   spots: FormasHabladas[]
   situaciones: FormasHabladas[]
+  /** Manos enteras, con clave de la matriz ("AKo"). Arranca vacía. */
+  manos: FormasHabladas[]
 }
 
 export type CategoriaDeVocabulario =
   | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'
+  | 'Manos'

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using PokerProOS.Application.Voz;
+using PokerProOS.Domain.Manos;
 
 namespace PokerProOS.Infrastructure.Voz;
 
@@ -23,6 +24,7 @@ public sealed class EditorDeVocabularioJson(
         CategoriaDeVocabulario.Situaciones => "situaciones",
         CategoriaDeVocabulario.PalabrasDeStack => "palabrasDeStack",
         CategoriaDeVocabulario.Formatos => "formatos",
+        CategoriaDeVocabulario.Manos => "manos",
         _ => throw new ArgumentOutOfRangeException(nameof(categoria)),
     };
 
@@ -48,12 +50,25 @@ public sealed class EditorDeVocabularioJson(
         await _turno.WaitAsync(ct);
         try
         {
+            // Las manos son las unicas cuya clave no esta listada de antemano
+            // —son 169 y ninguna aparece hasta que alguien la ensena—, asi que
+            // no hay lista contra la cual validar: se valida contra la matriz.
+            if (categoria == CategoriaDeVocabulario.Manos && !MatrizDeManos.Todas().Contains(clave))
+                return new ResultadoDeVocabulario(false, $"'{clave}' no es una de las 169 manos.");
+
             var raiz = JsonNode.Parse(await File.ReadAllTextAsync(ruta, ct))!.AsObject();
             var propiedad = Propiedad(categoria);
 
-            var lista = categoria == CategoriaDeVocabulario.PalabrasDeStack
-                ? raiz[propiedad]?.AsArray()
-                : UbicarDichos(raiz, propiedad, clave);
+            var lista = categoria switch
+            {
+                CategoriaDeVocabulario.PalabrasDeStack => raiz[propiedad]?.AsArray(),
+                // Y por lo mismo, su entrada se crea al guardar la primera
+                // forma. Solo al agregar: al quitar, que no exista quiere decir
+                // que no habia nada que quitar.
+                CategoriaDeVocabulario.Manos => UbicarDichos(raiz, propiedad, clave)
+                    ?? (agregar ? CrearEntrada(raiz, propiedad, clave) : null),
+                _ => UbicarDichos(raiz, propiedad, clave),
+            };
 
             if (lista is null)
                 return new ResultadoDeVocabulario(false, $"No encontré '{clave}' en {propiedad}.");
@@ -72,11 +87,22 @@ public sealed class EditorDeVocabularioJson(
             }
             else
             {
-                if (lista.Count <= 1 && categoria != CategoriaDeVocabulario.PalabrasDeStack)
+                // Las manos quedan fuera de la guarda: quitar la ultima forma
+                // de una mano no te deja sin manera de decirla, porque siempre
+                // se la puede nombrar por sus dos rangos.
+                if (lista.Count <= 1
+                    && categoria != CategoriaDeVocabulario.PalabrasDeStack
+                    && categoria != CategoriaDeVocabulario.Manos)
                     return new ResultadoDeVocabulario(false,
                         "Es la única forma que queda: sin ella no habría manera de decirlo.");
                 for (var i = lista.Count - 1; i >= 0; i--)
                     if (Normalizar(lista[i]!.GetValue<string>()) == normalizado) lista.RemoveAt(i);
+
+                // Una mano sin formas no significa nada, y su entrada solo
+                // existia para sostenerlas. vocabulario.json se edita a mano:
+                // sin esto, cada correccion le deja un esqueleto vacio.
+                if (categoria == CategoriaDeVocabulario.Manos && lista.Count == 0)
+                    QuitarEntrada(raiz, propiedad, clave);
             }
 
             var temporal = ruta + ".tmp";
@@ -96,6 +122,30 @@ public sealed class EditorDeVocabularioJson(
         {
             _turno.Release();
         }
+    }
+
+    /// <summary>Saca del archivo la entrada de una clave que se quedó sin formas.</summary>
+    private static void QuitarEntrada(JsonObject raiz, string propiedad, string clave)
+    {
+        if (raiz[propiedad] is not JsonArray entradas) return;
+
+        for (var i = entradas.Count - 1; i >= 0; i--)
+            if (entradas[i]!.AsObject()["clave"]?.GetValue<string>() == clave)
+                entradas.RemoveAt(i);
+    }
+
+    /// <summary>La entrada vacía de una clave que todavía no estaba en el archivo.</summary>
+    private static JsonArray CrearEntrada(JsonObject raiz, string propiedad, string clave)
+    {
+        if (raiz[propiedad] is not JsonArray entradas)
+        {
+            entradas = [];
+            raiz[propiedad] = entradas;
+        }
+
+        var dichos = new JsonArray();
+        entradas.Add(new JsonObject { ["clave"] = clave, ["dichos"] = dichos });
+        return dichos;
     }
 
     private static JsonArray? UbicarDichos(JsonObject raiz, string propiedad, string clave)

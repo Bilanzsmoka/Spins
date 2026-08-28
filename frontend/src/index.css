@@ -191,6 +191,24 @@ body {
 .sin-entender-categoria:disabled,
 .sin-entender-clave:disabled { opacity: .55; }
 
+.sin-entender-rango {
+  padding: 6px 8px;
+  border: 1px solid var(--borde); border-radius: 6px;
+  background: var(--panel-2); color: var(--texto);
+  font-size: 12px; font-family: inherit;
+}
+.sin-entender-rango:disabled { opacity: .4; }
+
+/* La mano que se va a guardar, armada de las tres listas. Sin esto no hay
+   forma de saber que "9 + A + suited" termina siendo A9s y no 9As. */
+.sin-entender-mano {
+  min-width: 42px;
+  font-weight: 800; font-size: 13px; letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sin-entender-nota { color: var(--apagado); font-size: 12px; font-style: italic; }
+
 .sin-entender-guardar {
   padding: 6px 13px;
   border: 1px solid var(--acento); border-radius: 6px;

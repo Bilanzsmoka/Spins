@@ -143,6 +143,24 @@ cannot be dictated. Text it does not recognize is not an error: it is conversati
 answers `{ ignorado: true }` instead of a 400 that would paint the console red for talking near the
 microphone.
 
+### El vocabulario se enseña mientras estudiás
+
+Chrome no conoce la jerga: "be be contra min raise" le sale "vivir versus race", y adivinar más
+variantes no escala porque dependen de cómo habla cada uno. Por eso una frase rechazada no se
+pierde — `CopilotoDeVoz.NoEntendido` la publica igual, el navegador dice "No te entendí" y
+`FrasesSinEntender.tsx` la deja en pantalla con las listas para decirle qué era. Se guarda por
+`POST /api/voz/vocabulario/{categoria}/{clave}`, y como el vocabulario es vivo (`VocabularioVivo`)
+entra en el dictado siguiente sin reiniciar. Juntar las fallas en vez de preguntar en el momento es
+lo que permite dictar sin manos: seguís estudiando y se las enseñás al volver al teclado.
+
+Enseñar un **rango** es lo que generaliza — una forma nueva de "nueve" arregla todas las manos que
+lleven un nueve. La categoría `manos` es la excepción: mapea una frase entera a una clave de la
+matriz ("AKo"), y existe para cuando el navegador funde las dos cartas en algo que no se puede
+partir. Es la única categoría cuyas claves no están listadas de antemano —son las 169— así que
+`EditorDeVocabularioJson` valida contra `MatrizDeManos`, crea la entrada al guardar la primera
+forma y la borra al quedarse sin ninguna. La sección `manos` de `vocabulario.json` es opcional y
+normalmente no existe.
+
 `CopilotoDeVoz` (Application) does the rest: it updates `MemoriaDeContexto` (so a dictated stack or
 spot persists until the next one overrides it — no need to repeat "seven bb" every time), resolves the
 hand against the catalogue via `ResolverManoHandler`, composes the reply with `RedactorDeRespuesta` and
