@@ -88,5 +88,6 @@ public class RedactorDeRespuestaTests
         public IReadOnlyList<FormasHabladas> Situaciones { get; } = new List<FormasHabladas>();
         public IReadOnlyList<FormasHabladas> Formatos { get; } = new List<FormasHabladas>();
         public IReadOnlyList<FormasHabladas> Manos { get; } = new List<FormasHabladas>();
+        public IReadOnlyList<FormasHabladas> Niveles { get; } = new List<FormasHabladas>();
     }
 }

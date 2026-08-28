@@ -128,6 +128,13 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
     // la pantalla de entrenamiento: acá se repasan y se borran las que
     // quedaron mal. No se pueden agregar de cero porque la clave es una de
     // las 169 manos, y elegirla es justo lo que ese panel ya hace.
+    // Encabezan el dictado y le dicen al intérprete contra qué categoría
+    // buscar. Sin esto, "tres max" (el formato) se come el "tres" que era el
+    // rango: son 121 choques entre categorías sobre el vocabulario real.
+    {
+      categoria: 'Niveles', titulo: 'Palabras de nivel', entradas: vocabulario.niveles,
+      ayuda: 'Decilas al empezar la frase para que no se confunda: «spot contra limp», «stack doce», «mano as rey». Son opcionales; sin ellas el dictado funciona como siempre.',
+    },
     {
       categoria: 'Manos', titulo: 'Manos enteras', entradas: vocabulario.manos,
       ayuda: 'Cuando el navegador funde las dos cartas en algo que no se puede partir. Enseñar el rango rinde más: arregla todas las manos que lo lleven.',

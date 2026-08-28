@@ -29,4 +29,20 @@ public interface IRegistroDeVocabulario
     /// no el camino principal.
     /// </summary>
     IReadOnlyList<FormasHabladas> Manos { get; }
+
+    /// <summary>
+    /// Cómo se nombra cada nivel del flujo: formato, situación, stack, spot y
+    /// mano. Dicho al principio de la frase, el intérprete busca SOLO dentro
+    /// de ese nivel.
+    ///
+    /// Existe porque el barrido libre mezcla categorías: "tres max" (el
+    /// formato) se come el "tres" que era el rango, y "be be contra limp" (la
+    /// situación) se come el "contra limp" que era el spot. Son 121 choques
+    /// medidos, no una posibilidad teórica. Nombrar el nivel los elimina de
+    /// raíz, porque ya no hay dos categorías compitiendo por las mismas
+    /// palabras.
+    ///
+    /// Las claves son las de <see cref="NivelDeDictado"/>.
+    /// </summary>
+    IReadOnlyList<FormasHabladas> Niveles { get; }
 }

@@ -143,6 +143,37 @@ cannot be dictated. Text it does not recognize is not an error: it is conversati
 answers `{ ignorado: true }` instead of a 400 that would paint the console red for talking near the
 microphone.
 
+### Dictado dirigido: nombrar el nivel
+
+`InterpretadorDeTexto` barre todas las categorías en una sola pasada, de la forma más larga a la más
+corta, sin noción de posición ni de flujo. Sobre el vocabulario real eso da **121 choques entre
+categorías**: `"tres max"` (el formato) se come el `"tres"` que era el rango, `"be be contra limp"`
+(la situación) se come el `"contra limp"` que era el spot y el `"be be"` que era el stack. No es
+teórico — es lo que hace que una carta termine cambiando el spot.
+
+Por eso una consulta se puede dictar **dirigida**: encabezándola con la palabra del nivel —`"spot
+contra limp"`, `"stack doce"`, `"mano as rey"`— el intérprete busca **solo** en esa categoría y no
+hay dos compitiendo por las mismas palabras. Las palabras salen de la sección `niveles` de
+`vocabulario.json` (claves de `NivelDeDictado`: Formato, Situacion, Stack, Spot, Mano) y se editan
+como cualquier otra forma.
+
+Tres reglas que la hacen predecible:
+
+- **La etiqueta cuenta solo en la posición 0.** Si contara en cualquier lugar, mencionarla al pasar
+  cambiaría el modo de interpretación sin que nadie lo pidiera.
+- **Dicho el nivel, lo que no pertenece a ese nivel se rechaza** en vez de adivinarse: `"spot as
+  rey"` no resuelve. Es todo el punto.
+- **Pero la etiqueta dirige solo si lo que sigue resuelve ahí.** `"mano"` encabeza un dictado y
+  además arranca `"mano a mano"`, el formato heads-up; si el camino dirigido no da nada, la frase
+  entera vuelve al barrido libre intacta. Sin esto, agregar una etiqueta rompe formas que ya
+  funcionaban.
+
+Con el nivel dicho, un stack no necesita la palabra detrás: `"stack doce"` alcanza, porque lo que
+distinguía un número de un rango era justamente ese `"be be"`.
+
+El dictado libre de siempre sigue funcionando igual. La etiqueta es un atajo para cuando confunde,
+no una obligación.
+
 ### El vocabulario se enseña mientras estudiás
 
 Chrome no conoce la jerga: "be be contra min raise" le sale "vivir versus race", y adivinar más

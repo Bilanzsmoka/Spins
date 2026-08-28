@@ -12,9 +12,10 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
         IReadOnlyList<FormasHabladas> spots,
         IReadOnlyList<FormasHabladas> situaciones,
         IReadOnlyList<FormasHabladas> formatos,
-        IReadOnlyList<FormasHabladas> manos)
-        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones, Formatos, Manos)
-            = (palabrasDeStack, rangos, palos, spots, situaciones, formatos, manos);
+        IReadOnlyList<FormasHabladas> manos,
+        IReadOnlyList<FormasHabladas> niveles)
+        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones, Formatos, Manos, Niveles)
+            = (palabrasDeStack, rangos, palos, spots, situaciones, formatos, manos, niveles);
 
     public IReadOnlyList<string> PalabrasDeStack { get; }
     public IReadOnlyList<FormasHabladas> Rangos { get; }
@@ -23,6 +24,7 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
     public IReadOnlyList<FormasHabladas> Situaciones { get; }
     public IReadOnlyList<FormasHabladas> Formatos { get; }
     public IReadOnlyList<FormasHabladas> Manos { get; }
+    public IReadOnlyList<FormasHabladas> Niveles { get; }
 
     public static IRegistroDeVocabulario Cargar(string ruta)
     {
@@ -49,7 +51,10 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
                 raiz.TryGetProperty("formatos", out _) ? Leer(raiz, "formatos") : [],
                 // Tambien opcional, y ademas normalmente vacia: la seccion no
                 // existe hasta que se ensena la primera mano desde la pantalla.
-                raiz.TryGetProperty("manos", out _) ? Leer(raiz, "manos") : []);
+                raiz.TryGetProperty("manos", out _) ? Leer(raiz, "manos") : [],
+                // Opcional tambien: sin niveles declarados el dictado dirigido
+                // no existe y todo se interpreta como antes, en barrido libre.
+                raiz.TryGetProperty("niveles", out _) ? Leer(raiz, "niveles") : []);
         }
         catch (Exception ex)
         {

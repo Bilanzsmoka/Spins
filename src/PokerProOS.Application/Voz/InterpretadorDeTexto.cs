@@ -27,6 +27,22 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         // que empiece igual.
         var libres = new List<string?>(tokens);
 
+        // Si la frase arranca nombrando un nivel, se resuelve SOLO dentro de
+        // ese nivel: decir el nivel es decir "de esto te estoy hablando", y
+        // buscar en otra categoría sería exactamente lo que se vino a evitar.
+        //
+        // Se prueba sobre una copia porque la etiqueta puede no ser una
+        // etiqueta: "mano" encabeza un dictado dirigido y también arranca
+        // "mano a mano", que es el formato heads-up. Si lo que sigue no
+        // resuelve en ese nivel, la frase entera vuelve al barrido libre
+        // intacta. Eso no reabre la puerta a los saltos —"spot as rey" sigue
+        // rechazado, porque "spot" tampoco significa nada suelto— pero evita
+        // que agregar una etiqueta rompa formas que ya funcionaban.
+        var dirigido = new List<string?>(libres);
+        if (ConsumirNivelInicial(dirigido) is { } nivel
+            && EnUnSoloNivel(nivel, dirigido, confianza, texto) is { } resuelto)
+            return resuelto;
+
         // Situaciones, spots y palos se consumen en UNA sola pasada, larga a
         // corta, mezclando las tres categorías. Si fueran pasadas separadas
         // por categoría, una forma corta de una categoría temprana (la
@@ -74,6 +90,113 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             rangoAlto, rangoBajo, paloResuelto,
             confianza,
             texto.Trim());
+    }
+
+    /// <summary>
+    /// El nivel nombrado al principio de la frase, o null.
+    ///
+    /// Solo cuenta en la posición 0: es una etiqueta que encabeza el dictado,
+    /// no una palabra suelta. Si "carta" pudiera aparecer en el medio, una
+    /// frase que la mencione al pasar cambiaría el modo de interpretación
+    /// entero sin que nadie lo haya pedido.
+    /// </summary>
+    private NivelDeDictado? ConsumirNivelInicial(List<string?> libres)
+    {
+        var candidatas = vocabulario.Niveles
+            .SelectMany(f => f.Dichos.Select(d => (f.Clave, Palabras: Palabras(d))))
+            .OrderByDescending(c => c.Palabras.Count);
+
+        foreach (var (clave, palabras) in candidatas)
+        {
+            if (!Enum.TryParse<NivelDeDictado>(clave, ignoreCase: true, out var nivel)) continue;
+            if (palabras.Count > libres.Count) continue;
+
+            var arranca = true;
+            for (var i = 0; i < palabras.Count && arranca; i++) arranca = libres[i] == palabras[i];
+            if (!arranca) continue;
+
+            for (var i = 0; i < palabras.Count; i++) libres[i] = null;
+            return nivel;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Lo que sobró después de la etiqueta, entendido contra una sola
+    /// categoría. Cualquier palabra que quede libre rechaza la frase: dijiste
+    /// de qué estabas hablando, así que o entra entero en ese nivel o no
+    /// entra.
+    /// </summary>
+    private DictadoReconocido? EnUnSoloNivel(
+        NivelDeDictado nivel, List<string?> libres, float confianza, string texto)
+    {
+        string? formato = null, situacion = null, spot = null, palo = null;
+        decimal? stack = null;
+        var rangoAlto = "";
+        var rangoBajo = "";
+
+        switch (nivel)
+        {
+            case NivelDeDictado.Formato:
+                formato = ConsumirForma(libres, vocabulario.Formatos);
+                if (formato is null) return null;
+                break;
+
+            case NivelDeDictado.Situacion:
+                situacion = ConsumirForma(libres, vocabulario.Situaciones);
+                if (situacion is null) return null;
+                break;
+
+            case NivelDeDictado.Spot:
+                spot = ConsumirForma(libres, vocabulario.Spots);
+                if (spot is null) return null;
+                break;
+
+            case NivelDeDictado.Stack:
+                // Con el nivel dicho, la palabra de stack sobra: "stack doce"
+                // alcanza. Se acepta igual por si sale sola ("stack doce be
+                // be"), pero ya no es lo que distingue un número de un rango.
+                stack = ConsumirStack(libres) ?? ConsumirNumeroSuelto(libres);
+                if (stack is null) return null;
+                break;
+
+            default:
+                // Una mano enseñada entera gana; si no, sus dos rangos y el palo.
+                if (ConsumirForma(libres, vocabulario.Manos) is { } mano)
+                    (rangoAlto, rangoBajo, palo) = Partir(mano);
+                else
+                {
+                    palo = ConsumirForma(libres, vocabulario.Palos);
+                    var rangos = ConsumirRangos(libres);
+                    if (rangos.Count != 2) return null;
+                    (rangoAlto, rangoBajo) = (rangos[0], rangos[1]);
+                }
+                break;
+        }
+
+        if (libres.Any(t => t is not null)) return null;
+
+        return new DictadoReconocido(
+            stack, spot, situacion, formato,
+            rangoAlto, rangoBajo, rangoAlto.Length > 0 ? palo : null,
+            confianza, texto.Trim());
+    }
+
+    /// <summary>
+    /// Un número sin la palabra de stack detrás. Solo se usa cuando el nivel
+    /// ya dijo que es un stack: en el barrido libre, un número suelto es un
+    /// rango y confundirlos es el error clásico.
+    /// </summary>
+    private static decimal? ConsumirNumeroSuelto(List<string?> libres)
+    {
+        for (var i = 0; i < libres.Count; i++)
+        {
+            if (libres[i] is not { } token) continue;
+            if (NumeroHablado.Interpretar(token) is not { } numero) continue;
+            libres[i] = null;
+            return numero;
+        }
+        return null;
     }
 
     /// <summary>Minúsculas, sin tildes y partido en palabras.</summary>

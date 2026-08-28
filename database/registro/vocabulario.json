@@ -467,5 +467,43 @@
         "3 max"
       ]
     }
+  ],
+  "niveles": [
+    {
+      "clave": "Formato",
+      "dichos": [
+        "formato",
+        "mesa"
+      ]
+    },
+    {
+      "clave": "Situacion",
+      "dichos": [
+        "situacion",
+        "tabla"
+      ]
+    },
+    {
+      "clave": "Stack",
+      "dichos": [
+        "stack",
+        "fichas"
+      ]
+    },
+    {
+      "clave": "Spot",
+      "dichos": [
+        "spot",
+        "jugada"
+      ]
+    },
+    {
+      "clave": "Mano",
+      "dichos": [
+        "mano",
+        "carta",
+        "cartas"
+      ]
+    }
   ]
 }

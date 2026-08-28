@@ -264,8 +264,10 @@ export interface Vocabulario {
   situaciones: FormasHabladas[]
   /** Manos enteras, con clave de la matriz ("AKo"). Arranca vacía. */
   manos: FormasHabladas[]
+  /** Cómo se nombra cada nivel del flujo al encabezar un dictado dirigido. */
+  niveles: FormasHabladas[]
 }
 
 export type CategoriaDeVocabulario =
   | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'
-  | 'Manos'
+  | 'Manos' | 'Niveles'

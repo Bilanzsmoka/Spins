@@ -39,6 +39,7 @@ const CATEGORIAS: { categoria: CategoriaDeVocabulario; titulo: string }[] = [
   { categoria: 'Rangos', titulo: 'Rango (una carta)' },
   { categoria: 'Palos', titulo: 'Palo' },
   { categoria: 'Manos', titulo: 'Mano entera' },
+  { categoria: 'Niveles', titulo: 'Palabra de nivel' },
 ]
 
 /** Lo elegido para una frase mientras no se guarda. */
@@ -99,6 +100,8 @@ export function FrasesSinEntender({
     .map((r) => ({ clave: r.clave, etiqueta: `${r.clave} · ${r.dichos[0] ?? ''}` }))
   const palos: Opcion[] = (vocabulario?.palos ?? [])
     .map((p) => ({ clave: p.clave, etiqueta: p.dichos[0] ?? p.clave }))
+  const niveles: Opcion[] = (vocabulario?.niveles ?? [])
+    .map((n) => ({ clave: n.clave, etiqueta: `${n.clave} · ${n.dichos[0] ?? ''}` }))
 
   const formatos: Opcion[] = [...new Set(situaciones.map((s) => s.formato))]
     .map((f) => ({ clave: f, etiqueta: f }))
@@ -120,6 +123,7 @@ export function FrasesSinEntender({
       case 'Spots': return spots
       case 'Rangos': return rangos
       case 'Palos': return palos
+      case 'Niveles': return niveles
       default: return []
     }
   }
@@ -203,7 +207,9 @@ export function FrasesSinEntender({
         <h3>Esto no lo entendí</h3>
         <p>
           Decile qué era y no vuelve a fallar. Recortá el texto si sobra algo:
-          de «doce vivir» lo que hay que enseñar es «vivir».
+          de «doce vivir» lo que hay que enseñar es «vivir». Y si te confunde
+          una cosa con otra, encabezá el dictado con el nivel: «spot contra
+          limp», «stack doce», «mano as rey».
         </p>
       </header>
 

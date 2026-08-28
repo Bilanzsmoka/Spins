@@ -148,5 +148,6 @@ public class ManosHabladasTests : IDisposable
         public IReadOnlyList<FormasHabladas> Situaciones => _real.Situaciones;
         public IReadOnlyList<FormasHabladas> Formatos => _real.Formatos;
         public IReadOnlyList<FormasHabladas> Manos { get; } = manos;
+        public IReadOnlyList<FormasHabladas> Niveles => _real.Niveles;
     }
 }

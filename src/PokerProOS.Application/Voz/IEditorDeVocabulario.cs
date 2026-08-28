@@ -18,6 +18,8 @@ public enum CategoriaDeVocabulario
     /// antemano: la entrada se crea al guardar la primera forma.
     /// </summary>
     Manos,
+    /// <summary>Cómo se nombra cada nivel del flujo al dictarlo dirigido.</summary>
+    Niveles,
 }
 
 public record ResultadoDeVocabulario(bool Exito, string? Error);

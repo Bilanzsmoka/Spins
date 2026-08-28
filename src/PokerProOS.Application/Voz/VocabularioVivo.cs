@@ -18,4 +18,5 @@ public sealed class VocabularioVivo(IRegistroDeVocabulario inicial) : IRegistroD
     public IReadOnlyList<FormasHabladas> Situaciones => _actual.Situaciones;
     public IReadOnlyList<FormasHabladas> Formatos => _actual.Formatos;
     public IReadOnlyList<FormasHabladas> Manos => _actual.Manos;
+    public IReadOnlyList<FormasHabladas> Niveles => _actual.Niveles;
 }
