@@ -20,11 +20,17 @@ public static class Rutas
         var actual = new DirectoryInfo(AppContext.BaseDirectory);
         while (actual is not null)
         {
-            if (Directory.Exists(Path.Combine(actual.FullName, "database")))
+            // La solución es la marca de la raíz, no database/ a secas: desde
+            // que las pruebas referencian a Api, sus json de database/ se
+            // copian también a bin/ de las pruebas, y esa copia le ganaba a la
+            // del repo. Peor: ahí nadie borra los sobrantes, así que una tabla
+            // eliminada seguiría validándose para siempre.
+            if (File.Exists(Path.Combine(actual.FullName, "PokerProOS.slnx"))
+                && Directory.Exists(Path.Combine(actual.FullName, "database")))
                 return actual.FullName;
             actual = actual.Parent;
         }
         throw new DirectoryNotFoundException(
-            "No se encontró la carpeta database/ subiendo desde " + AppContext.BaseDirectory);
+            "No se encontró la raíz del repositorio subiendo desde " + AppContext.BaseDirectory);
     }
 }

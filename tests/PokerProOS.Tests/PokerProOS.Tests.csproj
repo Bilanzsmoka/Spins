@@ -22,6 +22,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PokerProOS.Domain\PokerProOS.Domain.csproj" />
     <ProjectReference Include="..\..\src\PokerProOS.Infrastructure\PokerProOS.Infrastructure.csproj" />
+    <!-- El endpoint de dictado es parte del contrato con el navegador (un texto
+         que no es una orden se contesta 200, no 400), y probarlo pide llegar al
+         controlador de verdad. Compilar Api desde acá dispara su build del
+         frontend: pasar -p:SaltearFrontend=true para saltearlo. -->
+    <ProjectReference Include="..\..\src\PokerProOS.Api\PokerProOS.Api.csproj" />
   </ItemGroup>
 
 </Project>
