@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PokerProOS.Domain.Bitacora;
 using PokerProOS.Domain.Diario;
 using PokerProOS.Domain.Entities;
+using PokerProOS.Domain.Entrenador;
 
 namespace PokerProOS.Infrastructure.Database;
 
@@ -14,6 +15,7 @@ public class PokerProOSDbContext : DbContext
     public DbSet<ConsultaDeVoz> ConsultasDeVoz => Set<ConsultaDeVoz>();
     public DbSet<EntradaDeDiario> EntradasDeDiario => Set<EntradaDeDiario>();
     public DbSet<MarcaDeHabito> MarcasDeHabito => Set<MarcaDeHabito>();
+    public DbSet<ProgresoDeCasilla> ProgresosDeCasilla => Set<ProgresoDeCasilla>();
 
     public PokerProOSDbContext(DbContextOptions<PokerProOSDbContext> options)
         : base(options) { }
