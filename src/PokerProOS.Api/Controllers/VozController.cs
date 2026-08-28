@@ -9,7 +9,7 @@ public record DichoEnviado(string Dicho);
 
 public record ContextoEnviado(string Situacion, decimal StackBB, string Spot);
 
-public record DictadoEnviado(string Texto, float Confianza = 0.9f);
+public record DictadoEnviado(string? Texto, float Confianza = 0.9f);
 
 [ApiController]
 [Route("api/voz")]

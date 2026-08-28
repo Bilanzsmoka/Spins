@@ -48,4 +48,13 @@ public class InterpretarYResolverTests
     [Fact]
     public void Una_frase_de_conversacion_no_llega_al_copiloto()
         => Assert.Null(Armar().Interprete.Interpretar("contra el limite de gastos", 0.9f));
+
+    /// <summary>
+    /// El navegador siempre manda un string, pero el contrato no puede depender de
+    /// eso: un cuerpo sin texto tiene que caer en "no era una orden", no en un 400
+    /// que le pinta la consola de rojo al usuario por hablar cerca del micrófono.
+    /// </summary>
+    [Fact]
+    public void Un_texto_vacio_no_es_una_orden()
+        => Assert.Null(Armar().Interprete.Interpretar("", 0.9f));
 }
