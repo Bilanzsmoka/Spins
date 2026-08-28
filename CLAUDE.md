@@ -18,7 +18,7 @@ Backend (from repo root):
 ```bash
 dotnet build PokerProOS.slnx            # .slnx is the active solution; PokerProOS.slnx es la única solución. is the 
 dotnet run --project src/PokerProOS.Api # http://localhost:5000, Swagger UI at /swagger (Development only)
-dotnet test PokerProOS.slnx             # 114 tests; the voice-recognition ones drive real audio and are slow
+dotnet test PokerProOS.slnx             # 211 tests, all in-process and fast — nothing drives real audio
 ```
 
 `dotnet build` now builds and copies the frontend for you — see below. There is no manual step left.
@@ -134,8 +134,11 @@ The microphone belongs to the browser. `useVozDelNavegador` (frontend) listens c
 Web Speech API and POSTs each final transcript to `/api/voz/dictado`. `InterpretadorDeTexto`
 (Application) turns that free text into a `DictadoReconocido` by matching it against the vocabulary
 registry — the set of understandable stacks, spots, situations and hand ranks is never a hardcoded
-list, so a new chart or a new vocabulary entry changes what can be said without a code change. Text it
-does not recognize is not an error: it is conversation that was not meant for the app, and the endpoint
+list, so adding a `dicho` to `database/registro/vocabulario.json` changes what can be said without a
+code change. Note the limit: the interpreter reads **only** the vocabulary registry, never the
+catalogue. A new chart does not teach it any new word — if that chart brings a spot or a situation
+nobody can name yet, it has to be added to `vocabulario.json` (by hand or from the Voz screen) or it
+cannot be dictated. Text it does not recognize is not an error: it is conversation that was not meant for the app, and the endpoint
 answers `{ ignorado: true }` instead of a 400 that would paint the console red for talking near the
 microphone.
 
@@ -170,8 +173,11 @@ celda. La voz, en cambio, quedó corta a propósito: dice la acción y nada más
 
 1. Dejar el archivo JSON en `database/seed-data/`.
 2. Si usa una acción que no existe, agregarla a `database/registro/acciones.json`.
-3. Arrancar. La app valida, carga y sincroniza sola; el intérprete de voz lee el catálogo nuevo sin
-   tocar nada.
+3. Si trae un spot o una situación con un nombre que todavía no se puede decir, agregarle sus
+   `dichos` a `database/registro/vocabulario.json` — a mano o desde la pantalla de Voz.
+   `InterpretadorDeTexto` no lee el catálogo, solo el vocabulario: una tabla nueva por sí sola no
+   enseña ninguna palabra nueva, y ese spot no se va a poder nombrar.
+4. Arrancar. La app valida, carga y sincroniza sola.
 
 No hay que tocar código. Si algo falla, la app lo dice al arrancar y en pantalla, indicando archivo,
 stack, spot y causa.

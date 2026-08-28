@@ -107,9 +107,16 @@ public sealed class EditorDeVocabularioJson(
         JsonObject raiz, string propiedad, string clave, string dicho, out string? otra)
     {
         otra = null;
-        // Solo se compara dentro de la misma categoria: "as" como rango y
-        // "as" como parte del nombre de un spot no compiten, porque ocupan
-        // posiciones distintas de la frase.
+        // Solo se compara dentro de la misma categoria. Esto era seguro con
+        // la gramatica SRGS, donde cada categoria tenia su posicion fija en la
+        // frase. Ya no: InterpretadorDeTexto no tiene posiciones — su
+        // ConsumirDichos barre situaciones, spots y palos en una sola pasada
+        // de mas larga a mas corta, y entre dichos del mismo largo el
+        // desempate lo decide el orden del Concat, en silencio. O sea que un
+        // mismo dicho en dos categorias SI compite, y esta guarda no lo ve.
+        // Hoy no hay ningun duplicado real entre categorias, asi que el riesgo
+        // es latente; si aparece uno, el arreglo es comparar contra las tres
+        // categorias que comparten pasada, no solo contra la propia.
         if (raiz[propiedad] is not JsonArray entradas) return false;
 
         foreach (var nodo in entradas)
