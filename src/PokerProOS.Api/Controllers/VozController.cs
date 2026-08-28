@@ -42,6 +42,7 @@ public sealed class VozController(
     public IActionResult Vocabulario() => Ok(new
     {
         palabrasDeStack = vocabulario.PalabrasDeStack,
+        formatos = vocabulario.Formatos,
         rangos = vocabulario.Rangos,
         palos = vocabulario.Palos,
         spots = vocabulario.Spots,

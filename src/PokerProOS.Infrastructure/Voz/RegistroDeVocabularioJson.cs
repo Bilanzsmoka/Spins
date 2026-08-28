@@ -10,15 +10,17 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
         IReadOnlyList<FormasHabladas> rangos,
         IReadOnlyList<FormasHabladas> palos,
         IReadOnlyList<FormasHabladas> spots,
-        IReadOnlyList<FormasHabladas> situaciones)
-        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones)
-            = (palabrasDeStack, rangos, palos, spots, situaciones);
+        IReadOnlyList<FormasHabladas> situaciones,
+        IReadOnlyList<FormasHabladas> formatos)
+        => (PalabrasDeStack, Rangos, Palos, Spots, Situaciones, Formatos)
+            = (palabrasDeStack, rangos, palos, spots, situaciones, formatos);
 
     public IReadOnlyList<string> PalabrasDeStack { get; }
     public IReadOnlyList<FormasHabladas> Rangos { get; }
     public IReadOnlyList<FormasHabladas> Palos { get; }
     public IReadOnlyList<FormasHabladas> Spots { get; }
     public IReadOnlyList<FormasHabladas> Situaciones { get; }
+    public IReadOnlyList<FormasHabladas> Formatos { get; }
 
     public static IRegistroDeVocabulario Cargar(string ruta)
     {
@@ -39,7 +41,10 @@ public sealed class RegistroDeVocabularioJson : IRegistroDeVocabulario
                 Leer(raiz, "rangos"),
                 Leer(raiz, "palos"),
                 Leer(raiz, "spots"),
-                Leer(raiz, "situaciones"));
+                Leer(raiz, "situaciones"),
+                // Opcional: un vocabulario viejo no lo tiene y la app tiene que
+                // arrancar igual, solo sin poder dictar el formato.
+                raiz.TryGetProperty("formatos", out _) ? Leer(raiz, "formatos") : []);
         }
         catch (Exception ex)
         {

@@ -437,5 +437,25 @@
         "tres max be be shove boton"
       ]
     }
+  ],
+  "formatos": [
+    {
+      "clave": "HU",
+      "dichos": [
+        "heads up",
+        "hu",
+        "mano a mano",
+        "cabeza a cabeza"
+      ]
+    },
+    {
+      "clave": "3-max",
+      "dichos": [
+        "tres max",
+        "trimax",
+        "tres manos",
+        "3 max"
+      ]
+    }
   ]
 }

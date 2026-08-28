@@ -83,6 +83,22 @@ public class InterpretadorDeTextoTests
     public void Rechaza_lo_que_no_es_una_orden(string texto)
         => Assert.Null(Armar().Interpretar(texto, 0.9f));
 
+    /// <summary>
+    /// El formato es el primer escalon al cambiar de tabla: se dicta solo, sin
+    /// mano y sin nada mas. Era lo unico que la pantalla dejaba elegir y la voz
+    /// no podia nombrar.
+    /// </summary>
+    [Theory]
+    [InlineData("heads up", "HU")]
+    [InlineData("tres max", "3-max")]
+    [InlineData("trimax", "3-max")]
+    public void Interpreta_un_formato_sin_mano(string texto, string formato)
+    {
+        var d = Armar().Interpretar(texto, 0.9f)!;
+        Assert.Equal(formato, d.Formato);
+        Assert.Equal("", d.RangoAlto);
+    }
+
     [Fact]
     public void Una_mano_sin_palo_deja_el_palo_nulo()
     {

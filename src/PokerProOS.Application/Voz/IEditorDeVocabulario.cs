@@ -10,6 +10,7 @@ public enum CategoriaDeVocabulario
     Palos,
     Spots,
     Situaciones,
+    Formatos,
     PalabrasDeStack,
 }
 

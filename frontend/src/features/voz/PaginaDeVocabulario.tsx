@@ -7,6 +7,12 @@ import {
   type ResultadoDeCaptura,
 } from '../../core/services/tablasApi'
 
+/**
+ * Las palabras de stack son una lista suelta, sin clave propia: el editor las
+ * identifica por el nombre de su propiedad en el JSON.
+ */
+const CLAVE_DE_STACK = 'palabrasDeStack'
+
 /** Por qué no se capturó nada, dicho de forma accionable. */
 const MOTIVOS: Record<string, string> = {
   silencio: 'No escuché nada. Hablá más cerca del micrófono y probá de nuevo.',
@@ -98,6 +104,10 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
   }
 
   const grupos: Grupo[] = [
+    {
+      categoria: 'Formatos', titulo: 'Formato', entradas: vocabulario.formatos,
+      ayuda: 'Heads up o 3-max. Es el primer escalón: decilo y la pantalla se muda a una tabla de ese formato.',
+    },
     {
       categoria: 'Rangos', titulo: 'Rangos', entradas: vocabulario.rangos,
       ayuda: 'Cómo nombrás cada carta. Si decís «ace» y no está, grabalo y queda.',
@@ -198,16 +208,52 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
       ))}
 
       <section className="grupo-vocabulario">
-        <h2>Palabras de stack</h2>
+        <div className="entrada-cabecera">
+          <h2>Palabras de stack</h2>
+          <button
+            type="button"
+            className="boton-grabar"
+            disabled={escuchando !== null}
+            onClick={() => void grabar(CLAVE_DE_STACK)}
+          >
+            {escuchando === CLAVE_DE_STACK ? 'Escuchando…' : 'Grabar'}
+          </button>
+        </div>
         <p className="grupo-ayuda">
-          Lo que decís antes del número: «siete <em>be be</em> a cinco». No se
-          graban de a una porque no pertenecen a una clave: son la lista entera.
+          Lo que decís antes del número: «siete <em>be be</em> a cinco». Grabala
+          igual que las demás: si al decir «be be» el navegador escribe otra
+          cosa, sin esta forma <strong>ningún dictado con stack funciona</strong>.
         </p>
         <div className="dichos">
           {vocabulario.palabrasDeStack.map((palabra) => (
-            <span key={palabra} className="dicho">{palabra}</span>
+            <span key={palabra} className="dicho">
+              {palabra}
+              <button
+                type="button"
+                aria-label={`Quitar ${palabra}`}
+                onClick={() => void borrar('PalabrasDeStack', CLAVE_DE_STACK, palabra)}
+              >
+                ×
+              </button>
+            </span>
           ))}
         </div>
+
+        {capturado?.clave === CLAVE_DE_STACK && (
+          <div className="capturado">
+            <span>Escuché: <strong>«{capturado.texto}»</strong></span>
+            <button
+              type="button"
+              className="boton-principal"
+              onClick={() => void confirmar('PalabrasDeStack', CLAVE_DE_STACK, capturado.texto)}
+            >
+              Agregar
+            </button>
+            <button type="button" className="boton-tenue" onClick={() => setCapturado(null)}>
+              Descartar
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="explicacion">

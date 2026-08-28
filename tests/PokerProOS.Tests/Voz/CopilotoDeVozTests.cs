@@ -29,7 +29,7 @@ public class CopilotoDeVozTests
     private static DictadoReconocido Dictado(
         string alta, string baja, string? palo = null,
         decimal? stack = null, string? spot = null) =>
-        new(stack, spot, null, alta, baja, palo, 0.9f, $"{alta} {baja}");
+        new(stack, spot, null, null, alta, baja, palo, 0.9f, $"{alta} {baja}");
 
     [Fact]
     public void Usa_el_contexto_en_pantalla_cuando_el_dictado_no_trae_stack()
@@ -142,8 +142,34 @@ public class CopilotoDeVozTests
     /// no resuelve nada, porque no hay mano que resolver.
     /// </summary>
     private static DictadoReconocido Contexto(
-        string? situacion = null, decimal? stack = null, string? spot = null) =>
-        new(stack, spot, situacion, "", "", null, 0.9f, "contexto");
+        string? situacion = null, decimal? stack = null, string? spot = null,
+        string? formato = null) =>
+        new(stack, spot, situacion, formato, "", "", null, 0.9f, "contexto");
+
+    /// <summary>
+    /// El formato es el primer escalón: dictarlo tiene que dejar la pantalla en
+    /// una tabla de ese formato, no solo guardar la palabra. Sin esto, decir
+    /// "tres max" no cambiaba nada visible.
+    /// </summary>
+    [Fact]
+    public void Dictar_un_formato_lleva_a_una_situacion_de_ese_formato()
+    {
+        var (copiloto, memoria) = Armar();   // arranca en HU_SB_OR_FISH
+
+        copiloto.Procesar(Contexto(formato: "3-max"));
+
+        Assert.StartsWith("3MAX_", memoria.Situacion);
+    }
+
+    [Fact]
+    public void Dictar_el_formato_en_el_que_ya_se_esta_no_mueve_la_situacion()
+    {
+        var (copiloto, memoria) = Armar();
+
+        copiloto.Procesar(Contexto(formato: "HU"));
+
+        Assert.Equal("HU_SB_OR_FISH", memoria.Situacion);
+    }
 
     [Fact]
     public void Un_dictado_sin_mano_cambia_la_situacion()

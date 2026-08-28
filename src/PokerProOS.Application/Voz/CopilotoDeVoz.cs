@@ -52,6 +52,7 @@ public sealed class CopilotoDeVoz(
 
     public EventoDeCopiloto Procesar(DictadoReconocido dictado)
     {
+        MudarDeFormato(dictado);
         memoria.Aplicar(dictado);
         AcomodarElSpotRecordado(dictado);
 
@@ -89,6 +90,35 @@ public sealed class CopilotoDeVoz(
         return evento;
     }
 
+    /// <summary>
+    /// Dictar un formato ("heads up", "tres max") es pedir cambiar de mesa, no
+    /// guardar una palabra: mueve la situación a una de ese formato. Es el
+    /// primer escalón para cambiar de tabla hablando, y sin esto decir el
+    /// formato no producía nada visible.
+    ///
+    /// Si ya se está en ese formato no se toca nada: repetirlo para confirmar
+    /// no puede sacar al usuario de la tabla que venía mirando.
+    /// </summary>
+    private void MudarDeFormato(DictadoReconocido dictado)
+    {
+        if (dictado.Formato is not { Length: > 0 } formato) return;
+
+        var actual = catalogo.Situacion(memoria.Situacion);
+        if (actual is not null && Mismo(actual.Formato, formato)) return;
+
+        var destino = catalogo.Situaciones.FirstOrDefault(s => Mismo(s.Formato, formato));
+        if (destino is null) return;
+
+        memoria.Situacion = destino.Clave;
+        // La tabla nueva casi nunca tiene el spot de la anterior; el primero de
+        // su stack es lo que la pantalla ya elige en el mismo caso.
+        memoria.Spot = catalogo.StackQueCubre(destino.Clave, memoria.StackBB)?
+            .Spots.FirstOrDefault()?.Clave ?? memoria.Spot;
+    }
+
+    private static bool Mismo(string a, string b)
+        => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+
     private static bool SinMano(DictadoReconocido dictado)
         => string.IsNullOrWhiteSpace(dictado.RangoAlto)
            && string.IsNullOrWhiteSpace(dictado.RangoBajo);
@@ -119,7 +149,8 @@ public sealed class CopilotoDeVoz(
         dictado.TextoCrudo,
         "",
         "",
-        redactor.RedactarContexto(dictado.Situacion, dictado.StackBB, dictado.Spot),
+        redactor.RedactarContexto(
+            dictado.Situacion, dictado.StackBB, dictado.Spot, dictado.Formato),
         false,
         TipoDeDictado.Contexto,
         memoria.Situacion,

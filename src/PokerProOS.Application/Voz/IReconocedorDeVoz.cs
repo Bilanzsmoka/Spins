@@ -4,6 +4,8 @@ public record DictadoReconocido(
     decimal? StackBB,
     string? Spot,
     string? Situacion,
+    /// <summary>El formato de mesa dictado ("HU", "3-max"), si lo trajo.</summary>
+    string? Formato,
     string RangoAlto,
     string RangoBajo,
     string? Palo,

@@ -257,6 +257,7 @@ export interface FormasHabladas {
 
 export interface Vocabulario {
   palabrasDeStack: string[]
+  formatos: FormasHabladas[]
   rangos: FormasHabladas[]
   palos: FormasHabladas[]
   spots: FormasHabladas[]
@@ -264,4 +265,4 @@ export interface Vocabulario {
 }
 
 export type CategoriaDeVocabulario =
-  | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack'
+  | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'

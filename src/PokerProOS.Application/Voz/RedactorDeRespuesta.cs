@@ -16,9 +16,11 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
     /// Las palabras salen de la forma canónica del vocabulario —el primer
     /// dicho—, no de literales, para que cambiar el JSON cambie lo que se oye.
     /// </summary>
-    public string RedactarContexto(string? situacion, decimal? stackBB, string? spot)
+    public string RedactarContexto(
+        string? situacion, decimal? stackBB, string? spot, string? formato = null)
     {
         var piezas = new List<string>();
+        if (formato is { Length: > 0 }) piezas.Add(Canonico(vocabulario.Formatos, formato));
         if (situacion is { Length: > 0 }) piezas.Add(Canonico(vocabulario.Situaciones, situacion));
         if (stackBB is { } bb) piezas.Add($"{bb:0.##} {PalabraDeStack()}");
         if (spot is { Length: > 0 }) piezas.Add(Canonico(vocabulario.Spots, spot));

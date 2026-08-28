@@ -35,7 +35,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         // "be be contra min raise del boton", 7 palabras) y esa dejaría
         // "del boton" sueltos: la frase entera se rechazaría y el spot nunca
         // resolvería por su dicho canónico.
-        var (situacion, spot, palo) = ConsumirDichos(libres);
+        var (formato, situacion, spot, palo) = ConsumirDichos(libres);
 
         // El stack va DESPUÉS de la pasada de dichos: si fuera antes, "be be"
         // de una frase de situación se lo llevaría el stack en vez de quedar
@@ -51,7 +51,8 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         if (libres.Any(t => t is not null)) return null;
 
         var hayMano = rangos.Count == 2;
-        var hayContexto = situacion is not null || spot is not null || stack is not null;
+        var hayContexto = formato is not null || situacion is not null
+                          || spot is not null || stack is not null;
         if (!hayMano && !hayContexto) return null;
 
         // Un rango suelto es media mano: no alcanza para consultar, y como
@@ -59,7 +60,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         if (rangos.Count == 1) return null;
 
         return new DictadoReconocido(
-            stack, spot, situacion,
+            stack, spot, situacion, formato,
             hayMano ? rangos[0] : "",
             hayMano ? rangos[1] : "",
             hayMano ? palo : null,
@@ -105,7 +106,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         return null;
     }
 
-    private enum CategoriaDeDicho { Situacion, Spot, Palo }
+    private enum CategoriaDeDicho { Formato, Situacion, Spot, Palo }
 
     /// <summary>
     /// Situaciones, spots y palos, todos juntos en una sola cola ordenada de
@@ -117,17 +118,20 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
     /// como prefijo (un spot de 7 palabras que empieza igual), dejando el
     /// resto del spot suelto y la frase entera rechazada.
     /// </summary>
-    private (string? Situacion, string? Spot, string? Palo) ConsumirDichos(List<string?> libres)
+    private (string? Formato, string? Situacion, string? Spot, string? Palo) ConsumirDichos(
+        List<string?> libres)
     {
-        var candidatas = vocabulario.Situaciones
-            .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Situacion, f.Clave, Palabras: Palabras(d))))
-            .Concat(vocabulario.Spots
-                .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Spot, f.Clave, Palabras: Palabras(d)))))
-            .Concat(vocabulario.Palos
-                .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Palo, f.Clave, Palabras: Palabras(d)))))
+        IEnumerable<(CategoriaDeDicho Categoria, string Clave, List<string> Palabras)> Formas(
+            CategoriaDeDicho categoria, IReadOnlyList<FormasHabladas> formas) =>
+            formas.SelectMany(f => f.Dichos.Select(d => (categoria, f.Clave, Palabras(d))));
+
+        var candidatas = Formas(CategoriaDeDicho.Formato, vocabulario.Formatos)
+            .Concat(Formas(CategoriaDeDicho.Situacion, vocabulario.Situaciones))
+            .Concat(Formas(CategoriaDeDicho.Spot, vocabulario.Spots))
+            .Concat(Formas(CategoriaDeDicho.Palo, vocabulario.Palos))
             .OrderByDescending(c => c.Palabras.Count);
 
-        string? situacion = null, spot = null, palo = null;
+        string? formato = null, situacion = null, spot = null, palo = null;
 
         foreach (var (categoria, clave, palabras) in candidatas)
         {
@@ -135,6 +139,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             // spot, un dicho de spot más corto no debe pisar al que ganó.
             var yaResuelta = categoria switch
             {
+                CategoriaDeDicho.Formato => formato is not null,
                 CategoriaDeDicho.Situacion => situacion is not null,
                 CategoriaDeDicho.Spot => spot is not null,
                 _ => palo is not null
@@ -147,13 +152,14 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
 
             switch (categoria)
             {
+                case CategoriaDeDicho.Formato: formato = clave; break;
                 case CategoriaDeDicho.Situacion: situacion = clave; break;
                 case CategoriaDeDicho.Spot: spot = clave; break;
                 default: palo = clave; break;
             }
         }
 
-        return (situacion, spot, palo);
+        return (formato, situacion, spot, palo);
     }
 
     /// <summary>

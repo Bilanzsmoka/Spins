@@ -86,5 +86,6 @@ public class RedactorDeRespuestaTests
         public IReadOnlyList<FormasHabladas> Palos { get; } = palos;
         public IReadOnlyList<FormasHabladas> Spots { get; } = new List<FormasHabladas>();
         public IReadOnlyList<FormasHabladas> Situaciones { get; } = new List<FormasHabladas>();
+        public IReadOnlyList<FormasHabladas> Formatos { get; } = new List<FormasHabladas>();
     }
 }

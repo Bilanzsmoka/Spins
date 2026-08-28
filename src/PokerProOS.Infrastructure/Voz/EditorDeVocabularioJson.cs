@@ -22,6 +22,7 @@ public sealed class EditorDeVocabularioJson(
         CategoriaDeVocabulario.Spots => "spots",
         CategoriaDeVocabulario.Situaciones => "situaciones",
         CategoriaDeVocabulario.PalabrasDeStack => "palabrasDeStack",
+        CategoriaDeVocabulario.Formatos => "formatos",
         _ => throw new ArgumentOutOfRangeException(nameof(categoria)),
     };
 
