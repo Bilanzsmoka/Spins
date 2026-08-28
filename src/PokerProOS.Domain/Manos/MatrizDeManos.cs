@@ -91,6 +91,18 @@ public static class MatrizDeManos
         return -1;
     }
 
+    /// <summary>
+    /// La etiqueta de una mano en sus dos rangos y su palo. Un par ("AA") no
+    /// lleva palo: son dos cartas del mismo rango y no hay suited ni offsuit
+    /// que elegir.
+    ///
+    /// Vive acá porque lo necesitan dos capas: el intérprete de voz, para una
+    /// mano guardada entera, y el entrenador, para volver de la etiqueta a una
+    /// ConsultaDeMano. Dos copias se despegarían.
+    /// </summary>
+    public static (string Alto, string Bajo, string? Palo) Partir(string etiqueta)
+        => (etiqueta[..1], etiqueta.Substring(1, 1), etiqueta.Length > 2 ? etiqueta[2..] : null);
+
     private static List<string> Construir()
     {
         var manos = new List<string>(169);

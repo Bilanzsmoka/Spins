@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using PokerProOS.Domain.Manos;
 
 namespace PokerProOS.Application.Voz;
 
@@ -73,7 +74,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         var rangoBajo = "";
         string? paloResuelto = null;
 
-        if (mano is not null) (rangoAlto, rangoBajo, paloResuelto) = Partir(mano);
+        if (mano is not null) (rangoAlto, rangoBajo, paloResuelto) = MatrizDeManos.Partir(mano);
         else if (rangos.Count == 2) (rangoAlto, rangoBajo, paloResuelto) = (rangos[0], rangos[1], palo);
 
         var hayMano = rangoAlto.Length > 0;
@@ -163,7 +164,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             default:
                 // Una mano enseñada entera gana; si no, sus dos rangos y el palo.
                 if (ConsumirForma(libres, vocabulario.Manos) is { } mano)
-                    (rangoAlto, rangoBajo, palo) = Partir(mano);
+                    (rangoAlto, rangoBajo, palo) = MatrizDeManos.Partir(mano);
                 else
                 {
                     palo = ConsumirForma(libres, vocabulario.Palos);
@@ -236,14 +237,6 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         }
         return null;
     }
-
-    /// <summary>
-    /// Parte una clave de la matriz en sus dos rangos y su palo. Un par
-    /// ("AA") no tiene palo: son dos cartas del mismo rango y no hay suited
-    /// ni offsuit que elegir.
-    /// </summary>
-    private static (string Alto, string Bajo, string? Palo) Partir(string mano)
-        => (mano[..1], mano.Substring(1, 1), mano.Length > 2 ? mano[2..] : null);
 
     private enum CategoriaDeDicho { Formato, Situacion, Spot, Palo, Mano }
 
