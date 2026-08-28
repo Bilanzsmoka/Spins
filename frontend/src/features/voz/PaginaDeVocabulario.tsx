@@ -3,7 +3,7 @@ import type {
   CategoriaDeVocabulario, FormasHabladas, Vocabulario,
 } from '../../core/models/catalogo.model'
 import {
-  agregarDicho, capturarDictado, obtenerVocabulario, quitarDicho,
+  agregarDicho, obtenerVocabulario, quitarDicho,
 } from '../../core/services/tablasApi'
 
 interface Grupo {
@@ -13,7 +13,17 @@ interface Grupo {
   entradas: FormasHabladas[]
 }
 
-export function PaginaDeVocabulario() {
+interface Props {
+  /**
+   * Escucha una frase y devuelve lo que se oyó. Llega de afuera —del mismo
+   * hook que tiene el motor continuo— porque el micrófono es uno solo: si
+   * esta página abriera el suyo, el que escucha para dictar seguiría corriendo
+   * y se llevaría la palabra que se está enseñando.
+   */
+  onCapturar: () => Promise<string | null>
+}
+
+export function PaginaDeVocabulario({ onCapturar }: Props) {
   const [vocabulario, setVocabulario] = useState<Vocabulario | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [escuchando, setEscuchando] = useState<string | null>(null)
@@ -32,7 +42,7 @@ export function PaginaDeVocabulario() {
     setCapturado(null)
     setError(null)
     try {
-      const texto = await capturarDictado()
+      const texto = await onCapturar()
       if (texto === null) setError('No capté nada. Probá de nuevo, más cerca del micrófono.')
       else setCapturado({ clave, texto })
     } catch (e: unknown) {

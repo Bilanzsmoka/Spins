@@ -97,6 +97,10 @@ export const obtenerVocabulario = () => pedir<Vocabulario>('/api/voz/vocabulario
  * Escucha una vez y devuelve lo que el navegador oyó, sin interpretar. Sirve
  * para capturar cómo suena una persona diciendo algo y ofrecerlo como forma
  * nueva del vocabulario.
+ *
+ * No se llama desde una pantalla: abre su propio motor sobre el mismo
+ * micrófono que la escucha continua. La entrada es `capturar()` de
+ * useVozDelNavegador, que pausa esa escucha mientras dura.
  */
 export function capturarDictado(): Promise<string | null> {
   const Motor = (window as unknown as { SpeechRecognition?: new () => SpeechRecognition })

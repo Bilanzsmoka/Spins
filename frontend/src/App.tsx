@@ -13,7 +13,8 @@ export default function App() {
   const { ultimo, historial, limpiarHistorial } = useEventosDeVoz()
   // El navegador oye y habla directo, sin pasar por el reconocedor del
   // servidor: la respuesta que llega por SSE es lo que hay que decir en voz.
-  const { disponible, activo, falla, alternar } = useVozDelNavegador(ultimo?.respuesta ?? null)
+  const { disponible, activo, falla, fallaAlHablar, alternar, capturar } =
+    useVozDelNavegador(ultimo ?? null)
 
   const grupos: GrupoDeModulos[] = [
     {
@@ -37,9 +38,7 @@ export default function App() {
                 // vuelo que mostrar como "cambiando".
                 cambiando: false,
                 falla,
-                // La síntesis del navegador no distingue esta falla de las
-                // demás: cualquier error de reconocimiento cae en `falla`.
-                fallaAlHablar: null,
+                fallaAlHablar,
                 errorAlCambiar: null,
                 onAlternar: alternar,
               }}
@@ -77,7 +76,9 @@ export default function App() {
           etiqueta: 'Voz',
           descripcion: 'Como decis vos cada cosa',
           disponible: true,
-          contenido: <PaginaDeVocabulario />,
+          // La captura sale del mismo hook que escucha: el micrófono es uno
+          // solo y así el motor continuo queda pausado mientras se graba.
+          contenido: <PaginaDeVocabulario onCapturar={capturar} />,
         },
       ],
     },

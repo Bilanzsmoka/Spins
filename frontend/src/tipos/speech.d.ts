@@ -34,4 +34,6 @@ declare class SpeechRecognition extends EventTarget {
   onend: (() => void) | null
   start(): void
   stop(): void
+  /** Suelta el micrófono ya, sin esperar a cerrar el resultado en curso. */
+  abort(): void
 }
