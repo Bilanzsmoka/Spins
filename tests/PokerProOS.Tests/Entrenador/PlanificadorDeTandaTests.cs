@@ -15,25 +15,29 @@ namespace PokerProOS.Tests.Entrenador;
 public class PlanificadorDeTandaTests
 {
     /// <summary>
-    /// Un spot donde TODO es FOLD salvo AA, que es ALL-IN. Así solo hay un
-    /// borde y es fácil de nombrar en las aserciones.
+    /// Un spot donde TODO es FOLD salvo una isla ALL-IN en "55". La isla genera
+    /// varios bordes —ella y sus cuatro vecinas ortogonales—, no uno solo: lo
+    /// que importa para las pruebas no es la cantidad, sino que ninguno de esos
+    /// bordes es la primera casilla del orden natural de
+    /// <see cref="MatrizDeManos.Todas"/> ("AA"), para poder distinguir la
+    /// priorización por borde de una coincidencia con ese orden.
     /// </summary>
-    private static SpotDeTabla SpotConUnSoloBorde(string clave) => new(
+    private static SpotDeTabla SpotConUnaIsla(string clave) => new(
         clave, $"etiqueta de {clave}",
         MatrizDeManos.Todas()
-            .Select(m => new CeldaDeTabla(m, m == "AA" ? "ALL-IN" : "FOLD"))
+            .Select(m => new CeldaDeTabla(m, m == "55" ? "ALL-IN" : "FOLD"))
             .ToList());
 
     private static ICatalogoDeTablas Catalogo() => new CatalogoEnMemoria(
         [
             new SituacionDeTabla("HU_X", "HU equis | fish", "HU",
             [
-                new TablaDeStack(new RangoDeStack("1-5bb", 1, 5), [SpotConUnSoloBorde("SB_OR")]),
-                new TablaDeStack(new RangoDeStack("6-9bb", 6, 9), [SpotConUnSoloBorde("SB_OR")]),
+                new TablaDeStack(new RangoDeStack("1-5bb", 1, 5), [SpotConUnaIsla("SB_OR")]),
+                new TablaDeStack(new RangoDeStack("6-9bb", 6, 9), [SpotConUnaIsla("SB_OR")]),
             ]),
             new SituacionDeTabla("MAX3_X", "3max equis | fish fish", "3-max",
             [
-                new TablaDeStack(new RangoDeStack("1-5bb", 1, 5), [SpotConUnSoloBorde("BTN_OR")]),
+                new TablaDeStack(new RangoDeStack("1-5bb", 1, 5), [SpotConUnaIsla("BTN_OR")]),
             ]),
         ], []);
 
@@ -69,11 +73,18 @@ public class PlanificadorDeTandaTests
     /// <summary>
     /// Si lo vencido no llena la tanda, se completa con material nuevo, y ese
     /// material prioriza los bordes: son las casillas que separan saber la
-    /// tabla de adivinarla. Acá el único borde del spot es AA.
+    /// tabla de adivinarla.
+    ///
+    /// La isla está en el medio de la matriz a propósito. Sin el orden por
+    /// borde, el relleno arrancaría por AA —la primera casilla del orden
+    /// natural de MatrizDeManos.Todas()—, así que que NO sea AA es lo único
+    /// que prueba que la priorización existe de verdad.
     /// </summary>
     [Fact]
     public void El_relleno_empieza_por_los_bordes()
     {
+        var deBorde = new[] { "55" }.Concat(MatrizDeManos.Vecinas("55")).ToHashSet();
+
         var preguntas = new PlanificadorDeTanda(Catalogo()).Planificar(
             [Vencida("KK", new DateOnly(2026, 8, 27))],
             yaConocidas: [],
@@ -82,24 +93,32 @@ public class PlanificadorDeTandaTests
 
         Assert.Equal("KK", preguntas[0].Mano);
         Assert.True(preguntas[1].EsNueva);
-        Assert.Equal("AA", preguntas[1].Mano);
+        Assert.NotEqual("AA", preguntas[1].Mano);
+        Assert.Contains(preguntas[1].Mano, deBorde);
     }
 
     /// <summary>
     /// El relleno no repite lo que ya se estudió: una casilla con progreso que
     /// todavía no vence no es material nuevo.
+    ///
+    /// "65s" es, dentro del catálogo sintético, la primera casilla de borde
+    /// que el relleno elegiría para HU_X/1-5bb/SB_OR (vecina ortogonal de la
+    /// isla "55", primera en el orden natural de MatrizDeManos.Todas()). Marcarla
+    /// como ya conocida y pedir tamaño 1 sólo puede dar en verde si el filtro
+    /// de "ya vistas" realmente la saca de la lista de candidatas — si no
+    /// hiciera nada, sería justo la que volvería.
     /// </summary>
     [Fact]
     public void El_relleno_saltea_lo_que_ya_se_conoce()
     {
         var preguntas = new PlanificadorDeTanda(Catalogo()).Planificar(
             vencidas: [],
-            yaConocidas: [ProgresoDeCasilla.Clave("HU_X", "1-5bb", "SB_OR", "AA")],
+            yaConocidas: [ProgresoDeCasilla.Clave("HU_X", "1-5bb", "SB_OR", "65s")],
             SinFiltro,
             tamano: 1);
 
         Assert.DoesNotContain(preguntas,
-            p => p is { Situacion: "HU_X", ClaveDeStack: "1-5bb", Mano: "AA" });
+            p => p is { Situacion: "HU_X", ClaveDeStack: "1-5bb", Spot: "SB_OR", Mano: "65s" });
     }
 
     [Fact]
