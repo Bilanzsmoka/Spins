@@ -18,7 +18,7 @@ Backend (from repo root):
 ```bash
 dotnet build PokerProOS.slnx            # .slnx is the active solution; PokerProOS.slnx es la única solución. is the 
 dotnet run --project src/PokerProOS.Api # http://localhost:5000, Swagger UI at /swagger (Development only)
-dotnet test PokerProOS.slnx             # 211 tests, all in-process and fast — nothing drives real audio
+dotnet test PokerProOS.slnx -p:SaltearFrontend=true   # 211 tests, in-process and fast — nothing drives real audio
 ```
 
 `dotnet build` now builds and copies the frontend for you — see below. There is no manual step left.
@@ -70,15 +70,16 @@ voice-status components — all named in Spanish, matching the backend.
 
 At startup `Program.cs` loads `database/registro/acciones.json` and `database/registro/vocabulario.json`
 (`RegistroDeAccionesJson`, `RegistroDeVocabularioJson`). These are the only files a user is expected to
-hand-edit, and colors, table validation and the voice grammar all depend on them — if either is missing
+hand-edit, and colors, table validation and the voice interpreter all depend on them — if either is missing
 or has a syntax error, there is nothing useful to serve, so the app prints the cause to stderr and exits
 with a non-zero code before any host or logger exists (`RegistroInvalidoException`, caught in
 `Program.cs`'s `CargarRegistroOTerminar`).
 
 With the registries loaded, `CargadorDeTablas` (using `ValidadorDeTabla`) reads every `*.json` file in
 `database/seed-data/` and builds a `CatalogoEnMemoria` — this in-memory object, not the database, is what
-`TablasController` serves over `/api/tablas`, and what `InterpretadorDeTexto` resolves dictated text
-against. Data paths are resolved from `AppContext.BaseDirectory` because the `.csproj` copies
+`TablasController` serves over `/api/tablas`, and what `ResolverManoHandler` answers an already
+interpreted hand against. The interpreter never reads the catalogue: it only reads the
+vocabulary registry. Data paths are resolved from `AppContext.BaseDirectory` because the `.csproj` copies
 `database/**/*.json` into the build output (`Content Include="..\..\database\**\*.json"`) — no walking up
 a fixed number of parent directories.
 
