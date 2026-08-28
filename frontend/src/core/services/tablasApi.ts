@@ -28,6 +28,17 @@ async function accionar(url: string): Promise<void> {
 export const encenderVoz = () => accionar('/api/voz/encender')
 export const apagarVoz = () => accionar('/api/voz/apagar')
 
+/** Le manda al servidor lo que el navegador oyó. */
+export async function enviarDictado(texto: string, confianza: number): Promise<void> {
+  await fetch('/api/voz/dictado', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto, confianza }),
+  }).catch(() => {
+    // Un dictado perdido no puede romper la escucha: se sigue oyendo.
+  })
+}
+
 /* ---------- Diario ---------- */
 
 export const obtenerHabitos = () => pedir<HabitoDefinido[]>('/api/diario/habitos')
