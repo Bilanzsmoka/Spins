@@ -4,7 +4,20 @@ import type {
 } from '../../core/models/catalogo.model'
 import {
   agregarDicho, obtenerVocabulario, quitarDicho,
+  type ResultadoDeCaptura,
 } from '../../core/services/tablasApi'
+
+/** Por qué no se capturó nada, dicho de forma accionable. */
+const MOTIVOS: Record<string, string> = {
+  silencio: 'No escuché nada. Hablá más cerca del micrófono y probá de nuevo.',
+  'no-speech': 'No escuché nada. Hablá más cerca del micrófono y probá de nuevo.',
+  aborted: 'El micrófono estaba ocupado. Probá de nuevo.',
+  'audio-capture': 'No encuentro micrófono. Revisá que haya uno conectado.',
+  'not-allowed': 'Chrome no me dio permiso para el micrófono.',
+  'service-not-allowed': 'Chrome no me dio permiso para el micrófono.',
+  network: 'El reconocimiento necesita internet y no hay conexión.',
+  'sin-api': 'Este navegador no reconoce voz. Hace falta Chrome o Edge.',
+}
 
 interface Grupo {
   categoria: CategoriaDeVocabulario
@@ -20,7 +33,7 @@ interface Props {
    * esta página abriera el suyo, el que escucha para dictar seguiría corriendo
    * y se llevaría la palabra que se está enseñando.
    */
-  onCapturar: () => Promise<string | null>
+  onCapturar: () => Promise<ResultadoDeCaptura>
 }
 
 export function PaginaDeVocabulario({ onCapturar }: Props) {
@@ -42,8 +55,12 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
     setCapturado(null)
     setError(null)
     try {
-      const texto = await onCapturar()
-      if (texto === null) setError('No capté nada. Probá de nuevo, más cerca del micrófono.')
+      const { texto, motivo } = await onCapturar()
+      // El motivo se muestra en vez de esconderse: "silencio" se arregla
+      // hablando mas cerca, "not-allowed" dando permiso y "aborted" es el
+      // microfono ocupado. Un mismo mensaje para los tres no deja arreglar
+      // ninguno.
+      if (texto === null) setError(MOTIVOS[motivo ?? ''] ?? `No capté nada (${motivo}).`)
       else setCapturado({ clave, texto })
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'No pude escuchar')
@@ -195,10 +212,17 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
 
       <section className="explicacion">
         <p>
-          <strong>Antes de pelearte con esto</strong>, hacé el entrenamiento de
-          voz de Windows: Panel de control → Reconocimiento de voz →
-          <em> Entrenar el equipo para que le entienda mejor</em>. Son diez
-          minutos y mejora el motor para todo el sistema, no solo para esta app.
+          <strong>Quien escucha es el navegador</strong>, no Windows. El
+          entrenamiento de voz de Windows no cambia nada acá: Chrome usa su
+          propio reconocimiento, que no se entrena a mano.
+        </p>
+        <p>
+          Lo que sí lo mejora es esta pantalla. Si una palabra no se entiende,
+          grabala acá y agregá la forma que salga: el reconocimiento propone
+          lo que oyó, y esa forma pasa a valer. Las palabras de una sílaba
+          («as», «rey», «tres») son las que más lo necesitan, porque sueltas se
+          confunden con cualquier cosa; decirlas dentro de la frase entera
+          («as rey offsuit») se reconoce mucho mejor que decirlas solas.
         </p>
       </section>
     </div>

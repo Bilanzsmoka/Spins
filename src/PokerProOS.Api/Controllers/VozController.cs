@@ -88,8 +88,22 @@ public sealed class VozController(
     [HttpPost("dictado")]
     public IActionResult Dictado([FromBody] DictadoEnviado enviado)
     {
-        var dictado = interprete.Interpretar(enviado.Texto ?? "", enviado.Confianza);
-        if (dictado is null) return Ok(new { ignorado = true });
+        var texto = enviado.Texto ?? "";
+        var dictado = interprete.Interpretar(texto, enviado.Confianza);
+        if (dictado is null)
+        {
+            // Descartado no es invisible. El camino viejo decía "No te
+            // entendí" y lo mostraba; al mudar la voz al navegador eso se
+            // perdió, y con él la única forma de saber QUÉ oyó el micrófono
+            // cuando algo no anda. Sin esto, depurar el reconocimiento es
+            // adivinar.
+            //
+            // La respuesta va vacía a propósito: el navegador no habla lo que
+            // no tiene texto, así que la frase aparece en el historial sin
+            // cantar "no te entendí" cada vez que alguien conversa al lado.
+            canal.Publicar(new EventoDeCopiloto(texto, "", "", "", false, null, null, null));
+            return Ok(new { ignorado = true });
+        }
 
         return Ok(copilotoDeVoz.Procesar(dictado));
     }

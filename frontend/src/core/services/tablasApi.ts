@@ -93,31 +93,39 @@ export async function guardarDia(fecha: string, entrada: EntradaEnviada): Promis
 
 export const obtenerVocabulario = () => pedir<Vocabulario>('/api/voz/vocabulario')
 
+/** Lo que salió de una captura: el texto, o por qué no hubo texto. */
+export interface ResultadoDeCaptura {
+  texto: string | null
+  /** El codigo de error de la Web Speech API, o 'silencio' si termino sin oir nada. */
+  motivo: string | null
+}
+
 /**
- * Escucha una vez y devuelve lo que el navegador oyó, sin interpretar. Sirve
- * para capturar cómo suena una persona diciendo algo y ofrecerlo como forma
- * nueva del vocabulario.
+ * Escucha una vez y devuelve lo que el navegador oyó, sin interpretar.
  *
  * No se llama desde una pantalla: abre su propio motor sobre el mismo
  * micrófono que la escucha continua. La entrada es `capturar()` de
  * useVozDelNavegador, que pausa esa escucha mientras dura.
  */
-export function capturarDictado(): Promise<string | null> {
+export function capturarDictado(): Promise<ResultadoDeCaptura> {
   const Motor = (window as unknown as { SpeechRecognition?: new () => SpeechRecognition })
     .SpeechRecognition
     ?? (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognition })
       .webkitSpeechRecognition
-  if (!Motor) return Promise.resolve(null)
+  if (!Motor) return Promise.resolve({ texto: null, motivo: 'sin-api' })
 
   return new Promise((resolver) => {
     const r = new Motor()
     r.lang = 'es-ES'
     r.continuous = false
     r.interimResults = false
-    r.onresult = (evento) => resolver(evento.results[0][0].transcript)
-    r.onerror = () => resolver(null)
-    r.onend = () => resolver(null)
-    r.start()
+    r.onresult = (evento) => resolver({ texto: evento.results[0][0].transcript, motivo: null })
+    // El motivo se conserva en vez de tragarse: antes todo terminaba en un
+    // "no capté nada" que no distinguía un silencio de un micrófono ocupado
+    // ni de un permiso denegado, y sin eso no hay forma de saber qué arreglar.
+    r.onerror = (evento) => resolver({ texto: null, motivo: evento.error })
+    r.onend = () => resolver({ texto: null, motivo: 'silencio' })
+    try { r.start() } catch (e) { resolver({ texto: null, motivo: String(e) }) }
   })
 }
 

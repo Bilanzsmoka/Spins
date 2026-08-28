@@ -146,7 +146,22 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
    */
   const capturar = useCallback(async () => {
     silenciado.current = true
-    motor.current?.abort()
+
+    // Abortar no libera el microfono en el mismo tick: Chrome lo suelta al
+    // emitir `end`. Arrancar la captura antes de eso hacia que su start()
+    // fallara contra un microfono todavia ocupado, y la pantalla mostraba un
+    // "no capte nada" que en realidad era "el otro motor no habia soltado".
+    // El plazo de respaldo existe porque si el motor ya estaba parado, ese
+    // `end` no llega nunca.
+    const activo = motor.current
+    if (activo) {
+      await new Promise<void>((seguir) => {
+        const plazo = setTimeout(seguir, 300)
+        activo.onend = () => { clearTimeout(plazo); seguir() }
+        activo.abort()
+      })
+    }
+
     try {
       return await capturarDictado()
     } finally {

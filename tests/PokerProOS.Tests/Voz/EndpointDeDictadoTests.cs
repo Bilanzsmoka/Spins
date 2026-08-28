@@ -17,7 +17,7 @@ namespace PokerProOS.Tests.Voz;
 /// </summary>
 public class EndpointDeDictadoTests
 {
-    private static VozController Armar()
+    private static VozController Armar(CanalDeEventos? canal = null)
     {
         var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
         var vocabulario = RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
@@ -29,7 +29,7 @@ public class EndpointDeDictadoTests
         };
 
         return new VozController(
-            new CanalDeEventos(),
+            canal ?? new CanalDeEventos(),
             vocabulario,
             new EditorMudo(),
             memoria,
@@ -70,6 +70,30 @@ public class EndpointDeDictadoTests
     [Fact]
     public void Un_cuerpo_sin_texto_se_ignora_con_200()
         => AssertIgnorado(Armar().Dictado(new DictadoEnviado(null)));
+
+    /// <summary>
+    /// Un dictado descartado tiene que verse igual. El camino viejo decía "No
+    /// te entendí" y lo mostraba; al mudar la voz al navegador se perdió, y con
+    /// él la única forma de saber QUÉ oyó Chrome cuando algo no funciona. Sin
+    /// esto, depurar el reconocimiento es adivinar.
+    ///
+    /// Va con la respuesta vacía a propósito: el navegador no habla lo que no
+    /// tiene texto, así que aparece en el historial sin cantar "no te entendí"
+    /// cada vez que alguien conversa cerca del micrófono.
+    /// </summary>
+    [Fact]
+    public void Un_texto_ignorado_igual_se_publica_para_poder_verlo()
+    {
+        var canal = new CanalDeEventos();
+        var controlador = Armar(canal);
+
+        controlador.Dictado(new DictadoEnviado("contra el limite de gastos"));
+
+        var publicado = canal.Ultimo!;
+        Assert.Equal("contra el limite de gastos", publicado.TextoCrudo);
+        Assert.False(publicado.Resuelta);
+        Assert.Equal("", publicado.Respuesta);
+    }
 
     private static void AssertIgnorado(IActionResult resultado)
     {
