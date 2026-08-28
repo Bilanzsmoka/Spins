@@ -281,7 +281,6 @@ export function PaginaDeTablas({
         frases={sinEntender}
         situaciones={catalogo.situaciones}
         situacion={situacion}
-        stack={stack}
         spot={spot}
         onOlvidar={onOlvidarFrase}
       />

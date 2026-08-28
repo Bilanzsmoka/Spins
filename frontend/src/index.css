@@ -168,7 +168,7 @@ body {
 /* Editable: a veces sobra una palabra ("12 vivir") y hay que recortarla
    antes de guardarla. */
 .sin-entender-texto {
-  flex: 1 1 190px; min-width: 0;
+  flex: 1 1 190px; min-width: 0; max-width: 430px;
   padding: 6px 9px;
   border: 1px solid var(--borde); border-radius: 6px;
   background: var(--fondo); color: var(--texto);
@@ -176,21 +176,29 @@ body {
 }
 .sin-entender-texto:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
 
-.sin-entender-destinos { display: flex; gap: 6px; flex-wrap: wrap; }
-.sin-entender-destino {
-  display: grid; gap: 1px; text-align: left;
-  padding: 5px 10px;
+.sin-entender-flecha { color: var(--apagado); font-size: 13px; }
+
+.sin-entender-categoria,
+.sin-entender-clave {
+  padding: 6px 8px;
   border: 1px solid var(--borde); border-radius: 6px;
   background: var(--panel-2); color: var(--texto);
-  font-family: inherit; cursor: pointer;
+  font-size: 12px; font-family: inherit;
 }
-.sin-entender-destino:hover:not(:disabled) { border-color: var(--acento); }
-.sin-entender-destino:disabled { opacity: .5; cursor: default; }
-.sin-entender-destino-titulo {
-  font-size: 10px; text-transform: uppercase; letter-spacing: .09em;
-  color: var(--apagado);
+/* La lista de situaciones y spots es larga y las etiquetas tambien: se le da
+   ancho propio y se la deja encoger antes que al texto de lo que se oyo. */
+.sin-entender-clave { flex: 1 1 240px; min-width: 0; max-width: 320px; }
+.sin-entender-categoria:disabled,
+.sin-entender-clave:disabled { opacity: .55; }
+
+.sin-entender-guardar {
+  padding: 6px 13px;
+  border: 1px solid var(--acento); border-radius: 6px;
+  background: transparent; color: var(--acento);
+  font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer;
 }
-.sin-entender-destino-etiqueta { font-size: 12px; font-weight: 700; }
+.sin-entender-guardar:hover:not(:disabled) { background: var(--acento); color: var(--fondo); }
+.sin-entender-guardar:disabled { opacity: .5; cursor: default; }
 
 .sin-entender-descartar {
   padding: 2px 9px;
