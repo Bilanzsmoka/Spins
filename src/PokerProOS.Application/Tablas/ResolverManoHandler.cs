@@ -32,11 +32,7 @@ public sealed class ResolverManoHandler(ICatalogoDeTablas catalogo)
 
         var celda = spot.CeldaDe(mano);
 
-        // Una mano mixta es un borde por definicion: la tabla misma dice que
-        // no hay una respuesta unica ahi.
-        var enElBorde = celda?.EsMixta == true
-            || MatrizDeManos.Vecinas(mano)
-                .Any(vecina => !string.Equals(spot.AccionDe(vecina), accion, StringComparison.OrdinalIgnoreCase));
+        var enElBorde = spot.EnElBorde(mano);
 
         return new ResultadoDeConsulta(
             new RespuestaDeMano(
