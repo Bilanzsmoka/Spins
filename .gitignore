@@ -6,3 +6,4 @@ dist/
 frontend/dist/
 src/PokerProOS.Api/wwwroot/assets/
 *.user
+.playwright-mcp/
