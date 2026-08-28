@@ -1,9 +1,9 @@
 # PokerProOS
 
 Una herramienta de estudio de preflop para Spin & Go. Muestra las tablas de estrategia heads-up
-(169 manos iniciales, coloreadas por acción) y las responde en voz alta: un copiloto escucha por
-micrófono, entiende la mano que dictás y contesta hablado mientras resalta la celda en pantalla, sin
-que tengas que soltar las cartas para mirar la tabla.
+(169 manos iniciales, coloreadas por acción) y las responde en voz alta: el navegador escucha por
+micrófono, el servidor entiende la mano que dictaste y la respuesta se contesta hablada mientras
+resalta la celda en pantalla, sin que tengas que soltar las cartas para mirar la tabla.
 
 ## Cómo correrlo
 
@@ -16,8 +16,9 @@ Vite aparte para usar la app. Si venís de cambiar algo en `frontend/`, `dotnet 
 
 ## Qué necesita
 
-- **Windows**, con el reconocedor de voz **es-ES** instalado (el que trae Windows para español). El
-  copiloto usa Windows SAPI (`System.Speech`), que no existe fuera de Windows.
+- **Un navegador con Web Speech API** para la voz: Chrome o Edge. Oír y hablar son del navegador, así
+  que el servidor corre en cualquier sistema operativo. El micrófono lo pide la pestaña, no la app; en
+  un navegador sin esa API las tablas se usan igual con el mouse, sin voz.
 - **SQL Server es opcional.** Si no está corriendo, la aplicación arranca igual, las tablas y la voz
   funcionan igual — solo se pierde el historial de consultas dictadas.
 - .NET 10 SDK y Node.js para compilar (Node solo hace falta si tocás el frontend; el build del backend
@@ -25,8 +26,8 @@ Vite aparte para usar la app. Si venís de cambiar algo en `frontend/`, `dotnet 
 
 ## Cómo se dicta una consulta
 
-Con la app corriendo y el micrófono activo, alcanza con hablar la mano — el stack y el spot activos se
-mantienen entre consultas hasta que dictás uno nuevo:
+Con la app abierta en el navegador y la voz encendida, alcanza con hablar la mano — el stack y el
+spot activos se mantienen entre consultas hasta que dictás uno nuevo:
 
 - **«siete be be, a rey offsuit»** — fija el stack en 7bb y pregunta por AKo. Responde la acción
   (por ejemplo «CALL.») y resalta la celda AKo en la grilla.
@@ -35,5 +36,5 @@ mantienen entre consultas hasta que dictás uno nuevo:
 - **«diez be be, reina reina, contra all in»** — cambia de stack (10bb) y de spot (versus all-in) en la
   misma frase, y consulta QQ.
 
-Si el micrófono no está disponible, la app sigue sirviendo las tablas igual — simplemente arranca sin voz,
-y lo indica en pantalla.
+Si el micrófono no está disponible, la app sigue sirviendo las tablas igual — simplemente queda sin
+voz, y lo indica en pantalla.

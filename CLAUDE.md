@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 PokerProOS — a Spin & Go poker study tool. A .NET 10 Web API (Clean Architecture, EF Core + SQL Server)
 serves both a JSON API and a compiled React 19 SPA from `wwwroot`. The core domain is preflop strategy
 charts: a 13×13 grid of the 169 starting hands, each mapped to an action, per situation / stack size /
-spot. A background service listens continuously through Windows SAPI and answers dictated hands out
-loud — "siete be be, a rey offsuit" gets a spoken action and a highlighted cell, hands-free, while
-studying away from the keyboard.
+spot. The browser listens continuously through the Web Speech API and posts what it heard to the API,
+which interprets the text and answers — "siete be be, a rey offsuit" gets a spoken action and a
+highlighted cell, hands-free, while studying away from the keyboard.
 
 ## Commands
 
@@ -49,16 +49,18 @@ This leaves whatever is already in `wwwroot` untouched (or leaves it absent, if 
 
 ## Architecture
 
-Dependency direction is strict: `Domain ← Application ← Infrastructure ← Api`. A fifth project,
-`PokerProOS.Voz.Sapi`, holds every line that touches `System.Speech` (recognition, synthesis, SRGS
-grammar construction) and is referenced only by `Api`; it targets `net10.0-windows` because SAPI is
-Windows-only, which is also why `Api` itself targets `net10.0-windows`. There is no MediatR — handlers
-(`ResolverManoHandler`, `CopilotoDeVoz`, …) are plain classes registered by hand in `Program.cs`.
+Dependency direction is strict: `Domain ← Application ← Infrastructure ← Api`. Every project targets
+plain `net10.0`: no server-side audio means no Windows requirement. A fifth project,
+`PokerProOS.Voz.Sapi`, still sits in the repository with the old `System.Speech` recognizer and
+synthesizer, but it is **not in `PokerProOS.slnx` and nothing references it** — it is kept on purpose,
+in case the browser disappoints in real use. That is also why `IReconocedorDeVoz` and
+`ISintetizadorDeVoz` remain in `Application/Voz/` with nothing implementing them: they are the contract
+that project needs to compile again. There is no MediatR — handlers (`ResolverManoHandler`,
+`CopilotoDeVoz`, …) are plain classes registered by hand in `Program.cs`.
 
 Application code is organized by feature slice: `Tablas/` (chart resolution — `ICatalogoDeTablas`,
 `IRegistroDeAcciones`, `ResolverManoHandler`), `Voz/` (the voice pipeline — `CopilotoDeVoz`,
-`MemoriaDeContexto`, `RedactorDeRespuesta`, the `IReconocedorDeVoz`/`ISintetizadorDeVoz` interfaces
-implemented by `Voz.Sapi`), `Bitacora/` (`IBitacoraDeConsultas`, the query-history port). Infrastructure
+`MemoriaDeContexto`, `RedactorDeRespuesta`, `InterpretadorDeTexto`), `Bitacora/` (`IBitacoraDeConsultas`, the query-history port). Infrastructure
 mirrors this with `Tablas/` (JSON loading and validation), `Voz/` (the vocabulary registry), and
 `Database/` (EF Core). The React side mirrors it too: `frontend/src/core/` holds cross-cutting hooks,
 models and API services; `frontend/src/features/tablas/` holds the grid, cell, legend, selector and
@@ -75,8 +77,8 @@ with a non-zero code before any host or logger exists (`RegistroInvalidoExceptio
 
 With the registries loaded, `CargadorDeTablas` (using `ValidadorDeTabla`) reads every `*.json` file in
 `database/seed-data/` and builds a `CatalogoEnMemoria` — this in-memory object, not the database, is what
-`TablasController` serves over `/api/tablas`, and what `GeneradorDeGramatica` reads to build the SAPI
-grammar. Data paths are resolved from `AppContext.BaseDirectory` because the `.csproj` copies
+`TablasController` serves over `/api/tablas`, and what `InterpretadorDeTexto` resolves dictated text
+against. Data paths are resolved from `AppContext.BaseDirectory` because the `.csproj` copies
 `database/**/*.json` into the build output (`Content Include="..\..\database\**\*.json"`) — no walking up
 a fixed number of parent directories.
 
@@ -128,19 +130,24 @@ the project allows; everything else — actions, colors, stacks, spots, spoken v
 
 ### The voice loop
 
-`ReconocedorSapi` (in `Voz.Sapi`) builds a `SpeechRecognitionEngine` from an SRGS grammar that
-`GeneradorDeGramatica` constructs dynamically from the loaded catalogue and vocabulary registry — the
-set of recognizable stacks, spots, situations and hand ranks is never a hardcoded list, so a new chart or
-a new vocabulary entry changes what can be said without a code change. `CopilotoDeVoz` (Application)
-wires the loop: on a recognized utterance it updates `MemoriaDeContexto` (so a dictated stack or spot
-persists until the next one overrides it — you don't have to repeat "seven bb" every time), resolves the
-hand against the catalogue via `ResolverManoHandler`, composes the spoken reply with `RedactorDeRespuesta`,
-speaks it through `ISintetizadorDeVoz`, and publishes an `EventoDeCopiloto`. `ServicioDeCopiloto` (a
-`BackgroundService` in `Api/Voz/`) starts the recognizer at boot and forwards each event to
-`CanalDeEventos`, an SSE stream the frontend consumes at `/api/voz/eventos` to highlight the resolved
-cell in the grid and color the spoken-response text with that action's color; `/api/voz/estado` reports
-whether the recognizer is listening and the last failure, if any. If the microphone or speech engine
-isn't available at all, the app still serves the charts — it just runs without a voice.
+The microphone belongs to the browser. `useVozDelNavegador` (frontend) listens continuously with the
+Web Speech API and POSTs each final transcript to `/api/voz/dictado`. `InterpretadorDeTexto`
+(Application) turns that free text into a `DictadoReconocido` by matching it against the vocabulary
+registry — the set of understandable stacks, spots, situations and hand ranks is never a hardcoded
+list, so a new chart or a new vocabulary entry changes what can be said without a code change. Text it
+does not recognize is not an error: it is conversation that was not meant for the app, and the endpoint
+answers `{ ignorado: true }` instead of a 400 that would paint the console red for talking near the
+microphone.
+
+`CopilotoDeVoz` (Application) does the rest: it updates `MemoriaDeContexto` (so a dictated stack or
+spot persists until the next one overrides it — no need to repeat "seven bb" every time), resolves the
+hand against the catalogue via `ResolverManoHandler`, composes the reply with `RedactorDeRespuesta` and
+raises `Publicado` with an `EventoDeCopiloto`. `Program.cs` hooks that event — once, right after
+`builder.Build()` — to `CanalDeEventos` (an SSE stream the frontend consumes at `/api/voz/eventos` to
+highlight the resolved cell and color the response text with that action's color) and to the query log
+in the background. The browser speaks what arrives over SSE with `speechSynthesis`, and stops listening
+while it talks so it does not hear itself. If the microphone is not available, the app still serves the
+charts — it just runs without a voice.
 
 ### La ficha de memoria
 
@@ -163,7 +170,8 @@ celda. La voz, en cambio, quedó corta a propósito: dice la acción y nada más
 
 1. Dejar el archivo JSON en `database/seed-data/`.
 2. Si usa una acción que no existe, agregarla a `database/registro/acciones.json`.
-3. Arrancar. La app valida, carga, sincroniza y arma la gramática de voz sola.
+3. Arrancar. La app valida, carga y sincroniza sola; el intérprete de voz lee el catálogo nuevo sin
+   tocar nada.
 
 No hay que tocar código. Si algo falla, la app lo dice al arrancar y en pantalla, indicando archivo,
 stack, spot y causa.

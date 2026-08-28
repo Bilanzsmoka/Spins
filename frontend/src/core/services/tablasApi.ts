@@ -1,5 +1,5 @@
 import type {
-  Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada, EstadoDeVoz,
+  Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada,
   CategoriaDeVocabulario, FichaDeMemoria, HabitoDefinido, ParteDeMix, ProgresoDeHabitos,
   SpotCompleto, Vocabulario,
 } from '../models/catalogo.model'
@@ -14,19 +14,6 @@ export const obtenerCatalogo = () => pedir<Catalogo>('/api/tablas')
 
 export const obtenerSpot = (situacion: string, stack: string, spot: string) =>
   pedir<SpotCompleto>(`/api/tablas/${situacion}/${stack}/${spot}`)
-
-export const obtenerEstadoDeVoz = () => pedir<EstadoDeVoz>('/api/voz/estado')
-
-async function accionar(url: string): Promise<void> {
-  const respuesta = await fetch(url, { method: 'POST' })
-  if (!respuesta.ok) {
-    const cuerpo = await respuesta.json().catch(() => null) as { error?: string } | null
-    throw new Error(cuerpo?.error ?? `${respuesta.status} ${respuesta.statusText}`)
-  }
-}
-
-export const encenderVoz = () => accionar('/api/voz/encender')
-export const apagarVoz = () => accionar('/api/voz/apagar')
 
 /** Le manda al servidor lo que el navegador oyó. */
 export async function enviarDictado(texto: string, confianza: number): Promise<void> {

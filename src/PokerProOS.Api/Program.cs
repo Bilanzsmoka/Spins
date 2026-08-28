@@ -19,7 +19,7 @@ var carpetaDatos = Path.Combine(AppContext.BaseDirectory, "database");
 // acciones.json y vocabulario.json son el único dato que el usuario edita a
 // mano (el caso de uso central del proyecto). Si el archivo falta o tiene
 // un error de sintaxis, no hay nada útil que servir: colores, validación de
-// tablas y la gramática de voz dependen del registro. A esta altura no hay
+// tablas y la interpretación de lo dictado dependen del registro. A esta altura no hay
 // host ni logger todavía, así que el diagnóstico va a stderr y el proceso
 // termina con código distinto de cero en vez de dejar escapar un stack
 // trace en bruto.

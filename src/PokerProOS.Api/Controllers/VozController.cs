@@ -81,18 +81,6 @@ public sealed class VozController(
     public IActionResult Estado() => Ok(new { ultimaFrase = canal.Ultimo?.TextoCrudo });
 
     /// <summary>
-    /// Encender y apagar pasaron a ser del navegador, que es quien tiene el
-    /// micrófono. Los endpoints quedan para que la pantalla no tenga que
-    /// distinguir a quién le habla, pero no hay nada que prender del lado del
-    /// servidor.
-    /// </summary>
-    [HttpPost("encender")]
-    public IActionResult Encender() => Ok(new { activo = true });
-
-    [HttpPost("apagar")]
-    public IActionResult Apagar() => Ok(new { activo = false });
-
-    /// <summary>
     /// El texto que oyó el navegador. Un texto que el intérprete rechaza no es un
     /// error: es conversación que no era para la app. Devolver 400 llenaría la
     /// consola de rojo por hablar cerca del micrófono.

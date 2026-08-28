@@ -116,13 +116,12 @@ export interface EventoDeVoz {
   ficha: FichaDeMemoria | null
 }
 
+/**
+ * Lo único que el servidor sabe de la voz: la última frase que le llegó.
+ * Escuchar, hablar y estar encendido son del navegador, que no necesita
+ * preguntárselo a nadie.
+ */
 export interface EstadoDeVoz {
-  /** El motor arrancó bien. No dice si está encendido ahora. */
-  escuchando: boolean
-  /** El usuario lo tiene encendido en este momento. */
-  activo: boolean
-  falla: string | null
-  fallaAlHablar: string | null
   ultimaFrase: string | null
 }
 

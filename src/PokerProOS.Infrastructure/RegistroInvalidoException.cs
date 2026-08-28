@@ -5,7 +5,7 @@ namespace PokerProOS.Infrastructure;
 /// pueden leer o parsear. A diferencia de una tabla de estrategia rota —
 /// donde el catálogo puede seguir sirviendo las diez tablas restantes—, no
 /// hay nada útil que servir sin el registro: colores, validación de tablas
-/// y la gramática de voz dependen de él. El mensaje nombra el archivo y
+/// y la interpretación de lo dictado dependen de él. El mensaje nombra el archivo y
 /// conserva la razón exacta (incluida la posición del JSON inválido, que
 /// <see cref="System.Text.Json.JsonException.Message"/> ya trae) para que
 /// un usuario que edita ese archivo a mano y comete un error de sintaxis

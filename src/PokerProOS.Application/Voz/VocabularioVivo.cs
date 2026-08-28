@@ -1,9 +1,9 @@
 namespace PokerProOS.Application.Voz;
 
 /// <summary>
-/// Vocabulario reemplazable en caliente. El editor reescribe el JSON, llama a
-/// <see cref="Reemplazar"/> y pide al reconocedor que rearme la gramática, así
-/// una forma hablada nueva funciona sin reiniciar.
+/// Vocabulario reemplazable en caliente. El editor reescribe el JSON y llama a
+/// <see cref="Reemplazar"/>; como el intérprete lo relee en cada dictado, una
+/// forma hablada nueva funciona sin reiniciar.
 /// </summary>
 public sealed class VocabularioVivo(IRegistroDeVocabulario inicial) : IRegistroDeVocabulario
 {

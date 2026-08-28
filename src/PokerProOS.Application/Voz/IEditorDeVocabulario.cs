@@ -17,7 +17,7 @@ public record ResultadoDeVocabulario(bool Exito, string? Error);
 
 /// <summary>
 /// Enseña a la aplicación cómo dice las cosas este usuario. Escribe en
-/// vocabulario.json y rearma la gramática del reconocedor.
+/// vocabulario.json y deja el vocabulario vivo al día, sin reiniciar.
 /// </summary>
 public interface IEditorDeVocabulario
 {

@@ -16,9 +16,10 @@ public sealed class CanalDeEventos
     public EventoDeCopiloto? Ultimo { get; private set; }
 
     /// <summary>
-    /// Se llama desde el hilo de callback de SAPI: no puede lanzar bajo
-    /// ninguna circunstancia, o la excepción escapa hacia el reconocedor y
-    /// tumba el bucle de escucha. TryWrite sobre un canal acotado no lanza.
+    /// Corre en el hilo del pedido de <c>/api/voz/dictado</c>, colgado del
+    /// evento del copiloto: no puede lanzar bajo ninguna circunstancia, o un
+    /// suscriptor SSE lento le termina devolviendo un error al dictado que se
+    /// resolvió bien. TryWrite sobre un canal acotado no lanza.
     /// </summary>
     public void Publicar(EventoDeCopiloto evento)
     {
