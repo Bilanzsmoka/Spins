@@ -161,6 +161,32 @@ public class CopilotoDeVozTests
         Assert.StartsWith("3MAX_", memoria.Situacion);
     }
 
+    /// <summary>
+    /// La memoria guarda el stack como número (12), pero la pantalla elige por
+    /// CLAVE de tabla ("11-12bb"). Sin traducirlo en el evento, dictar un stack
+    /// cambiaba la memoria y el selector se quedaba quieto: entendia bien y no
+    /// se veia nada.
+    /// </summary>
+    [Fact]
+    public void Una_orden_de_contexto_publica_la_clave_del_stack_que_cubre()
+    {
+        var (copiloto, _) = Armar();
+
+        var evento = copiloto.Procesar(Contexto(stack: 12));
+
+        Assert.Equal("11-12bb", evento.ClaveDeStack);
+    }
+
+    [Fact]
+    public void Un_contexto_sin_tabla_para_ese_stack_no_inventa_una_clave()
+    {
+        var (copiloto, _) = Armar();
+
+        var evento = copiloto.Procesar(Contexto(stack: 250));
+
+        Assert.Null(evento.ClaveDeStack);
+    }
+
     [Fact]
     public void Dictar_el_formato_en_el_que_ya_se_esta_no_mueve_la_situacion()
     {

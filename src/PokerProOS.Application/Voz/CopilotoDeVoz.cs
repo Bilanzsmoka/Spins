@@ -154,7 +154,11 @@ public sealed class CopilotoDeVoz(
         false,
         TipoDeDictado.Contexto,
         memoria.Situacion,
-        null,
+        // La memoria lleva el stack en BB (12) y la pantalla elige por clave de
+        // tabla ("11-12bb"). Sin traducirlo acá, dictar un stack cambiaba la
+        // memoria y el selector se quedaba quieto: entendía bien y no se veía
+        // nada. Nulo si ninguna tabla cubre ese número, para no inventar una.
+        catalogo.StackQueCubre(memoria.Situacion, memoria.StackBB)?.Stack.Clave,
         memoria.Spot);
 
     private EventoDeCopiloto PublicarYDevolver(EventoDeCopiloto evento)
