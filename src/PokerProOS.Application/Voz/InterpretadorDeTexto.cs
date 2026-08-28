@@ -27,10 +27,24 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         // que empiece igual.
         var libres = new List<string?>(tokens);
 
-        var situacion = ConsumirForma(libres, vocabulario.Situaciones);
-        var spot = ConsumirForma(libres, vocabulario.Spots);
+        // Situaciones, spots y palos se consumen en UNA sola pasada, larga a
+        // corta, mezclando las tres categorías. Si fueran pasadas separadas
+        // por categoría, una forma corta de una categoría temprana (la
+        // situación "be be contra min raise", 5 palabras) se comería el
+        // prefijo de una forma larga de una categoría posterior (el spot
+        // "be be contra min raise del boton", 7 palabras) y esa dejaría
+        // "del boton" sueltos: la frase entera se rechazaría y el spot nunca
+        // resolvería por su dicho canónico.
+        var (situacion, spot, palo) = ConsumirDichos(libres);
+
+        // El stack va DESPUÉS de la pasada de dichos: si fuera antes, "be be"
+        // de una frase de situación se lo llevaría el stack en vez de quedar
+        // disponible para la situación/spot que lo necesita entero.
         var stack = ConsumirStack(libres);
-        var palo = ConsumirForma(libres, vocabulario.Palos);
+
+        // Los rangos van ÚLTIMOS: en "nueve be be reina nueve suited" los dos
+        // "nueve" son candidatos a rango, y si se consumieran antes que el
+        // stack se comerían el "nueve" que en realidad es el número del stack.
         var rangos = ConsumirRangos(libres);
 
         // Sobró algo que el vocabulario no explica: no es una orden.
@@ -89,6 +103,57 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             return clave;
         }
         return null;
+    }
+
+    private enum CategoriaDeDicho { Situacion, Spot, Palo }
+
+    /// <summary>
+    /// Situaciones, spots y palos, todos juntos en una sola cola ordenada de
+    /// más palabras a menos, sin importar la categoría. "De más larga a más
+    /// corta" tiene que valer entre categorías y no solo dentro de cada una:
+    /// si se consumiera categoría por categoría, una forma corta de una
+    /// categoría que se prueba antes (una situación de 5 palabras) le podría
+    /// ganar a una forma larga de una categoría posterior que la contiene
+    /// como prefijo (un spot de 7 palabras que empieza igual), dejando el
+    /// resto del spot suelto y la frase entera rechazada.
+    /// </summary>
+    private (string? Situacion, string? Spot, string? Palo) ConsumirDichos(List<string?> libres)
+    {
+        var candidatas = vocabulario.Situaciones
+            .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Situacion, f.Clave, Palabras: Palabras(d))))
+            .Concat(vocabulario.Spots
+                .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Spot, f.Clave, Palabras: Palabras(d)))))
+            .Concat(vocabulario.Palos
+                .SelectMany(f => f.Dichos.Select(d => (Categoria: CategoriaDeDicho.Palo, f.Clave, Palabras: Palabras(d)))))
+            .OrderByDescending(c => c.Palabras.Count);
+
+        string? situacion = null, spot = null, palo = null;
+
+        foreach (var (categoria, clave, palabras) in candidatas)
+        {
+            // Cada categoría resuelve como mucho una vez: si ya se encontró
+            // spot, un dicho de spot más corto no debe pisar al que ganó.
+            var yaResuelta = categoria switch
+            {
+                CategoriaDeDicho.Situacion => situacion is not null,
+                CategoriaDeDicho.Spot => spot is not null,
+                _ => palo is not null
+            };
+            if (yaResuelta) continue;
+
+            var desde = Buscar(libres, palabras);
+            if (desde < 0) continue;
+            for (var i = 0; i < palabras.Count; i++) libres[desde + i] = null;
+
+            switch (categoria)
+            {
+                case CategoriaDeDicho.Situacion: situacion = clave; break;
+                case CategoriaDeDicho.Spot: spot = clave; break;
+                default: palo = clave; break;
+            }
+        }
+
+        return (situacion, spot, palo);
     }
 
     /// <summary>

@@ -99,4 +99,26 @@ public class InterpretadorDeTextoTests
         Assert.Equal("as rey offsuit", d.TextoCrudo);
         Assert.Equal(0.77f, d.Confianza);
     }
+
+    /// <summary>
+    /// Una forma de situación es prefijo exacto de una de spot ("be be contra min
+    /// raise" vs "be be contra min raise del boton"). Consumiendo por categorías,
+    /// la situación se comía el prefijo y la forma canónica del spot no resolvía
+    /// nunca.
+    /// </summary>
+    [Fact]
+    public void Una_forma_larga_le_gana_a_la_corta_de_otra_categoria()
+    {
+        var d = Armar().Interpretar("be be contra min raise del boton", 0.9f)!;
+        Assert.Equal("BB_VS_BTN_MR", d.Spot);
+        Assert.Null(d.Situacion);
+    }
+
+    [Fact]
+    public void La_forma_corta_sigue_resolviendo_su_propia_categoria()
+    {
+        var d = Armar().Interpretar("be be contra min raise", 0.9f)!;
+        Assert.Equal("HU_BB_VS_MR_FISH", d.Situacion);
+        Assert.Null(d.Spot);
+    }
 }
