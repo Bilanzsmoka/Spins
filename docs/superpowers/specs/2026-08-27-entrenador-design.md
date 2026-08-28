@@ -33,13 +33,18 @@ migrar datos.
 
 Queda explícitamente afuera, y hay que saberlo antes de crecer:
 
-- **La voz no es multiusuario.** `ServicioDeCopiloto` escucha por el micrófono
-  *del servidor* con Windows SAPI. Con varias personas eso no existe y hay que
-  mudar el reconocimiento al navegador. El entrenador usa el pipeline actual
-  porque hoy hay un solo usuario; esa es la pieza a rehacer cuando haya varios.
 - **Las tablas son archivos compartidos del repo.** Corregir una celda escribe el
   JSON para todos. Con varios usuarios hay que decidir si las tablas son de cada
   uno o comunes.
+- **El vocabulario también es compartido.** Las formas habladas que enseña un
+  usuario cambian lo que entiende la app para todos. Es el mismo problema que
+  las tablas y se decide junto con ellas.
+
+> **Nota de 2026-08-28.** Cuando se escribió este spec, la voz era un bloqueo
+> multiusuario: `ServicioDeCopiloto` escuchaba por el micrófono *del servidor*
+> con Windows SAPI, y con varias personas eso no existe. Eso ya se resolvió —el
+> reconocimiento vive en el navegador y el servidor solo recibe texto—, así que
+> ese punto salió de la lista. Lo que queda arriba es lo que sigue abierto.
 
 ## Qué se construye
 
@@ -110,16 +115,26 @@ grilla. No se construye lógica nueva: se reusa en el momento en que más sirve.
 
 ### La voz
 
-`ISintetizadorDeVoz` canta la mano y el spot; el reconocedor escucha la respuesta.
+El navegador canta la mano y el spot con `speechSynthesis`, y escucha la
+respuesta con la Web Speech API — el mismo camino que ya usa el copiloto, sin
+audio del lado del servidor.
 
-Falta una pieza: hoy `GeneradorDeGramatica` arma una gramática para **preguntar**
-manos (rangos, palos, stacks, spots). Entrenar necesita una segunda que escuche
-**respuestas**, y esas formas ya están en `acciones.json` como los `dichos` de
-cada acción ("all in", "shove", "pagar", "tirar"). O sea: un segundo modo del
-generador, sin listas nuevas en código, fiel a la regla del proyecto.
+Falta una pieza del lado del intérprete. `InterpretadorDeTexto` hoy entiende
+**preguntas**: rangos, palos, stacks, spots, situaciones, formatos y manos.
+Entrenar necesita que entienda **respuestas**, y esas formas ya están en
+`acciones.json` como los `dichos` de cada acción ("all in", "shove", "pagar",
+"tirar"): las 15 acciones los tienen. O sea, una categoría más que sale del
+registro, sin listas nuevas en código, fiel a la regla del proyecto.
 
-El copiloto necesita saber en qué modo está: en entrenamiento, un dictado es una
-respuesta y no una consulta.
+El intérprete necesita saber en qué modo está: entrenando, "all in" es una
+respuesta y no hay que buscarla entre los spots. Es el mismo mecanismo que
+`NivelDeDictado` —acotar contra qué categoría se busca— y por la misma razón:
+sin acotar, las categorías compiten por las mismas palabras.
+
+> **Nota de 2026-08-28.** El spec original decía que había que agregarle un
+> segundo modo a `GeneradorDeGramatica`. Esa pieza es de la gramática SRGS y
+> quedó en `PokerProOS.Voz.Sapi`, que ya no está en la solución ni la
+> referencia nadie. El reemplazo es el párrafo de arriba.
 
 ## Decisiones
 
@@ -168,6 +183,8 @@ Con TDD, como el resto del proyecto:
 
 ## Lo que no entra
 
-Login y registro. La voz en el navegador. Tablas por usuario. Cobro. El
+Login y registro. Tablas por usuario. Vocabulario por usuario. Cobro. El
 entrenador queda **preparado** para lo primero —el usuario está en la clave— y no
 construido.
+
+(La voz en el navegador figuraba acá y ya está hecha.)
