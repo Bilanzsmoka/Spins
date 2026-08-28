@@ -80,6 +80,7 @@ builder.Services.AddSingleton(new MemoriaDeContexto
     Spot = catalogo.Situaciones.FirstOrDefault()?.Stacks.FirstOrDefault()?.Spots.FirstOrDefault()?.Clave ?? ""
 });
 builder.Services.AddSingleton<CopilotoDeVoz>();
+builder.Services.AddSingleton<InterpretadorDeTexto>();
 builder.Services.AddSingleton<CanalDeEventos>();
 builder.Services.AddSingleton<ServicioDeCopiloto>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<ServicioDeCopiloto>());

@@ -9,6 +9,8 @@ public record DichoEnviado(string Dicho);
 
 public record ContextoEnviado(string Situacion, decimal StackBB, string Spot);
 
+public record DictadoEnviado(string Texto, float Confianza = 0.9f);
+
 [ApiController]
 [Route("api/voz")]
 public sealed class VozController(
@@ -17,7 +19,9 @@ public sealed class VozController(
     IRegistroDeVocabulario vocabulario,
     IEditorDeVocabulario editor,
     IReconocedorDeVoz reconocedor,
-    MemoriaDeContexto memoria) : ControllerBase
+    MemoriaDeContexto memoria,
+    InterpretadorDeTexto interprete,
+    CopilotoDeVoz copilotoDeVoz) : ControllerBase
 {
     /// <summary>
     /// La tabla que la pantalla tiene abierta. Sin esto la pantalla y la voz
@@ -111,6 +115,20 @@ public sealed class VozController(
     public IActionResult Apagar() => copiloto.Apagar()
         ? Ok(new { activo = false })
         : StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
+
+    /// <summary>
+    /// El texto que oyó el navegador. Un texto que el intérprete rechaza no es un
+    /// error: es conversación que no era para la app. Devolver 400 llenaría la
+    /// consola de rojo por hablar cerca del micrófono.
+    /// </summary>
+    [HttpPost("dictado")]
+    public IActionResult Dictado([FromBody] DictadoEnviado enviado)
+    {
+        var dictado = interprete.Interpretar(enviado.Texto ?? "", enviado.Confianza);
+        if (dictado is null) return Ok(new { ignorado = true });
+
+        return Ok(copilotoDeVoz.Procesar(dictado));
+    }
 
     [HttpGet("eventos")]
     public async Task Eventos(CancellationToken cancelacion)
