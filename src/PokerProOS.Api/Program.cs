@@ -9,7 +9,6 @@ using PokerProOS.Infrastructure.Database;
 using PokerProOS.Infrastructure.Tablas;
 using PokerProOS.Infrastructure.Diario;
 using PokerProOS.Infrastructure.Voz;
-using PokerProOS.Voz.Sapi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +41,7 @@ var acciones = CargarRegistroOTerminar(() =>
     RegistroDeAccionesJson.Cargar(Path.Combine(carpetaDatos, "registro", "acciones.json")));
 var vocabulario = CargarRegistroOTerminar(() =>
     RegistroDeVocabularioJson.Cargar(Path.Combine(carpetaDatos, "registro", "vocabulario.json")));
-// Vivo: el editor de vocabulario lo reemplaza y rearma la gramatica.
+// Vivo: el editor de vocabulario lo reemplaza y el interprete lo relee.
 var habitos = CargarRegistroOTerminar(() =>
     RegistroDeHabitosJson.Cargar(Path.Combine(carpetaDatos, "registro", "habitos.json")));
 var rutaDeVocabulario = Path.Combine(carpetaDatos, "registro", "vocabulario.json");
@@ -58,18 +57,8 @@ builder.Services.AddSingleton(habitos);
 builder.Services.AddSingleton<ICatalogoDeTablas>(catalogo);
 builder.Services.AddSingleton<IEditorDeTablas>(
     new EditorDeTablasJson(carpetaDeTablas, catalogo, cargador));
-builder.Services.AddSingleton<IEditorDeVocabulario>(sp => new EditorDeVocabularioJson(
-    rutaDeVocabulario, vocabularioVivo, sp.GetRequiredService<IReconocedorDeVoz>()));
-builder.Services.AddSingleton(new OpcionesDeVoz
-{
-    Cultura = builder.Configuration["Voz:Cultura"] ?? "es-ES",
-    Voz = builder.Configuration["Voz:Voz"],
-    ConfianzaMinima = builder.Configuration.GetValue("Voz:ConfianzaMinima", 0.35f)
-});
-
-builder.Services.AddSingleton<GeneradorDeGramatica>();
-builder.Services.AddSingleton<IReconocedorDeVoz, ReconocedorSapi>();
-builder.Services.AddSingleton<ISintetizadorDeVoz, SintetizadorSapi>();
+builder.Services.AddSingleton<IEditorDeVocabulario>(
+    new EditorDeVocabularioJson(rutaDeVocabulario, vocabularioVivo));
 builder.Services.AddSingleton<ResolverManoHandler>();
 builder.Services.AddSingleton<RedactorDeRespuesta>();
 builder.Services.AddSingleton<AnalizadorDeMemoria>();
@@ -82,8 +71,6 @@ builder.Services.AddSingleton(new MemoriaDeContexto
 builder.Services.AddSingleton<CopilotoDeVoz>();
 builder.Services.AddSingleton<InterpretadorDeTexto>();
 builder.Services.AddSingleton<CanalDeEventos>();
-builder.Services.AddSingleton<ServicioDeCopiloto>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<ServicioDeCopiloto>());
 
 builder.Services.AddDbContext<PokerProOSDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -95,6 +82,36 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Sin un servicio de fondo que lo conecte, el copiloto se engancha acá: ahora
+// el dictado entra por HTTP y lo único que él hace es levantar el evento. Los
+// dos destinos son el SSE que resalta la celda y la bitácora.
+var copiloto = app.Services.GetRequiredService<CopilotoDeVoz>();
+var canalDeEventos = app.Services.GetRequiredService<CanalDeEventos>();
+var fabricaDeAlcances = app.Services.GetRequiredService<IServiceScopeFactory>();
+
+copiloto.Publicado += (_, evento) =>
+{
+    canalDeEventos.Publicar(evento);
+    // La bitácora es Scoped y este callback no tiene alcance propio. Va en
+    // fuego y olvido a propósito: una base caída no puede hacer esperar la
+    // respuesta que el usuario está por oír.
+    _ = RegistrarEnBitacoraAsync(evento);
+};
+
+async Task RegistrarEnBitacoraAsync(EventoDeCopiloto evento)
+{
+    try
+    {
+        using var alcance = fabricaDeAlcances.CreateScope();
+        var bitacora = alcance.ServiceProvider.GetRequiredService<IBitacoraDeConsultas>();
+        await bitacora.RegistrarAsync(evento, default);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "No se pudo registrar la consulta en la bitácora.");
+    }
+}
 
 foreach (var problema in catalogo.Problemas)
     app.Logger.LogWarning("Tabla inválida en {Archivo} ({Stack}/{Spot}): {Mensaje}",

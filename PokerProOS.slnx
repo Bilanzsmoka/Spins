@@ -4,7 +4,6 @@
     <Project Path="src/PokerProOS.Application/PokerProOS.Application.csproj" />
     <Project Path="src/PokerProOS.Domain/PokerProOS.Domain.csproj" />
     <Project Path="src/PokerProOS.Infrastructure/PokerProOS.Infrastructure.csproj" />
-    <Project Path="src/PokerProOS.Voz.Sapi/PokerProOS.Voz.Sapi.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PokerProOS.Tests/PokerProOS.Tests.csproj" />

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PokerProOS.Domain\PokerProOS.Domain.csproj" />
     <ProjectReference Include="..\..\src\PokerProOS.Infrastructure\PokerProOS.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\PokerProOS.Voz.Sapi\PokerProOS.Voz.Sapi.csproj" />
   </ItemGroup>
 
 </Project>

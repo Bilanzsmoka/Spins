@@ -6,12 +6,12 @@ namespace PokerProOS.Infrastructure.Voz;
 
 /// <summary>
 /// Enseña a la aplicación cómo dice las cosas este usuario: escribe la forma
-/// hablada nueva en vocabulario.json y rearma la gramática del reconocedor.
+/// hablada nueva en vocabulario.json y reemplaza el vocabulario vivo. No hay
+/// nada más que avisar: el intérprete lo lee en cada dictado.
 /// </summary>
 public sealed class EditorDeVocabularioJson(
     string ruta,
-    VocabularioVivo vocabulario,
-    IReconocedorDeVoz reconocedor) : IEditorDeVocabulario
+    VocabularioVivo vocabulario) : IEditorDeVocabulario
 {
     private readonly SemaphoreSlim _turno = new(1, 1);
 
@@ -37,7 +37,7 @@ public sealed class EditorDeVocabularioJson(
         CategoriaDeVocabulario categoria, string clave, string dicho, bool agregar, CancellationToken ct)
     {
         // El dictado devuelve el texto con mayusculas y puntuacion ("A cinco
-        // suite."). La gramatica compara en minusculas y sin puntos, asi que
+        // suite."). El interprete compara en minusculas y sin puntos, asi que
         // se normaliza al guardar: si no, se guardaria una forma que nunca
         // va a coincidir con nada.
         var normalizado = Normalizar(dicho);
@@ -62,8 +62,8 @@ public sealed class EditorDeVocabularioJson(
             if (agregar)
             {
                 if (yaEsta) return new ResultadoDeVocabulario(false, $"«{normalizado}» ya estaba.");
-                // Una misma forma en dos claves haria la gramatica ambigua y
-                // el reconocimiento impredecible.
+                // Una misma forma en dos claves seria ambigua al interpretar:
+                // la primera que aparece ganaria, en silencio.
                 if (ColisionaEnOtraClave(raiz, propiedad, clave, normalizado, out var otra))
                     return new ResultadoDeVocabulario(false,
                         $"«{normalizado}» ya está en '{otra}'. Una forma no puede significar dos cosas.");
@@ -84,7 +84,6 @@ public sealed class EditorDeVocabularioJson(
             File.Move(temporal, ruta, overwrite: true);
 
             vocabulario.Reemplazar(RegistroDeVocabularioJson.Cargar(ruta));
-            reconocedor.RecargarGramatica();
 
             return new ResultadoDeVocabulario(true, null);
         }

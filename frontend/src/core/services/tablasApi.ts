@@ -106,15 +106,28 @@ export async function guardarDia(fecha: string, entrada: EntradaEnviada): Promis
 
 export const obtenerVocabulario = () => pedir<Vocabulario>('/api/voz/vocabulario')
 
-/** Escucha una vez con dictado libre y devuelve lo que entendió, tal cual. */
-export async function capturarDictado(segundos = 6): Promise<string | null> {
-  const respuesta = await fetch(`/api/voz/capturar?segundos=${segundos}`, { method: 'POST' })
-  if (!respuesta.ok) {
-    const error = await respuesta.json().catch(() => null) as { error?: string } | null
-    throw new Error(error?.error ?? 'No pude escuchar')
-  }
-  const cuerpo = await respuesta.json() as { texto: string | null }
-  return cuerpo.texto
+/**
+ * Escucha una vez y devuelve lo que el navegador oyó, sin interpretar. Sirve
+ * para capturar cómo suena una persona diciendo algo y ofrecerlo como forma
+ * nueva del vocabulario.
+ */
+export function capturarDictado(): Promise<string | null> {
+  const Motor = (window as unknown as { SpeechRecognition?: new () => SpeechRecognition })
+    .SpeechRecognition
+    ?? (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognition })
+      .webkitSpeechRecognition
+  if (!Motor) return Promise.resolve(null)
+
+  return new Promise((resolver) => {
+    const r = new Motor()
+    r.lang = 'es-ES'
+    r.continuous = false
+    r.interimResults = false
+    r.onresult = (evento) => resolver(evento.results[0][0].transcript)
+    r.onerror = () => resolver(null)
+    r.onend = () => resolver(null)
+    r.start()
+  })
 }
 
 async function vocabulario(url: string, metodo: string, cuerpo?: unknown): Promise<void> {

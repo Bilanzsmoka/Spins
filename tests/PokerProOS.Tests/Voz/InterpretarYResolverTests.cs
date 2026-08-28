@@ -17,10 +17,7 @@ public class InterpretarYResolverTests
         var vocabulario = RegistroDeVocabularioJson.Cargar(Rutas.Registro("vocabulario.json"));
         var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas);
-        var reconocedor = new ReconocedorFalso();
         var copiloto = new CopilotoDeVoz(
-            reconocedor,
-            new SintetizadorFalso { Reconocedor = reconocedor },
             new ResolverManoHandler(catalogo),
             new RedactorDeRespuesta(acciones, vocabulario),
             new MemoriaDeContexto

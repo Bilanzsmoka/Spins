@@ -15,10 +15,8 @@ public record DictadoEnviado(string? Texto, float Confianza = 0.9f);
 [Route("api/voz")]
 public sealed class VozController(
     CanalDeEventos canal,
-    ServicioDeCopiloto copiloto,
     IRegistroDeVocabulario vocabulario,
     IEditorDeVocabulario editor,
-    IReconocedorDeVoz reconocedor,
     MemoriaDeContexto memoria,
     InterpretadorDeTexto interprete,
     CopilotoDeVoz copilotoDeVoz) : ControllerBase
@@ -50,21 +48,6 @@ public sealed class VozController(
         situaciones = vocabulario.Situaciones,
     });
 
-    /// <summary>
-    /// Escucha una vez con dictado libre y devuelve lo que entendió, tal cual.
-    /// No busca acertar: busca capturar cómo suena esta persona diciendo eso,
-    /// para agregarlo como forma válida.
-    /// </summary>
-    [HttpPost("capturar")]
-    public IActionResult Capturar([FromQuery] int segundos = 6)
-    {
-        if (!copiloto.Escuchando)
-            return StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
-
-        var texto = reconocedor.CapturarDictadoLibre(TimeSpan.FromSeconds(Math.Clamp(segundos, 2, 15)));
-        return Ok(new { texto });
-    }
-
     [HttpPost("vocabulario/{categoria}/{clave}")]
     public async Task<IActionResult> Agregar(
         CategoriaDeVocabulario categoria, string clave,
@@ -89,32 +72,25 @@ public sealed class VozController(
     // el resto de la API) no puede leer el evento.
     private static readonly JsonSerializerOptions OpcionesJson = new(JsonSerializerDefaults.Web);
 
+    /// <summary>
+    /// Quién escucha y si está encendido lo sabe el navegador, no el servidor:
+    /// acá solo queda la última frase que llegó, que sirve para saber si el
+    /// dictado está entrando.
+    /// </summary>
     [HttpGet("estado")]
-    public IActionResult Estado() => Ok(new
-    {
-        escuchando = copiloto.Escuchando,
-        activo = copiloto.Activo,
-        falla = copiloto.Falla,
-        fallaAlHablar = copiloto.FallaAlHablar,
-        ultimaFrase = canal.Ultimo?.TextoCrudo
-    });
+    public IActionResult Estado() => Ok(new { ultimaFrase = canal.Ultimo?.TextoCrudo });
 
     /// <summary>
-    /// Enciende la escucha. Se usa al empezar una sesión de juego.
+    /// Encender y apagar pasaron a ser del navegador, que es quien tiene el
+    /// micrófono. Los endpoints quedan para que la pantalla no tenga que
+    /// distinguir a quién le habla, pero no hay nada que prender del lado del
+    /// servidor.
     /// </summary>
     [HttpPost("encender")]
-    public IActionResult Encender() => copiloto.Encender()
-        ? Ok(new { activo = true })
-        : StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
+    public IActionResult Encender() => Ok(new { activo = true });
 
-    /// <summary>
-    /// Apaga la escucha. Se usa al terminar de jugar, para que la aplicación
-    /// no conteste sola mientras no está en sesión.
-    /// </summary>
     [HttpPost("apagar")]
-    public IActionResult Apagar() => copiloto.Apagar()
-        ? Ok(new { activo = false })
-        : StatusCode(503, new { error = copiloto.Falla ?? "El motor de voz no está disponible." });
+    public IActionResult Apagar() => Ok(new { activo = false });
 
     /// <summary>
     /// El texto que oyó el navegador. Un texto que el intérprete rechaza no es un
