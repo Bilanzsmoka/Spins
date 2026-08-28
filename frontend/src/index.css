@@ -145,6 +145,61 @@ body {
 }
 .respuesta-detalle { color: var(--apagado); font-size: 13px; }
 
+/* ---------- Frases que no se entendieron ---------- */
+
+.sin-entender {
+  padding: 12px 14px; margin-bottom: 16px;
+  border: 1px solid #7a4a2a; border-radius: 9px; background: #2a1b12;
+}
+.sin-entender-titulo h3 { margin: 0; font-size: 14px; letter-spacing: .02em; }
+.sin-entender-titulo p { margin: 3px 0 0; color: var(--apagado); font-size: 12px; }
+.sin-entender-error { margin: 8px 0 0; color: #ff9b8a; font-size: 12px; }
+
+.sin-entender-lista { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.sin-entender-fila {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 10px; border-radius: 7px; background: rgba(0, 0, 0, .22);
+}
+.sin-entender-hora {
+  color: var(--apagado); font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Editable: a veces sobra una palabra ("12 vivir") y hay que recortarla
+   antes de guardarla. */
+.sin-entender-texto {
+  flex: 1 1 190px; min-width: 0;
+  padding: 6px 9px;
+  border: 1px solid var(--borde); border-radius: 6px;
+  background: var(--fondo); color: var(--texto);
+  font-size: 13px; font-family: inherit;
+}
+.sin-entender-texto:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+.sin-entender-destinos { display: flex; gap: 6px; flex-wrap: wrap; }
+.sin-entender-destino {
+  display: grid; gap: 1px; text-align: left;
+  padding: 5px 10px;
+  border: 1px solid var(--borde); border-radius: 6px;
+  background: var(--panel-2); color: var(--texto);
+  font-family: inherit; cursor: pointer;
+}
+.sin-entender-destino:hover:not(:disabled) { border-color: var(--acento); }
+.sin-entender-destino:disabled { opacity: .5; cursor: default; }
+.sin-entender-destino-titulo {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--apagado);
+}
+.sin-entender-destino-etiqueta { font-size: 12px; font-weight: 700; }
+
+.sin-entender-descartar {
+  padding: 2px 9px;
+  border: 1px solid transparent; border-radius: 6px;
+  background: none; color: var(--apagado);
+  font-size: 17px; line-height: 1.2; cursor: pointer;
+}
+.sin-entender-descartar:hover { color: var(--texto); border-color: var(--borde); }
+
 .entrenamiento-cuerpo {
   display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
 }

@@ -98,7 +98,11 @@ builder.Services.AddDbContext<PokerProOSDbContext>(opciones =>
 builder.Services.AddScoped<IBitacoraDeConsultas, BitacoraDeConsultas>();
 builder.Services.AddScoped<IRepositorioDeDiario, RepositorioDeDiario>();
 
-builder.Services.AddControllers();
+// Los enums salen como palabra, no como numero: la pantalla compara el tipo
+// de dictado contra 'Contexto' e 'Ignorado'. Es la misma configuracion que
+// usa el SSE, definida una sola vez en JsonDeLaApi.
+builder.Services.AddControllers()
+    .AddJsonOptions(opciones => JsonDeLaApi.Aplicar(opciones.JsonSerializerOptions));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

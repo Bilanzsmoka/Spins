@@ -28,18 +28,24 @@ public class EndpointDeDictadoTests
             Situacion = "HU_SB_OR_FISH", StackBB = 7, Spot = "SB_OR",
         };
 
+        var canalUsado = canal ?? new CanalDeEventos();
+        var copiloto = new CopilotoDeVoz(
+            new ResolverManoHandler(catalogo),
+            new RedactorDeRespuesta(acciones, vocabulario),
+            memoria,
+            new AnalizadorDeMemoria(catalogo),
+            catalogo);
+        // Igual que Program.cs: el copiloto no conoce al canal, alguien los
+        // conecta. Sin esta linea el test mira un canal que nadie llena.
+        copiloto.Publicado += (_, evento) => canalUsado.Publicar(evento);
+
         return new VozController(
-            canal ?? new CanalDeEventos(),
+            canalUsado,
             vocabulario,
             new EditorMudo(),
             memoria,
             new InterpretadorDeTexto(vocabulario),
-            new CopilotoDeVoz(
-                new ResolverManoHandler(catalogo),
-                new RedactorDeRespuesta(acciones, vocabulario),
-                memoria,
-                new AnalizadorDeMemoria(catalogo),
-                catalogo));
+            copiloto);
     }
 
     [Fact]
@@ -72,17 +78,15 @@ public class EndpointDeDictadoTests
         => AssertIgnorado(Armar().Dictado(new DictadoEnviado(null)));
 
     /// <summary>
-    /// Un dictado descartado tiene que verse igual. El camino viejo decía "No
-    /// te entendí" y lo mostraba; al mudar la voz al navegador se perdió, y con
-    /// él la única forma de saber QUÉ oyó Chrome cuando algo no funciona. Sin
-    /// esto, depurar el reconocimiento es adivinar.
-    ///
-    /// Va con la respuesta vacía a propósito: el navegador no habla lo que no
-    /// tiene texto, así que aparece en el historial sin cantar "no te entendí"
-    /// cada vez que alguien conversa cerca del micrófono.
+    /// Un dictado descartado tiene que verse Y oírse. Verse, porque el texto
+    /// crudo es la única forma de saber QUÉ oyó Chrome cuando algo no
+    /// funciona. Oírse, porque estudiando lejos del teclado nadie está
+    /// mirando la pantalla: con la respuesta vacía el rechazo pasaba
+    /// desapercibido y uno repetía la mano creyendo que el micrófono no
+    /// había captado.
     /// </summary>
     [Fact]
-    public void Un_texto_ignorado_igual_se_publica_para_poder_verlo()
+    public void Un_texto_ignorado_se_publica_y_se_dice()
     {
         var canal = new CanalDeEventos();
         var controlador = Armar(canal);
@@ -92,7 +96,8 @@ public class EndpointDeDictadoTests
         var publicado = canal.Ultimo!;
         Assert.Equal("contra el limite de gastos", publicado.TextoCrudo);
         Assert.False(publicado.Resuelta);
-        Assert.Equal("", publicado.Respuesta);
+        Assert.Equal(TipoDeDictado.Ignorado, publicado.Tipo);
+        Assert.False(string.IsNullOrWhiteSpace(publicado.Respuesta));
     }
 
     private static void AssertIgnorado(IActionResult resultado)
@@ -115,5 +120,25 @@ public class EndpointDeDictadoTests
         public Task<ResultadoDeVocabulario> QuitarAsync(
             CategoriaDeVocabulario categoria, string clave, string dicho, CancellationToken ct)
             => throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// El tipo de dictado viaja como palabra, no como número. La pantalla
+    /// compara contra 'Contexto' e 'Ignorado'; con el enum saliendo como
+    /// 0/1/2 ninguna de esas comparaciones era cierta nunca, y una orden de
+    /// contexto que se había entendido perfecto se dibujaba como "No
+    /// entendí". El cast del lado del navegador no puede detectarlo, así que
+    /// el contrato se fija acá.
+    /// </summary>
+    [Fact]
+    public void El_tipo_de_dictado_viaja_como_palabra()
+    {
+        var evento = new EventoDeCopiloto(
+            "doce blinds", "", "", "12 be be.", false,
+            TipoDeDictado.Contexto, "HU_SB_OR_FISH", "11-12bb", "SB_OR");
+
+        var json = JsonSerializer.Serialize(evento, JsonDeLaApi.Opciones);
+
+        Assert.Contains("\"tipo\":\"Contexto\"", json);
     }
 }

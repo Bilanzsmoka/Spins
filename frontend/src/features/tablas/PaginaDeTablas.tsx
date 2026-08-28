@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
+import type { FraseSinEntender } from '../../core/hooks/useEventosDeVoz'
 import type {
   ConsultaRegistrada, EventoDeVoz, ParteDeMix, SpotCompleto,
   FichaDeMemoria as FichaModelo,
@@ -8,6 +9,7 @@ import {
   editarCelda, fijarContextoDeVoz, guardarTip, obtenerFicha, obtenerSpot,
 } from '../../core/services/tablasApi'
 import { EditorDeCelda } from './EditorDeCelda'
+import { FrasesSinEntender } from './FrasesSinEntender'
 import { FichaDeMemoria } from './FichaDeMemoria'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
 import { ControlDeVoz, type PropsDeVoz } from './ControlDeVoz'
@@ -21,6 +23,9 @@ interface Props {
   ultimo: EventoDeVoz | null
   historial: ConsultaRegistrada[]
   onLimpiarHistorial: () => void
+  /** Lo que el intérprete rechazó, para poder enseñárselo sin salir de acá. */
+  sinEntender: FraseSinEntender[]
+  onOlvidarFrase: (texto: string) => void
   /** El copiloto solo se enciende desde acá: es un control del entrenamiento. */
   voz: PropsDeVoz
 }
@@ -33,7 +38,9 @@ interface MarcaDeFichaPorVoz {
   mano: string
 }
 
-export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: Props) {
+export function PaginaDeTablas({
+  ultimo, historial, onLimpiarHistorial, sinEntender, onOlvidarFrase, voz,
+}: Props) {
   const { catalogo, error } = useCatalogo()
 
   const [situacion, setSituacion] = useState('')
@@ -267,6 +274,17 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
           )}
         </div>
       )}
+
+      {/* Va pegado a la respuesta: el rechazo se acaba de oír, y el arreglo
+          es enseñarle la palabra ahí mismo. */}
+      <FrasesSinEntender
+        frases={sinEntender}
+        situaciones={catalogo.situaciones}
+        situacion={situacion}
+        stack={stack}
+        spot={spot}
+        onOlvidar={onOlvidarFrase}
+      />
 
       <AvisoDeProblemas problemas={catalogo.problemas} />
 

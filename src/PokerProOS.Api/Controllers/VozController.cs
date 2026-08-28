@@ -67,11 +67,12 @@ public sealed class VozController(
         return resultado.Exito ? Ok() : BadRequest(new { error = resultado.Error });
     }
 
-    // JsonSerializer.Serialize sin opciones no aplica la politica camelCase
-    // que si usan los controladores via Ok(...); sin esto el SSE manda las
-    // propiedades en PascalCase y el front (que espera camelCase, igual que
-    // el resto de la API) no puede leer el evento.
-    private static readonly JsonSerializerOptions OpcionesJson = new(JsonSerializerDefaults.Web);
+    // JsonSerializer.Serialize sin opciones no aplica ni el camelCase ni los
+    // enums como palabra que si usan los controladores via Ok(...). Son las
+    // mismas opciones, el mismo objeto: si el SSE y los controladores se
+    // configuran por separado, el mismo evento sale distinto segun por donde
+    // salga.
+    private static readonly JsonSerializerOptions OpcionesJson = JsonDeLaApi.Opciones;
 
     /// <summary>
     /// Quién escucha y si está encendido lo sabe el navegador, no el servidor:
@@ -93,17 +94,13 @@ public sealed class VozController(
         var dictado = interprete.Interpretar(texto, enviado.Confianza);
         if (dictado is null)
         {
-            // Descartado no es invisible. El camino viejo decía "No te
-            // entendí" y lo mostraba; al mudar la voz al navegador eso se
-            // perdió, y con él la única forma de saber QUÉ oyó el micrófono
-            // cuando algo no anda. Sin esto, depurar el reconocimiento es
-            // adivinar.
-            //
-            // La respuesta va vacía a propósito: el navegador no habla lo que
-            // no tiene texto, así que la frase aparece en el historial sin
-            // cantar "no te entendí" cada vez que alguien conversa al lado.
-            canal.Publicar(new EventoDeCopiloto(
-                texto, "", "", "", false, TipoDeDictado.Ignorado, null, null, null));
+            // Descartado no es invisible. Antes esto se publicaba con la
+            // respuesta vacía para no cantar "no te entendí" cuando alguien
+            // conversa cerca del micrófono; el precio era que estudiando sin
+            // manos un rechazo no se notaba, y uno repetía la mano creyendo
+            // que el micrófono no había oído. Ahora se dice, y la frase queda
+            // en pantalla para enseñársela.
+            copilotoDeVoz.NoEntendido(texto);
             return Ok(new { ignorado = true });
         }
 

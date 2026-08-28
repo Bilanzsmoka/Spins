@@ -91,6 +91,21 @@ public sealed class CopilotoDeVoz(
     }
 
     /// <summary>
+    /// La frase que el intérprete rechazó. Es un resultado del copiloto como
+    /// cualquier otro, no un descarte: se publica —para que la pantalla la
+    /// junte y se la pueda enseñar después— y se dice en voz, porque
+    /// estudiando sin manos un cartel que nadie mira es lo mismo que el
+    /// silencio, y sin oír nada uno repite la mano creyendo que el micrófono
+    /// no captó.
+    ///
+    /// Va sin situación, stack ni spot: lo que no se entendió no puede mover
+    /// la tabla que estabas mirando.
+    /// </summary>
+    public EventoDeCopiloto NoEntendido(string texto) => PublicarYDevolver(new EventoDeCopiloto(
+        texto, "", "", redactor.RedactarNoEntendido(),
+        false, TipoDeDictado.Ignorado, null, null, null));
+
+    /// <summary>
     /// Dictar un formato ("heads up", "tres max") es pedir cambiar de mesa, no
     /// guardar una palabra: mueve la situación a una de ese formato. Es el
     /// primer escalón para cambiar de tabla hablando, y sin esto decir el

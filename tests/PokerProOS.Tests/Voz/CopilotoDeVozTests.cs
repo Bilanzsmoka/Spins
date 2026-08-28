@@ -272,4 +272,59 @@ public class CopilotoDeVozTests
         Assert.True(evento.Resuelta);
         Assert.Equal("AA", evento.ManoInterpretada);
     }
+
+    /// <summary>
+    /// Una frase rechazada tiene que decirse en voz. Estudiando sin manos, un
+    /// cartel en pantalla que nadie está mirando es lo mismo que el silencio:
+    /// la respuesta iba vacía y el fallo pasaba desapercibido, así que uno
+    /// repetía la mano creyendo que el micrófono no había oído nada.
+    /// </summary>
+    [Fact]
+    public void Una_frase_que_no_se_entiende_se_dice_en_voz()
+    {
+        var (copiloto, _) = Armar();
+
+        var evento = copiloto.NoEntendido("vivir versus race");
+
+        Assert.Equal(TipoDeDictado.Ignorado, evento.Tipo);
+        Assert.Equal("vivir versus race", evento.TextoCrudo);
+        Assert.False(string.IsNullOrWhiteSpace(evento.Respuesta));
+    }
+
+    /// <summary>
+    /// Lo que no se entendió no cambia de tabla. El evento va sin situación,
+    /// stack ni spot para que la pantalla no tenga con qué moverse aunque
+    /// alguna vez deje de filtrar por tipo.
+    /// </summary>
+    [Fact]
+    public void Una_frase_que_no_se_entiende_no_mueve_la_tabla()
+    {
+        var (copiloto, memoria) = Armar();
+        copiloto.Procesar(Contexto(situacion: "HU_BB_VS_LIMP_FISH", stack: 9));
+        var antes = (memoria.Situacion, memoria.StackBB, memoria.Spot);
+
+        var evento = copiloto.NoEntendido("vivir versus race");
+
+        Assert.Equal(antes, (memoria.Situacion, memoria.StackBB, memoria.Spot));
+        Assert.Null(evento.Situacion);
+        Assert.Null(evento.ClaveDeStack);
+        Assert.Null(evento.Spot);
+    }
+
+    /// <summary>
+    /// Y se publica como cualquier otro evento: es lo que lleva la frase al
+    /// SSE, que es de donde la pantalla saca la lista para enseñársela.
+    /// </summary>
+    [Fact]
+    public void Una_frase_que_no_se_entiende_se_publica()
+    {
+        var (copiloto, _) = Armar();
+        EventoDeCopiloto? publicado = null;
+        copiloto.Publicado += (_, e) => publicado = e;
+
+        copiloto.NoEntendido("vivir versus race");
+
+        Assert.NotNull(publicado);
+        Assert.Equal(TipoDeDictado.Ignorado, publicado.Tipo);
+    }
 }

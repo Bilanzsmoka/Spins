@@ -28,6 +28,15 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
         return piezas.Count == 0 ? "Listo." : $"{string.Join(", ", piezas)}.";
     }
 
+    /// <summary>
+    /// Lo que se dice cuando la frase no era una orden. Vive acá y no en el
+    /// controlador porque es texto hablado, igual que el resto: quien lo
+    /// quiera cambiar tiene un solo lugar donde buscarlo.
+    /// </summary>
+    public string RedactarNoEntendido() => NoEntendi;
+
+    private const string NoEntendi = "No te entendí.";
+
     private string PalabraDeStack() => vocabulario.PalabrasDeStack.FirstOrDefault() ?? "be be";
 
     private static string Canonico(IReadOnlyList<FormasHabladas> formas, string clave)
@@ -38,7 +47,7 @@ public sealed class RedactorDeRespuesta(IRegistroDeAcciones acciones, IRegistroD
     public string Redactar(ResultadoDeConsulta resultado)
     {
         if (resultado.Respuesta is null)
-            return resultado.Detalle ?? "No te entendí.";
+            return resultado.Detalle ?? NoEntendi;
 
         var r = resultado.Respuesta;
         var etiqueta = acciones.Existe(r.Accion) ? acciones.Obtener(r.Accion).Etiqueta : r.Accion;

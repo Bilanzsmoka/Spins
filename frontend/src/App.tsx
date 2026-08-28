@@ -10,7 +10,8 @@ export default function App() {
   // El estado de voz se resuelve acá, no dentro de la página, para que la
   // suscripción SSE sobreviva al cambio de módulo: si el usuario mira otra
   // pantalla un momento, el copiloto no se reinicia.
-  const { ultimo, historial, limpiarHistorial } = useEventosDeVoz()
+  const { ultimo, historial, sinEntender, limpiarHistorial, olvidarFrase } =
+    useEventosDeVoz()
   // El navegador oye y habla directo, sin pasar por el reconocedor del
   // servidor: la respuesta que llega por SSE es lo que hay que decir en voz.
   const { disponible, activo, falla, fallaAlHablar, alternar, capturar } =
@@ -31,6 +32,8 @@ export default function App() {
               ultimo={ultimo}
               historial={historial}
               onLimpiarHistorial={limpiarHistorial}
+              sinEntender={sinEntender}
+              onOlvidarFrase={olvidarFrase}
               voz={{
                 disponible,
                 activo,
