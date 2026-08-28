@@ -101,7 +101,8 @@ public sealed class VozController(
             // La respuesta va vacía a propósito: el navegador no habla lo que
             // no tiene texto, así que la frase aparece en el historial sin
             // cantar "no te entendí" cada vez que alguien conversa al lado.
-            canal.Publicar(new EventoDeCopiloto(texto, "", "", "", false, null, null, null));
+            canal.Publicar(new EventoDeCopiloto(
+                texto, "", "", "", false, TipoDeDictado.Ignorado, null, null, null));
             return Ok(new { ignorado = true });
         }
 

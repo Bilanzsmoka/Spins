@@ -67,7 +67,10 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
   // La voz manda sobre los selectores: si el dictado trajo stack o spot,
   // la pantalla se mueve a la tabla que se acaba de consultar.
   useEffect(() => {
-    if (!ultimo?.resuelta) return
+    // Tambien las ordenes de contexto: dictar "doce blinds" cambia la tabla
+    // sin resolver mano, y la pantalla tiene que acompanar. Mirando solo
+    // `resuelta` se quedaba quieta y parecia que el dictado no habia entrado.
+    if (!ultimo || ultimo.tipo === 'Ignorado') return
     // oxlint-disable-next-line set-state-in-effect
     if (ultimo.claveDeStack) setStack(ultimo.claveDeStack)
     if (ultimo.spot) setSpot(ultimo.spot)
@@ -242,7 +245,7 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
       {/* La ultima respuesta, grande. Lo hablado se pierde; esto queda a la
           vista mientras se juega la mano. */}
       {ultimo && (
-        <div className={`respuesta-actual${ultimo.resuelta ? '' : ' respuesta-actual-fallo'}`}>
+        <div className={`respuesta-actual${ultimo.tipo === 'Ignorado' ? ' respuesta-actual-fallo' : ''}`}>
           {ultimo.resuelta ? (
             <>
               <span className="respuesta-mano">{ultimo.manoInterpretada}</span>
@@ -256,6 +259,9 @@ export function PaginaDeTablas({ ultimo, historial, onLimpiarHistorial, voz }: P
               </span>
               <span className="respuesta-detalle">{ultimo.respuesta}</span>
             </>
+          ) : ultimo.tipo === 'Contexto' ? (
+            // Entendida y sin mano: se dice qué cambió, no que falló.
+            <span className="respuesta-detalle">Listo · {ultimo.respuesta}</span>
           ) : (
             <span className="respuesta-detalle">No entendí · «{ultimo.textoCrudo}»</span>
           )}

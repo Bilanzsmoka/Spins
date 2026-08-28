@@ -2,12 +2,30 @@ using PokerProOS.Application.Tablas;
 
 namespace PokerProOS.Application.Voz;
 
+/// <summary>Las tres cosas que puede ser un dictado.</summary>
+public enum TipoDeDictado
+{
+    /// <summary>Trajo una mano y la tabla la resolvió.</summary>
+    Mano,
+    /// <summary>Cambió la tabla activa sin nombrar una mano.</summary>
+    Contexto,
+    /// <summary>No era una orden: conversación cerca del micrófono.</summary>
+    Ignorado,
+}
+
 public record EventoDeCopiloto(
     string TextoCrudo,
     string ManoInterpretada,
     string Accion,
     string Respuesta,
     bool Resuelta,
+    /// <summary>
+    /// Qué clase de dictado fue. <c>Resuelta</c> sola no alcanza: una orden de
+    /// contexto ("doce blinds") se entiende perfectamente y no resuelve
+    /// ninguna mano, así que la pantalla la mostraba como "no entendí" y no
+    /// movía los selectores. Son tres resultados, no dos.
+    /// </summary>
+    TipoDeDictado Tipo,
     string? Situacion,
     string? ClaveDeStack,
     string? Spot,
@@ -61,6 +79,7 @@ public sealed class CopilotoDeVoz(
             resultado.Respuesta?.Accion ?? "",
             redactor.Redactar(resultado),
             resultado.Respuesta is not null,
+            TipoDeDictado.Mano,
             memoria.Situacion,
             resultado.Respuesta?.ClaveDeStack,
             memoria.Spot,
@@ -102,6 +121,7 @@ public sealed class CopilotoDeVoz(
         "",
         redactor.RedactarContexto(dictado.Situacion, dictado.StackBB, dictado.Spot),
         false,
+        TipoDeDictado.Contexto,
         memoria.Situacion,
         null,
         memoria.Spot);

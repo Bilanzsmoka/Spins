@@ -52,6 +52,10 @@ export function Sugerencias({ historial, acciones, onLimpiar }: Props) {
                         {consulta.claveDeStack} · {consulta.spot}
                       </span>
                     </>
+                  ) : consulta.tipo === 'Contexto' ? (
+                    // Una orden de contexto se entendió: decir "no entendí"
+                    // hacía parecer roto justamente lo que había funcionado.
+                    <span className="sugerencia-contexto">{consulta.respuesta}</span>
                   ) : (
                     <span className="sugerencia-fallo">No entendí</span>
                   )}

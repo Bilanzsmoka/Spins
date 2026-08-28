@@ -104,12 +104,19 @@ export interface FichaDeMemoria {
   tip: string | null
 }
 
+/**
+ * Las tres cosas que puede ser un dictado. 'resuelta' sola no alcanza: una
+ * orden de contexto se entiende perfectamente y no resuelve ninguna mano.
+ */
+export type TipoDeDictado = 'Mano' | 'Contexto' | 'Ignorado'
+
 export interface EventoDeVoz {
   textoCrudo: string
   manoInterpretada: string
   respuesta: string
   accion: string
   resuelta: boolean
+  tipo: TipoDeDictado
   situacion: string | null
   claveDeStack: string | null
   spot: string | null

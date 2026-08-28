@@ -21,6 +21,7 @@ public class BitacoraDeConsultasTests
         Accion: "RAISE_X2",
         Respuesta: "A K suited: RAISE X2. En el borde, 113 manos.",
         Resuelta: true,
+        Tipo: TipoDeDictado.Mano,
         Situacion: "HU_SB_OR_FISH",
         ClaveDeStack: "7bb",
         Spot: "SB_OR");

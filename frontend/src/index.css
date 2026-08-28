@@ -181,6 +181,8 @@ body {
 .sugerencia-accion { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 800; }
 .sugerencia-contexto { color: var(--apagado); font-size: 11px; }
 .sugerencia-fallo { color: #d99a5b; font-size: 13px; font-weight: 700; }
+/* Una orden de contexto no es un fallo: se entendio y cambio la tabla. */
+.sugerencia-contexto { color: #8fb8d6; font-size: 13px; font-weight: 600; }
 .sugerencia-hora { margin-left: auto; color: var(--apagado); font-size: 11px; font-variant-numeric: tabular-nums; }
 .sugerencia-crudo { color: var(--apagado); font-size: 12px; font-style: italic; margin-top: 3px; }
 .sugerencia-respuesta { font-size: 12px; margin-top: 2px; }

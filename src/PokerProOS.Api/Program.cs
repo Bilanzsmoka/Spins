@@ -12,9 +12,30 @@ using PokerProOS.Infrastructure.Voz;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Los datos viven junto al ejecutable: el csproj los copia a la salida.
-// Nada de subir cinco directorios desde AppContext.BaseDirectory.
-var carpetaDatos = Path.Combine(AppContext.BaseDirectory, "database");
+// La app no solo LEE database/: también lo escribe (corregir una celda, un tip,
+// enseñarle una forma nueva de decir algo). Apuntando a la copia de la salida,
+// todo eso se guardaba en bin/ — fuera de git, invisible para el usuario, y a un
+// `git clean` de perderse. Se enseñaron doce formas así antes de descubrirlo.
+//
+// Corriendo desde el repo se usa el database/ del repo, que es la fuente de
+// verdad que documenta CLAUDE.md. Publicada, no hay repo: ahí sí vale la copia
+// que el csproj dejó junto al ejecutable.
+var carpetaDatos = CarpetaDeDatos();
+
+static string CarpetaDeDatos()
+{
+    var actual = new DirectoryInfo(AppContext.BaseDirectory);
+    while (actual is not null)
+    {
+        // Las dos marcas juntas: bin/ también tiene un database/, y sin la
+        // solución al lado se lo confundiría con la raíz del repositorio.
+        if (File.Exists(Path.Combine(actual.FullName, "PokerProOS.slnx"))
+            && Directory.Exists(Path.Combine(actual.FullName, "database")))
+            return Path.Combine(actual.FullName, "database");
+        actual = actual.Parent;
+    }
+    return Path.Combine(AppContext.BaseDirectory, "database");
+}
 
 // acciones.json y vocabulario.json son el único dato que el usuario edita a
 // mano (el caso de uso central del proyecto). Si el archivo falta o tiene

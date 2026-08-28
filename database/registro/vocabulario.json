@@ -3,7 +3,9 @@
     "be be",
     "bb",
     "blinds",
-    "ciegas"
+    "ciegas",
+    "bebes",
+    "bebés"
   ],
   "rangos": [
     {
@@ -42,56 +44,64 @@
       "clave": "T",
       "dichos": [
         "diez",
-        "ten"
+        "ten",
+        "10"
       ]
     },
     {
       "clave": "9",
       "dichos": [
         "nueve",
-        "nine"
+        "nine",
+        "9"
       ]
     },
     {
       "clave": "8",
       "dichos": [
         "ocho",
-        "eight"
+        "eight",
+        "8"
       ]
     },
     {
       "clave": "7",
       "dichos": [
         "siete",
-        "seven"
+        "seven",
+        "7"
       ]
     },
     {
       "clave": "6",
       "dichos": [
         "seis",
-        "six"
+        "six",
+        "6"
       ]
     },
     {
       "clave": "5",
       "dichos": [
         "cinco",
-        "five"
+        "five",
+        "5"
       ]
     },
     {
       "clave": "4",
       "dichos": [
         "cuatro",
-        "four"
+        "four",
+        "4"
       ]
     },
     {
       "clave": "3",
       "dichos": [
         "tres",
-        "three"
+        "three",
+        "3"
       ]
     },
     {
@@ -99,7 +109,8 @@
       "dichos": [
         "dos",
         "two",
-        "deuce"
+        "deuce",
+        "2"
       ]
     }
   ],
@@ -110,7 +121,9 @@
         "suited",
         "del mismo palo",
         "mismo palo",
-        "color"
+        "color",
+        "suite",
+        "sweet"
       ]
     },
     {
@@ -119,7 +132,8 @@
         "offsuit",
         "off suit",
         "off",
-        "distinto palo"
+        "distinto palo",
+        "of sweet"
       ]
     }
   ],
@@ -131,7 +145,9 @@
         "mi accion",
         "primera accion",
         "abrir",
-        "open"
+        "open",
+        "small blind open race",
+        "sb o r"
       ]
     },
     {
@@ -140,7 +156,9 @@
         "contra all in",
         "versus all in",
         "contra shove",
-        "be be all in"
+        "be be all in",
+        "big line online",
+        "big blind online"
       ]
     },
     {
@@ -148,7 +166,9 @@
       "dichos": [
         "contra tres bet",
         "versus tres bet",
-        "contra tribet"
+        "contra tribet",
+        "big blind rivet",
+        "big bang river"
       ]
     },
     {
@@ -156,7 +176,8 @@
       "dichos": [
         "contra iso tres",
         "versus iso tres be be",
-        "iso tres"
+        "iso tres",
+        "big blind iso 3bb"
       ]
     },
     {
@@ -164,7 +185,8 @@
       "dichos": [
         "contra iso all in",
         "versus iso all in",
-        "iso all in"
+        "iso all in",
+        "big line hizo online"
       ]
     },
     {
@@ -172,7 +194,9 @@
       "dichos": [
         "contra limp",
         "vs limp",
-        "me limpeo"
+        "me limpeo",
+        "big bang versus spelling",
+        "big line versus spelling"
       ]
     },
     {
