@@ -4,10 +4,16 @@ import type { AccionDefinida, FichaDeMemoria as FichaModelo } from '../../core/m
 interface Props {
   ficha: FichaModelo
   acciones: AccionDefinida[]
-  guardandoTip: boolean
-  errorAlGuardarTip: string | null
-  onGuardarTip: (texto: string | null) => void
   onCerrar: () => void
+  /**
+   * Cómo se guarda el tip. Sin esto la ficha muestra el tip si lo hay, pero
+   * no ofrece editarlo: un botón que abre un editor cuyo Guardar no hace
+   * nada es peor que no tener el botón. Entrenando se lee la explicación, no
+   * se corrige la tabla.
+   */
+  onGuardarTip?: (texto: string | null) => void
+  guardandoTip?: boolean
+  errorAlGuardarTip?: string | null
   children?: ReactNode
 }
 
@@ -150,7 +156,7 @@ export function FichaDeMemoria({
 
         <section className="ficha-bloque">
           <h3>Tip</h3>
-          {editandoTip ? (
+          {editandoTip && onGuardarTip ? (
             <div className="ficha-tip-editor">
               <textarea
                 value={borrador}
@@ -181,9 +187,11 @@ export function FichaDeMemoria({
               {ficha.tip
                 ? <p>{ficha.tip}</p>
                 : <p className="ficha-tip-vacio">Todavía no escribiste el porqué de esta tabla.</p>}
-              <button type="button" className="boton-tenue" onClick={() => setEditandoTip(true)}>
-                {ficha.tip ? 'Editar' : 'Escribir'}
-              </button>
+              {onGuardarTip && (
+                <button type="button" className="boton-tenue" onClick={() => setEditandoTip(true)}>
+                  {ficha.tip ? 'Editar' : 'Escribir'}
+                </button>
+              )}
             </div>
           )}
         </section>

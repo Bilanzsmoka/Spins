@@ -46,9 +46,6 @@ export function Veredicto({ veredicto, acciones, onSeguir }: Props) {
         <FichaDeMemoria
           ficha={veredicto.ficha}
           acciones={acciones}
-          guardandoTip={false}
-          errorAlGuardarTip={null}
-          onGuardarTip={() => {}}
           onCerrar={onSeguir}
         />
       )}
