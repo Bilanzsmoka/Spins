@@ -47,7 +47,14 @@ export function useEventosDeVoz() {
       const hora = new Date().toLocaleTimeString('es', {
         hour: '2-digit', minute: '2-digit', second: '2-digit',
       })
-      setHistorial((previo) => [{ ...evento, hora }, ...previo].slice(0, MAXIMO_HISTORIAL))
+      // Lo que no se entendió NO entra al historial: ese es el registro de lo
+      // que estudiaste —manos y spots—, y llenarlo de "no entendí" lo
+      // convierte en un cajón de basura donde ya no se puede repasar la
+      // tanda. La frase fallida se ve igual, en dos lados mejores: el cartel
+      // de arriba, que muestra el último evento, y su propio panel, que
+      // además deja enseñarla.
+      if (evento.tipo !== 'Ignorado')
+        setHistorial((previo) => [{ ...evento, hora }, ...previo].slice(0, MAXIMO_HISTORIAL))
 
       if (evento.tipo !== 'Ignorado' || !evento.textoCrudo.trim()) return
       // Sin dedup, decir tres veces la misma palabra mal reconocida deja tres

@@ -57,7 +57,12 @@ export function Sugerencias({ historial, acciones, onLimpiar }: Props) {
                     // hacía parecer roto justamente lo que había funcionado.
                     <span className="sugerencia-contexto">{consulta.respuesta}</span>
                   ) : (
-                    <span className="sugerencia-fallo">No entendí</span>
+                    // Lo que no se entendió ya no llega acá: el historial es
+                    // el registro de lo que estudiaste. Lo que sí puede caer
+                    // en este ramo es una mano entendida que no resolvió —un
+                    // spot que no existe a ese stack—, y ahí el motivo es lo
+                    // único útil que se puede decir.
+                    <span className="sugerencia-fallo">{consulta.respuesta || 'Sin respuesta'}</span>
                   )}
                   <time className="sugerencia-hora">{consulta.hora}</time>
                 </div>
