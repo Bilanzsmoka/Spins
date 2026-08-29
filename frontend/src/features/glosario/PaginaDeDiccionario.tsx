@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { GrupoDelGlosario } from '../../core/models/catalogo.model'
 import { obtenerGlosario } from '../../core/services/tablasApi'
+import { FichaDeJugador } from './FichaDeJugador'
 import { TerminoConVoz } from './TerminoConVoz'
 
 /**
@@ -12,6 +13,10 @@ import { TerminoConVoz } from './TerminoConVoz'
  *
  * Los términos salen de database/registro/glosario.json, como todo lo demás:
  * agregar uno es editar el archivo.
+ *
+ * Un grupo cuyos términos traen figura y color se muestra como fichas —los
+ * perfiles de jugador— y no como renglones: si el color se ve en una pantalla
+ * y en la otra no, deja de ser una señal y pasa a ser decoración.
  */
 export function PaginaDeDiccionario() {
   const [grupos, setGrupos] = useState<GrupoDelGlosario[] | null>(null)
@@ -44,10 +49,14 @@ export function PaginaDeDiccionario() {
       {grupos?.map((grupo) => (
         <section key={grupo.clave} className="glosario-grupo">
           <h2>{grupo.titulo}</h2>
-          <ul className="glosario-lista">
-            {grupo.terminos.map((t) => (
-              <TerminoConVoz key={t.termino} termino={t.termino} explicacion={t.explicacion} />
-            ))}
+          <ul className={grupo.terminos.some((t) => t.icono) ? 'jugador-lista' : 'glosario-lista'}>
+            {grupo.terminos.map((t) =>
+              t.icono ? (
+                <FichaDeJugador key={t.termino} jugador={t} />
+              ) : (
+                <TerminoConVoz key={t.termino} termino={t.termino} explicacion={t.explicacion} />
+              ),
+            )}
           </ul>
         </section>
       ))}
