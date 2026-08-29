@@ -288,6 +288,36 @@ body {
 .veredicto-mix { color: var(--apagado); font-size: 12px; }
 .veredicto-cabecera .boton-principal { margin-left: auto; }
 
+.entrenador { display: grid; gap: 16px; }
+.entrenador-marcador {
+  margin: 0; color: var(--apagado);
+  font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.entrenador-final {
+  margin: 0; padding: 12px 14px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+  font-size: 14px;
+}
+.filtro-tanda {
+  display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.filtro-tanda label {
+  display: grid; gap: 4px;
+  color: var(--apagado); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .09em;
+}
+.filtro-tanda select,
+.filtro-tanda input {
+  padding: 7px 9px;
+  border: 1px solid var(--borde); border-radius: 6px;
+  background: var(--panel-2); color: var(--texto);
+  font-size: 13px; font-family: inherit;
+  text-transform: none; letter-spacing: normal;
+}
+.filtro-tanda input { width: 82px; }
+
 .entrenamiento-cuerpo {
   display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
 }

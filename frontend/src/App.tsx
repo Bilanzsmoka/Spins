@@ -2,6 +2,7 @@ import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
 import { useVozDelNavegador } from './core/hooks/useVozDelNavegador'
 import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
 import { PaginaDeHabitos } from './features/diario/PaginaDeHabitos'
+import { PaginaDeEntrenador } from './features/entrenador/PaginaDeEntrenador'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
 import { PaginaDeVocabulario } from './features/voz/PaginaDeVocabulario'
 import { Aplicacion, type GrupoDeModulos } from './shared/Aplicacion'
@@ -47,6 +48,13 @@ export default function App() {
               }}
             />
           ),
+        },
+        {
+          clave: 'entrenador',
+          etiqueta: 'Entrenador',
+          descripcion: 'Te pregunta y te corrige',
+          disponible: true,
+          contenido: <PaginaDeEntrenador />,
         },
         {
           clave: 'diario',
