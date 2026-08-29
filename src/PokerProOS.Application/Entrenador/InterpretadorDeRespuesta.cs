@@ -1,6 +1,5 @@
-using System.Globalization;
-using System.Text;
 using PokerProOS.Application.Tablas;
+using PokerProOS.Application.Texto;
 
 namespace PokerProOS.Application.Entrenador;
 
@@ -21,7 +20,7 @@ public sealed class InterpretadorDeRespuesta(IRegistroDeAcciones acciones)
     /// <summary>La clave de la acción dicha, o null si el texto no es una.</summary>
     public string? Interpretar(string texto)
     {
-        var normalizado = Normalizar(texto);
+        var normalizado = NormalizadorDeTexto.EnFrase(texto);
         if (normalizado.Length == 0) return null;
 
         // La comparacion de abajo es por igualdad exacta, no por prefijo, asi
@@ -31,7 +30,7 @@ public sealed class InterpretadorDeRespuesta(IRegistroDeAcciones acciones)
         // forma normalizada, en vez de depender de en que orden las declaro
         // acciones.json.
         var candidatas = acciones.Todas
-            .SelectMany(a => a.Dichos.Select(d => (a.Clave, Dicho: Normalizar(d))))
+            .SelectMany(a => a.Dichos.Select(d => (a.Clave, Dicho: NormalizadorDeTexto.EnFrase(d))))
             .Where(c => c.Dicho.Length > 0)
             .OrderByDescending(c => c.Dicho.Length);
 
@@ -39,17 +38,5 @@ public sealed class InterpretadorDeRespuesta(IRegistroDeAcciones acciones)
             if (normalizado == dicho) return clave;
 
         return null;
-    }
-
-    /// <summary>Minúsculas, sin tildes, sin puntuación y con un solo espacio.</summary>
-    private static string Normalizar(string texto)
-    {
-        var sinTildes = new string((texto ?? "")
-            .Normalize(NormalizationForm.FormD)
-            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-            .ToArray());
-
-        return string.Join(' ', sinTildes.ToLowerInvariant()
-            .Split([' ', ',', '.', ';', ':', '\t', '\n'], StringSplitOptions.RemoveEmptyEntries));
     }
 }

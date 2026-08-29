@@ -1,5 +1,4 @@
-using System.Globalization;
-using System.Text;
+using PokerProOS.Application.Texto;
 using PokerProOS.Domain.Manos;
 
 namespace PokerProOS.Application.Voz;
@@ -20,7 +19,7 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
 {
     public DictadoReconocido? Interpretar(string texto, float confianza)
     {
-        var tokens = Normalizar(texto);
+        var tokens = NormalizadorDeTexto.EnPalabras(texto);
         if (tokens.Count == 0) return null;
 
         // null marca "ya consumido". Se busca de formas largas a cortas para
@@ -198,19 +197,6 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
             return numero;
         }
         return null;
-    }
-
-    /// <summary>Minúsculas, sin tildes y partido en palabras.</summary>
-    private static List<string> Normalizar(string texto)
-    {
-        var sinTildes = new string((texto ?? "")
-            .Normalize(NormalizationForm.FormD)
-            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-            .ToArray());
-
-        return sinTildes.ToLowerInvariant()
-            .Split([' ', ',', '.', ';', ':', '\t', '\n'], StringSplitOptions.RemoveEmptyEntries)
-            .ToList();
     }
 
     private static List<string> Palabras(string dicho) =>
