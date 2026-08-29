@@ -46,7 +46,14 @@ export function PaginaDeEntrenador() {
     let cancelado = false
     accionesDelSpot(pregunta.situacion, pregunta.claveDeStack, pregunta.spot)
       .then((a) => { if (!cancelado) setAcciones(a) })
-      .catch(() => { if (!cancelado) setAcciones([]) })
+      .catch((e: unknown) => {
+        if (cancelado) return
+        setAcciones([])
+        // Sin esto, un fallo acá deja la mano en pantalla sin botones y sin
+        // ninguna explicación: parece que la app se colgó. El entrenador es
+        // el único módulo que no puede fallar en silencio.
+        setError(e instanceof Error ? e.message : 'No se pudieron traer las acciones del spot.')
+      })
     return () => { cancelado = true }
   }, [pregunta])
 
@@ -70,6 +77,7 @@ export function PaginaDeEntrenador() {
   const elegir = async (accion: string) => {
     if (!pregunta || veredicto || contestando) return
     setContestando(true)
+    setError(null)
     try {
       const v = await responder({
         situacion: pregunta.situacion,
@@ -117,7 +125,7 @@ export function PaginaDeEntrenador() {
           pedida={pedida}
           onCambiar={setPedida}
           onArrancar={() => void arrancar()}
-          cargando={cargando}
+          cargando={cargando || contestando}
         />
       )}
 
