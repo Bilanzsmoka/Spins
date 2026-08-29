@@ -9,6 +9,17 @@ const Reconocimiento: ConstructorDeReconocimiento | undefined =
   ?? (window as unknown as { webkitSpeechRecognition?: ConstructorDeReconocimiento }).webkitSpeechRecognition
 
 /**
+ * Cuanto se espera, despues de un pedazo de frase, por si viene otro.
+ *
+ * Es el tiempo que separa "todavia esta hablando" de "ya termino". Corto de
+ * mas parte las frases —que es el problema que esto viene a resolver—; largo
+ * de mas hace esperar la respuesta de cada consulta. Como la app deja de
+ * escuchar mientras habla, entre una consulta y la siguiente siempre hay un
+ * hueco mas grande que este.
+ */
+const ESPERA_ENTRE_PEDAZOS = 900
+
+/**
  * El copiloto del lado del navegador: oye con la Web Speech API y habla con
  * speechSynthesis.
  *
@@ -45,6 +56,11 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
   // de cancelarla; ver el efecto que habla.
   const fraseEnCurso = useRef<SpeechSynthesisUtterance | null>(null)
   const ultimoHablado = useRef<EventoDeVoz | null>(null)
+  // Los pedazos de una misma frase, esperando a que deje de llegar mas. Ver
+  // ESPERA_ENTRE_PEDAZOS.
+  const pedazos = useRef<string[]>([])
+  const confianzaMinima = useRef(1)
+  const plazoDeEnvio = useRef<number | null>(null)
 
   const disponible = Reconocimiento !== undefined
 
@@ -72,7 +88,30 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
       if (silenciado.current) return
       const ultimo = evento.results[evento.results.length - 1]
       if (!ultimo.isFinal) return
-      void enviarDictado(ultimo[0].transcript, ultimo[0].confidence || 0.9)
+
+      // Chrome cierra un pedazo cuando esta seguro de esas palabras, no
+      // cuando vos terminaste la frase: "as rey suited" llega como "as rey" y
+      // despues "suited". Mandando cada pedazo, la mano se resolvia sin el
+      // palo —y sin palo la regla asume offsuit—, y el "suited" que venia
+      // atras llegaba solo y se descartaba por no ser una orden. Salia la
+      // accion de otra casilla y todo se veia normal.
+      pedazos.current.push(ultimo[0].transcript.trim())
+      confianzaMinima.current = Math.min(
+        confianzaMinima.current, ultimo[0].confidence || 0.9)
+
+      if (plazoDeEnvio.current !== null) clearTimeout(plazoDeEnvio.current)
+      plazoDeEnvio.current = window.setTimeout(() => {
+        plazoDeEnvio.current = null
+        const frase = pedazos.current.join(' ').trim()
+        const confianza = confianzaMinima.current
+        pedazos.current = []
+        confianzaMinima.current = 1
+        // Callado quiere decir que el microfono es de otro —la app hablando, o
+        // una captura de vocabulario—: lo que se junto antes ya no es una
+        // orden que corresponda contestar.
+        if (silenciado.current || frase.length === 0) return
+        void enviarDictado(frase, confianza)
+      }, ESPERA_ENTRE_PEDAZOS)
     }
     r.onerror = (evento) => {
       ultimoError = evento.error
@@ -115,6 +154,14 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
     // un resultado que ya estaba en el buffer llegaría después de apagar la
     // voz, contestando sola justo cuando se le dijo que se callara.
     return () => {
+      // Un envio pendiente despues de apagar la voz es una consulta que sale
+      // sola justo cuando se le dijo que se callara: la misma razon por la que
+      // se anulan los handlers.
+      if (plazoDeEnvio.current !== null) clearTimeout(plazoDeEnvio.current)
+      plazoDeEnvio.current = null
+      pedazos.current = []
+      confianzaMinima.current = 1
+
       motor.current = null
       r.onresult = null
       r.onerror = null
