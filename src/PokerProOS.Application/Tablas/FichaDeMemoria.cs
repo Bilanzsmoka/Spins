@@ -59,4 +59,10 @@ public record FichaDeMemoria(
     IReadOnlyList<BandaDeStack> Umbral,
     IReadOnlyList<AnclaDeFamilia> Familias,
     IReadOnlyList<PasoDeLinea> Linea,
-    string? Tip);
+    string? Tip,
+    /// <summary>
+    /// El spot contado en pocas frases: "todos los Ax son ALL-IN", "los Kx
+    /// offsuit hasta K7o". Es lo que de verdad se memoriza — nadie retiene
+    /// 169 casillas, retiene el grupo y dónde corta.
+    /// </summary>
+    IReadOnlyList<ReglaDelSpot> Reglas);

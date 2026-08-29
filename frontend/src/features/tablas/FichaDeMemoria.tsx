@@ -96,6 +96,29 @@ export function FichaDeMemoria({
           </section>
         )}
 
+        {/* Arriba de todo: es lo que se memoriza. El umbral y las familias
+            explican esta mano; esto explica el spot entero en tres frases. */}
+        {ficha.reglas.length > 0 && (
+          <section className="ficha-bloque">
+            <h4>En este spot</h4>
+            <ul className="ficha-reglas">
+              {ficha.reglas.map((r) => (
+                <li key={r.grupo}>
+                  <strong>{r.grupo}</strong>
+                  {r.hasta ? (
+                    <>
+                      {': '}{r.accion} <em>hasta {r.hasta}</em>
+                      {r.despues && <>, de ahí {r.despues}</>}
+                    </>
+                  ) : (
+                    <>: todos {r.accion}</>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {ficha.umbral.length > 0 && (
           <section className="ficha-bloque">
             <h3>Según el stack</h3>

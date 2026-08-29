@@ -25,7 +25,10 @@ public sealed class AnalizadorDeMemoria(ICatalogoDeTablas catalogo)
             Umbral(situacion, claveDeStack, claveDeSpot, celda.Mano),
             Familias(spot, celda.Mano),
             Linea(situacion, claveDeStack, claveDeSpot, celda.Mano),
-            spot.Tip);
+            spot.Tip,
+            // Tres alcanzan: con más, la ficha deja de leerse de un vistazo y
+            // la evidencia sobre memorizar rangos apunta a tandas cortas.
+            ReglasDelSpot.De(spot, 3));
     }
 
     /// <summary>

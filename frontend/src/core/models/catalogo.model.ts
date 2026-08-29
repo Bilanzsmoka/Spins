@@ -107,6 +107,8 @@ export interface FichaDeMemoria {
   familias: AnclaDeFamilia[]
   linea: PasoDeLinea[]
   tip: string | null
+  /** El spot contado en pocas frases. Es lo que de verdad se memoriza. */
+  reglas: ReglaDelSpot[]
 }
 
 /**
@@ -282,6 +284,16 @@ export interface Vocabulario {
 export type CategoriaDeVocabulario =
   | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'
   | 'Manos' | 'Niveles'
+
+export interface ReglaDelSpot {
+  /** Cómo se llama el grupo: "los Ax offsuit", "los pares". */
+  grupo: string
+  accion: string
+  /** La mano más baja que todavía hace `accion`. Nula si el grupo no se corta. */
+  hasta: string | null
+  despues: string | null
+  manos: number
+}
 
 /* ---------- Glosario ---------- */
 

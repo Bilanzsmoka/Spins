@@ -328,6 +328,15 @@ body {
 }
 .filtro-tanda input { width: 82px; }
 
+.ficha-reglas { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ficha-reglas li {
+  padding: 7px 10px; border-radius: 7px; background: var(--panel-2);
+  font-size: 13px; line-height: 1.45;
+}
+.ficha-reglas strong { color: var(--texto); }
+/* El corte es lo unico que hay que recordar: se resalta. */
+.ficha-reglas em { color: var(--acento); font-style: normal; font-weight: 700; }
+
 /* ---------- Diccionario ---------- */
 
 .diccionario { display: grid; gap: 22px; max-width: 780px; }
