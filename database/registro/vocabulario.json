@@ -324,7 +324,9 @@
         "heads up contra fish",
         "hu fish",
         "contra fish",
-        "fish"
+        "fish",
+        "s b o r",
+        "sbo r"
       ]
     },
     {
@@ -352,7 +354,8 @@
         "be be contra open shove",
         "defendiendo open shove",
         "dd versus openshot",
-        "beb\u00E9 versus openshop"
+        "beb\u00E9 versus openshop",
+        "bebe versus os"
       ]
     },
     {
@@ -394,7 +397,10 @@
       "clave": "3MAX_BB_VS_BTN_MR_FISH_FISH",
       "dichos": [
         "tres max be be contra min raise",
-        "tres max be be defendiendo"
+        "tres max be be defendiendo",
+        "beb\u00E9 versus bot\u00F3n ra\u00EDz",
+        "tv versus bot\u00F3n min race",
+        "beb\u00E9 versus bot\u00F3n min race"
       ]
     },
     {
@@ -415,7 +421,8 @@
       "clave": "3MAX_BB_VS_3WAY_LIMP_FISH_FISH",
       "dichos": [
         "tres max be be a tres contra limp",
-        "tres max tres bandas limp"
+        "tres max tres bandas limp",
+        "bebe versus streetway link"
       ]
     },
     {
@@ -459,7 +466,11 @@
         "headsap",
         "gets up",
         "set up",
-        "quetzat"
+        "quetzat",
+        "hetzap",
+        "hedsap",
+        "head",
+        "head sad"
       ]
     },
     {
@@ -507,6 +518,219 @@
         "mano",
         "carta",
         "cartas"
+      ]
+    }
+  ],
+  "manos": [
+    {
+      "clave": "J9s",
+      "dichos": [
+        "j9 suite"
+      ]
+    },
+    {
+      "clave": "Q9s",
+      "dichos": [
+        "q9 suite",
+        "con nueve suite"
+      ]
+    },
+    {
+      "clave": "AA",
+      "dichos": [
+        "has as",
+        "haces",
+        "asesinos"
+      ]
+    },
+    {
+      "clave": "A2o",
+      "dichos": [
+        "astros",
+        "haz dos"
+      ]
+    },
+    {
+      "clave": "A3o",
+      "dichos": [
+        "astres"
+      ]
+    },
+    {
+      "clave": "A4o",
+      "dichos": [
+        "haz 4"
+      ]
+    },
+    {
+      "clave": "A5o",
+      "dichos": [
+        "a5"
+      ]
+    },
+    {
+      "clave": "A6o",
+      "dichos": [
+        "a6"
+      ]
+    },
+    {
+      "clave": "A7o",
+      "dichos": [
+        "haz 7",
+        "a7"
+      ]
+    },
+    {
+      "clave": "A8o",
+      "dichos": [
+        "haz 8"
+      ]
+    },
+    {
+      "clave": "A9o",
+      "dichos": [
+        "haz 9",
+        "las 9"
+      ]
+    },
+    {
+      "clave": "ATo",
+      "dichos": [
+        "haz 10"
+      ]
+    },
+    {
+      "clave": "AJo",
+      "dichos": [
+        "haz j"
+      ]
+    },
+    {
+      "clave": "AQo",
+      "dichos": [
+        "asco"
+      ]
+    },
+    {
+      "clave": "AKo",
+      "dichos": [
+        "asca",
+        "haz rey"
+      ]
+    },
+    {
+      "clave": "AKs",
+      "dichos": [
+        "haz caso it",
+        "has rey suited"
+      ]
+    },
+    {
+      "clave": "AQs",
+      "dichos": [
+        "ascu suite",
+        "haz reina suited",
+        "haz reinas suited",
+        "haz reina suite"
+      ]
+    },
+    {
+      "clave": "JJ",
+      "dichos": [
+        "jotas",
+        "jj",
+        "gotas"
+      ]
+    },
+    {
+      "clave": "QQ",
+      "dichos": [
+        "cus",
+        "reinas"
+      ]
+    },
+    {
+      "clave": "KK",
+      "dichos": [
+        "cas",
+        "caca",
+        "reyes"
+      ]
+    },
+    {
+      "clave": "99",
+      "dichos": [
+        "nueves",
+        "jueves"
+      ]
+    },
+    {
+      "clave": "88",
+      "dichos": [
+        "ochos"
+      ]
+    },
+    {
+      "clave": "77",
+      "dichos": [
+        "sietes"
+      ]
+    },
+    {
+      "clave": "66",
+      "dichos": [
+        "seises"
+      ]
+    },
+    {
+      "clave": "55",
+      "dichos": [
+        "cincos"
+      ]
+    },
+    {
+      "clave": "44",
+      "dichos": [
+        "cuatros"
+      ]
+    },
+    {
+      "clave": "33",
+      "dichos": [
+        "creces"
+      ]
+    },
+    {
+      "clave": "22",
+      "dichos": [
+        "doces",
+        "12"
+      ]
+    },
+    {
+      "clave": "TT",
+      "dichos": [
+        "dieces",
+        "dieses"
+      ]
+    },
+    {
+      "clave": "K2o",
+      "dichos": [
+        "k2"
+      ]
+    },
+    {
+      "clave": "AJs",
+      "dichos": [
+        "asj"
+      ]
+    },
+    {
+      "clave": "83o",
+      "dichos": [
+        "83"
       ]
     }
   ]
