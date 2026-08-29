@@ -24,8 +24,12 @@ public sealed class InterpretadorDeRespuesta(IRegistroDeAcciones acciones)
         var normalizado = Normalizar(texto);
         if (normalizado.Length == 0) return null;
 
-        // De la forma mas larga a la mas corta: si un dicho es prefijo de
-        // otro, ganar con el corto se llevaria los dos en silencio.
+        // La comparacion de abajo es por igualdad exacta, no por prefijo, asi
+        // que un dicho corto nunca le gana a uno largo por si solo. El orden
+        // no desempata eso -no hace falta-: existe para que el resultado sea
+        // determinista si algun dia dos acciones llegan a compartir la misma
+        // forma normalizada, en vez de depender de en que orden las declaro
+        // acciones.json.
         var candidatas = acciones.Todas
             .SelectMany(a => a.Dichos.Select(d => (a.Clave, Dicho: Normalizar(d))))
             .Where(c => c.Dicho.Length > 0)

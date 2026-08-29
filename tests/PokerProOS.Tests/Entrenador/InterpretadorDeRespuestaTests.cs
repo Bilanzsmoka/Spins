@@ -21,11 +21,14 @@ public class InterpretadorDeRespuestaTests
         => Assert.Equal(esperada, Armar().Interpretar(texto));
 
     /// <summary>
-    /// Gana la forma más larga. Sin eso, una acción cuyo dicho sea prefijo de
-    /// otra se llevaría las dos, en silencio.
+    /// Ninguna acción le roba la forma hablada a otra: cada `dicho` de
+    /// acciones.json, interpretado, tiene que volver a la clave de la acción
+    /// que lo declaró. Si dos acciones compartieran una forma, una se comería
+    /// a la otra en silencio —y esta prueba es la que lo detectaría—, aunque
+    /// hoy no pasa: `acciones.json` no tiene formas duplicadas.
     /// </summary>
     [Fact]
-    public void Gana_la_forma_mas_larga()
+    public void Cada_forma_declarada_vuelve_a_su_propia_accion()
     {
         var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
         var interprete = new InterpretadorDeRespuesta(acciones);

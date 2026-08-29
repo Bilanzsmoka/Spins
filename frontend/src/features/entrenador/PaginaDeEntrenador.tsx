@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type {
   AccionDefinida, PreguntaDeTanda, TandaPedida, VeredictoDeRespuesta,
@@ -38,8 +38,20 @@ export function PaginaDeEntrenador() {
   const [error, setError] = useState<string | null>(null)
   // Mientras la respuesta viaja, la pregunta sigue en pantalla y el veredicto
   // todavía no llegó: sin esto, dos clicks rápidos mandan dos respuestas para
-  // la misma casilla y le mueven el calendario dos veces.
+  // la misma casilla y le mueven el calendario dos veces. El estado maneja la
+  // pantalla (deshabilitar botones, mostrar "cargando"); la puerta de verdad
+  // es `contestandoRef` (ver más abajo).
   const [contestando, setContestando] = useState(false)
+  // El efecto que escucha la voz sólo se vuelve a armar cuando cambia la
+  // pregunta —no cuando cambia `contestando`—, así que su callback de
+  // `capturarDictado().then(...)` queda con un `contestarHablando` de la
+  // misma vieja renderización, con `contestando` congelado en `false` para
+  // siempre. Un click que ponga `contestando` en `true` un instante después
+  // es invisible para ese closure viejo: el estado no alcanza para cerrar la
+  // carrera entre un click y una respuesta hablada casi simultáneos. Un ref
+  // sí, porque `.current` es el mismo objeto para cualquier closure, viejo o
+  // nuevo, y se lee en vivo.
+  const contestandoRef = useRef(false)
   // La voz se enciende a mano. Entrenando en silencio —de noche, o al lado de
   // alguien— cantar cada pregunta es peor que no tenerla.
   const [conVoz, setConVoz] = useState(false)
@@ -82,7 +94,11 @@ export function PaginaDeEntrenador() {
   }
 
   const elegir = async (accion: string) => {
-    if (!pregunta || veredicto || contestando) return
+    // El chequeo y el cierre de la puerta van juntos y sin ningún `await` en
+    // el medio: si el otro camino (voz o teclado) corre entre el chequeo y el
+    // cierre, la puerta no protege nada.
+    if (!pregunta || veredicto || contestandoRef.current) return
+    contestandoRef.current = true
     setContestando(true)
     setError(null)
     try {
@@ -98,17 +114,24 @@ export function PaginaDeEntrenador() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo guardar la respuesta.')
     } finally {
+      contestandoRef.current = false
       setContestando(false)
     }
   }
 
   /**
-   * El mismo camino que el teclado, pero desde lo que se oyó. Si el texto no
-   * era una acción, `responderHablado` devuelve null y la pregunta sigue
-   * abierta: conversar al lado del micrófono no cuenta como fallo.
+   * El mismo camino que el teclado, pero desde lo que se oyó — y con la misma
+   * puerta. Si el texto no era una acción, `responderHablado` devuelve null y
+   * la pregunta sigue abierta —conversar al lado del micrófono no cuenta como
+   * fallo—, pero la puerta tiene que volver a abrirse igual o la pantalla
+   * queda trabada esperando una respuesta que no va a llegar; por eso el
+   * `finally`.
    */
   const contestarHablando = async (texto: string) => {
-    if (!pregunta || veredicto) return
+    if (!pregunta || veredicto || contestandoRef.current) return
+    contestandoRef.current = true
+    setContestando(true)
+    setError(null)
     try {
       const v = await responderHablado(
         pregunta.situacion, pregunta.claveDeStack, pregunta.spot, pregunta.mano, texto)
@@ -117,6 +140,9 @@ export function PaginaDeEntrenador() {
       if (v.acerto) setAciertos((previo) => previo + 1)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo guardar la respuesta.')
+    } finally {
+      contestandoRef.current = false
+      setContestando(false)
     }
   }
 
