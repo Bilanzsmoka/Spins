@@ -271,3 +271,43 @@ export interface Vocabulario {
 export type CategoriaDeVocabulario =
   | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'
   | 'Manos' | 'Niveles'
+
+/* ---------- Entrenador ---------- */
+
+export interface PreguntaDeTanda {
+  situacion: string
+  etiquetaDeSituacion: string
+  claveDeStack: string
+  spot: string
+  etiquetaDeSpot: string
+  mano: string
+  /** Material nuevo, sin progreso previo. */
+  esNueva: boolean
+}
+
+export interface TandaPedida {
+  formato: string | null
+  situacion: string | null
+  minBB: number | null
+  maxBB: number | null
+  spot: string | null
+  tamano: number
+}
+
+export interface RespuestaEnviada {
+  situacion: string
+  claveDeStack: string
+  spot: string
+  mano: string
+  accion: string
+}
+
+export interface VeredictoDeRespuesta {
+  acerto: boolean
+  accionCorrecta: string
+  mix: ParteDeMix[] | null
+  /** Solo al fallar: acertar sigue de largo. */
+  ficha: FichaDeMemoria | null
+  /** Cuándo vuelve a preguntarse esta casilla. */
+  vence: string
+}

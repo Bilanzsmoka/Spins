@@ -226,6 +226,38 @@ body {
 }
 .sin-entender-descartar:hover { color: var(--texto); border-color: var(--borde); }
 
+/* ---------- Entrenador ---------- */
+
+.mesa {
+  display: grid; gap: 14px; justify-items: center;
+  padding: 26px 20px;
+  border: 1px solid var(--borde); border-radius: 12px; background: var(--panel);
+}
+.mesa-donde {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0; color: var(--apagado); font-size: 13px;
+}
+.mesa-nueva {
+  padding: 2px 8px; border-radius: 99px;
+  background: var(--panel-2); color: var(--acento);
+  font-size: 10px; text-transform: uppercase; letter-spacing: .09em;
+}
+.mesa-cartas { display: flex; gap: 12px; }
+.carta {
+  display: grid; justify-items: center; gap: 2px;
+  width: 74px; padding: 12px 0;
+  border-radius: 9px; background: #f3f5f8;
+  font-variant-numeric: tabular-nums;
+}
+.carta strong { font-size: 34px; line-height: 1; }
+.carta em { font-size: 20px; font-style: normal; line-height: 1; }
+.carta-negra { color: #14181f; }
+.carta-roja { color: #b3261e; }
+.mesa-mano {
+  margin: 0; color: var(--apagado);
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+}
+
 .entrenamiento-cuerpo {
   display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
 }
