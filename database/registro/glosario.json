@@ -1,0 +1,166 @@
+{
+  "grupos": [
+    {
+      "clave": "acciones",
+      "titulo": "Lo que se puede hacer",
+      "terminos": [
+        {
+          "termino": "Limp",
+          "explicacion": "Entrar pagando exactamente la ciega grande, sin subir. Es la forma más barata de ver el flop, y no muestra fuerza: el que limpea no dice nada sobre su mano."
+        },
+        {
+          "termino": "Min-raise",
+          "explicacion": "La subida más chica que permiten las reglas. Antes del flop es el doble de la ciega grande: 2 ciegas. En Spin and Go es el tamaño de subida más usado."
+        },
+        {
+          "termino": "Open raise",
+          "explicacion": "La primera subida de la mano, cuando nadie subió antes. Se abrevia OR. El que abre toma la iniciativa y obliga a los demás a reaccionar."
+        },
+        {
+          "termino": "Open shove",
+          "explicacion": "Abrir empujando todas las fichas de una. No queda juego después: los que siguen sólo pueden pagar o tirar, y si pagan se ven las cinco cartas sin más apuestas."
+        },
+        {
+          "termino": "3-bet",
+          "explicacion": "La tercera apuesta de la ronda: alguien abrió y otro vuelve a subir encima. La ciega grande cuenta como la primera apuesta, así que la subida del que abre es la segunda."
+        },
+        {
+          "termino": "Call",
+          "explicacion": "Pagar lo que apostaron para seguir en la mano, sin subir."
+        },
+        {
+          "termino": "Check",
+          "explicacion": "Pasar sin poner fichas, cuando nadie apostó antes. Sólo se puede si no hay nada que pagar."
+        },
+        {
+          "termino": "Fold",
+          "explicacion": "Tirar la mano y salirse. Se pierde lo que ya se puso en el bote, nada más."
+        },
+        {
+          "termino": "All-in",
+          "explicacion": "Poner todas las fichas que quedan. A partir de ahí no se puede apostar más: se ven las cartas que falten y se define."
+        }
+      ]
+    },
+    {
+      "clave": "posiciones",
+      "titulo": "Dónde estás sentado",
+      "terminos": [
+        {
+          "termino": "Botón · BTN",
+          "explicacion": "La posición del repartidor. Es la mejor de la mesa: antes del flop habla primero, pero en todas las calles siguientes habla último, o sea que decide sabiendo qué hicieron los demás."
+        },
+        {
+          "termino": "Ciega chica · SB",
+          "explicacion": "Pone media ciega obligatoria antes de ver las cartas. Después del flop habla primero toda la mano, que es la peor posición. En heads-up, la ciega chica es además el botón."
+        },
+        {
+          "termino": "Ciega grande · BB",
+          "explicacion": "Pone la ciega entera antes de ver las cartas. Es el último en hablar antes del flop, así que puede pasar y ver el flop gratis si nadie subió."
+        },
+        {
+          "termino": "En posición · fuera de posición",
+          "explicacion": "Estar en posición es hablar después del rival en cada calle. Fuera de posición es hablar primero, decidiendo sin saber qué va a hacer el otro."
+        },
+        {
+          "termino": "Heads-up",
+          "explicacion": "Mano a mano: quedan dos jugadores. En Spin and Go se llega ahí cuando el tercero se elimina."
+        }
+      ]
+    },
+    {
+      "clave": "manos",
+      "titulo": "Cómo se nombran las manos",
+      "terminos": [
+        {
+          "termino": "Suited",
+          "explicacion": "Las dos cartas del mismo palo. Se escribe con una s al final: AKs. Vale más que la misma mano de palos distintos porque puede armar color."
+        },
+        {
+          "termino": "Offsuit",
+          "explicacion": "Las dos cartas de palos distintos. Se escribe con una o al final: AKo. Es la misma mano que la suited pero sin la posibilidad de color."
+        },
+        {
+          "termino": "Par",
+          "explicacion": "Las dos cartas del mismo valor: AA, 77, 22. No se dice suited ni offsuit, porque dos cartas del mismo valor nunca comparten palo."
+        },
+        {
+          "termino": "Broadway",
+          "explicacion": "Las cartas altas: A, K, Q, J y 10. Una mano broadway es la formada por dos de ellas, como KQ o JT."
+        },
+        {
+          "termino": "Conector",
+          "explicacion": "Dos cartas seguidas, como JT o 87. Pueden armar escalera con más facilidad que dos cartas separadas."
+        },
+        {
+          "termino": "Suited connector",
+          "explicacion": "Dos cartas seguidas y del mismo palo, como 9♠8♠. Junta las dos ventajas: puede armar escalera y también color."
+        },
+        {
+          "termino": "One-gapper",
+          "explicacion": "Dos cartas separadas por un escalón, como J9 o 86. Arma escalera con un poco menos de facilidad que un conector."
+        },
+        {
+          "termino": "Ax",
+          "explicacion": "Cualquier mano con un as y una carta más baja: AK, A7, A2. La x es el comodín que representa a la otra carta, sea la que sea."
+        },
+        {
+          "termino": "Kicker",
+          "explicacion": "La carta que acompaña, cuando la mano se define por la otra. En A7, el as manda y el 7 es el kicker: si los dos tienen as, gana el que tenga el kicker más alto."
+        }
+      ]
+    },
+    {
+      "clave": "mesa",
+      "titulo": "La mesa y las fichas",
+      "terminos": [
+        {
+          "termino": "Ciega · blind · BB",
+          "explicacion": "La apuesta obligatoria que se pone antes de ver las cartas. Todo se mide en ciegas: tener 12 BB es tener doce veces esa apuesta."
+        },
+        {
+          "termino": "Stack",
+          "explicacion": "Las fichas que te quedan, contadas en ciegas. Es lo que decide cómo se juega: la misma mano se juega distinto con 5 ciegas que con 40."
+        },
+        {
+          "termino": "Stack efectivo",
+          "explicacion": "El más chico de los dos stacks enfrentados. Es el que manda, porque nadie puede ganar ni perder más de lo que el otro tiene."
+        },
+        {
+          "termino": "Bote",
+          "explicacion": "Las fichas acumuladas en el medio, que se lleva el que gana la mano."
+        },
+        {
+          "termino": "Rango",
+          "explicacion": "El conjunto de manos con las que se hace una jugada. En vez de pensar qué carta tiene el rival, se piensa con qué grupo de manos podría estar ahí."
+        },
+        {
+          "termino": "Mano mixta",
+          "explicacion": "Una mano donde la tabla no da una sola respuesta: dice hacer dos cosas repartidas por frecuencia, por ejemplo mitad call y mitad subir."
+        }
+      ]
+    },
+    {
+      "clave": "jugadores",
+      "titulo": "Con quién estás jugando",
+      "terminos": [
+        {
+          "termino": "Fish",
+          "explicacion": "Jugador recreativo: juega por diversión y comete errores previsibles. Suele pagar de más, tirar de menos y no ajustar según la posición ni el stack."
+        },
+        {
+          "termino": "Reg",
+          "explicacion": "Regular: juega seguido y estudia. Sus decisiones están cerca de lo que dice la teoría, así que sorprenderlo cuesta mucho más que a un recreativo."
+        },
+        {
+          "termino": "Nit",
+          "explicacion": "Un regular extremadamente cerrado: juega pocas manos y sólo con cartas fuertes. Cuando pone fichas, casi siempre tiene."
+        },
+        {
+          "termino": "Maniac",
+          "explicacion": "Lo contrario del nit: sube y paga con muchísimas manos. Difícil de leer porque su rango es enorme."
+        }
+      ]
+    }
+  ]
+}

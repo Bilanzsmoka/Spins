@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PokerProOS.Api.Voz;
+using PokerProOS.Application.Glosario;
+using PokerProOS.Infrastructure.Glosario;
 using PokerProOS.Application.Bitacora;
 using PokerProOS.Application.Diario;
 using PokerProOS.Application.Entrenador;
@@ -76,6 +78,12 @@ var catalogo = new CatalogoVivo(cargador.CargarDirectorio(carpetaDeTablas));
 
 builder.Services.AddSingleton(acciones);
 builder.Services.AddSingleton<IRegistroDeVocabulario>(vocabularioVivo);
+
+// El glosario NO usa CargarRegistroOTerminar: es material de estudio, no
+// configuracion. Si falta, la app arranca igual y la pantalla queda vacia —
+// una app que no abre por un diccionario seria peor que una sin diccionario.
+builder.Services.AddSingleton(RegistroDeGlosarioJson.Cargar(
+    Path.Combine(carpetaDatos, "registro", "glosario.json")));
 builder.Services.AddSingleton(habitos);
 builder.Services.AddSingleton<ICatalogoDeTablas>(catalogo);
 builder.Services.AddSingleton<IEditorDeTablas>(

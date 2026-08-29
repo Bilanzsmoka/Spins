@@ -283,6 +283,19 @@ export type CategoriaDeVocabulario =
   | 'Rangos' | 'Palos' | 'Spots' | 'Situaciones' | 'PalabrasDeStack' | 'Formatos'
   | 'Manos' | 'Niveles'
 
+/* ---------- Glosario ---------- */
+
+export interface TerminoDelGlosario {
+  termino: string
+  explicacion: string
+}
+
+export interface GrupoDelGlosario {
+  clave: string
+  titulo: string
+  terminos: TerminoDelGlosario[]
+}
+
 /* ---------- Entrenador ---------- */
 
 export interface PreguntaDeTanda {

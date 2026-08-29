@@ -328,6 +328,51 @@ body {
 }
 .filtro-tanda input { width: 82px; }
 
+/* ---------- Diccionario ---------- */
+
+.diccionario { display: grid; gap: 22px; max-width: 780px; }
+.glosario-grupo { display: grid; gap: 10px; }
+.glosario-grupo h2 {
+  margin: 0; font-size: 13px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .09em; color: var(--acento);
+}
+.glosario-nota { margin: 0; color: var(--apagado); font-size: 12px; max-width: 62ch; }
+
+.glosario-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.glosario-termino {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 11px 13px;
+  border: 1px solid var(--borde); border-radius: 9px; background: var(--panel);
+}
+.glosario-palabra { font-size: 14px; letter-spacing: .01em; }
+/* Ancho de lectura: un parrafo que cruza toda la pantalla se saltea. */
+.glosario-explicacion {
+  margin: 3px 0 0; max-width: 62ch;
+  color: var(--apagado); font-size: 13px; line-height: 1.55;
+}
+
+.boton-play {
+  flex: none; width: 30px; height: 30px;
+  border: 1px solid var(--borde); border-radius: 50%;
+  background: var(--panel-2); color: var(--acento);
+  font-size: 11px; line-height: 1; cursor: pointer;
+}
+.boton-play:hover { border-color: var(--acento); }
+.boton-play-activo { background: var(--acento); color: var(--fondo); border-color: var(--acento); }
+
+.glosario-tablas { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.glosario-tablas li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 11px; border-radius: 7px; background: var(--panel);
+  font-size: 13px;
+}
+.glosario-formato {
+  flex: none; min-width: 46px;
+  padding: 2px 7px; border-radius: 4px; background: var(--panel-2);
+  color: var(--apagado); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: center;
+}
+
 /* ---------- La situacion, explicada ---------- */
 
 .explicacion {

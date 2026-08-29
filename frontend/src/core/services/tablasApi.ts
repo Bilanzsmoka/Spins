@@ -1,7 +1,7 @@
 import type {
   Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada,
   CategoriaDeVocabulario, FichaDeMemoria, HabitoDefinido, ParteDeMix, ProgresoDeHabitos,
-  SpotCompleto, Vocabulario,
+  SpotCompleto, Vocabulario, GrupoDelGlosario,
 } from '../models/catalogo.model'
 
 async function pedir<T>(url: string): Promise<T> {
@@ -92,6 +92,10 @@ export async function guardarDia(fecha: string, entrada: EntradaEnviada): Promis
 /* ---------- Vocabulario de voz ---------- */
 
 export const obtenerVocabulario = () => pedir<Vocabulario>('/api/voz/vocabulario')
+
+/** La jerga del juego. Vacía si nadie cargó el glosario todavía. */
+export const obtenerGlosario = () =>
+  pedir<{ grupos: GrupoDelGlosario[] }>('/api/glosario').then((r) => r.grupos)
 
 /** Lo que salió de una captura: el texto, o por qué no hubo texto. */
 export interface ResultadoDeCaptura {

@@ -1,6 +1,8 @@
 import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
 import { useVozDelNavegador } from './core/hooks/useVozDelNavegador'
 import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
+import { PaginaDeDiccionario } from './features/glosario/PaginaDeDiccionario'
+import { PaginaDeTiposDeJugador } from './features/glosario/PaginaDeTiposDeJugador'
 import { PaginaDeHabitos } from './features/diario/PaginaDeHabitos'
 import { PaginaDeEntrenador } from './features/entrenador/PaginaDeEntrenador'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
@@ -89,6 +91,20 @@ export default function App() {
       clave: 'ajustes',
       etiqueta: 'Ajustes',
       modulos: [
+        {
+          clave: 'diccionario',
+          etiqueta: 'Diccionario',
+          descripcion: 'Qué significa cada palabra',
+          disponible: true,
+          contenido: <PaginaDeDiccionario />,
+        },
+        {
+          clave: 'jugadores',
+          etiqueta: 'Tipos de jugador',
+          descripcion: 'Contra quién es cada tabla',
+          disponible: true,
+          contenido: <PaginaDeTiposDeJugador />,
+        },
         {
           clave: 'voz',
           etiqueta: 'Voz',
