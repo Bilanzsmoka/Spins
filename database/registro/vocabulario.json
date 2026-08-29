@@ -5,7 +5,7 @@
     "blinds",
     "ciegas",
     "bebes",
-    "bebés"
+    "beb\u00E9s"
   ],
   "rangos": [
     {
@@ -331,7 +331,11 @@
       "clave": "HU_BB_VS_LIMP_FISH",
       "dichos": [
         "be be contra limp",
-        "defendiendo limp"
+        "defendiendo limp",
+        "beb\u00E9 versus lind",
+        "beber sus link",
+        "beb\u00E9 versus link",
+        "beb\u00E9 versus lynth"
       ]
     },
     {
@@ -339,7 +343,7 @@
       "dichos": [
         "be be contra min raise",
         "defendiendo min raise",
-        "bebé versus minrise"
+        "beb\u00E9 versus minrise"
       ]
     },
     {
@@ -348,7 +352,7 @@
         "be be contra open shove",
         "defendiendo open shove",
         "dd versus openshot",
-        "bebé versus openshop"
+        "beb\u00E9 versus openshop"
       ]
     },
     {
