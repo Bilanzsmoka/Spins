@@ -61,7 +61,19 @@ public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)
 /// nuevo tiene que ser dejar un JSON, igual que agregar una tabla.
 /// </summary>
 public record SituacionDeTabla(
-    string Clave, string Etiqueta, string Formato, IReadOnlyList<TablaDeStack> Stacks);
+    string Clave,
+    string Etiqueta,
+    string Formato,
+    IReadOnlyList<TablaDeStack> Stacks,
+    /// <summary>
+    /// Qué es esta situación, en castellano: qué pasó en la mesa y dónde
+    /// estás parado. Escrita a mano, como el <c>tip</c> del spot — ningún
+    /// cálculo puede deducir qué significa "BB vs 3-way limp".
+    ///
+    /// Es descripción, no estrategia: la estrategia vive en el tip de cada
+    /// spot, que depende del stack. Nula si el archivo no la declara.
+    /// </summary>
+    string? Explicacion = null);
 
 public interface ICatalogoDeTablas
 {

@@ -24,6 +24,11 @@ export interface SituacionResumen {
   etiqueta: string
   /** El formato de mesa ("HU", "3-max"), declarado por el archivo de la tabla. */
   formato: string
+  /**
+   * Qué es esta situación, escrito a mano. Nula si el archivo no la declara:
+   * ningún cálculo puede deducir qué significa "BB vs 3-way limp".
+   */
+  explicacion: string | null
   stacks: StackResumen[]
 }
 

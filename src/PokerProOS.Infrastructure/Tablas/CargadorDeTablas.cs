@@ -15,8 +15,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
 
         var problemas = new List<ProblemaDeTabla>();
         var stacksPorSituacion =
-            new Dictionary<string, (string Etiqueta, string Formato, List<TablaDeStack> Stacks)>(
-                StringComparer.OrdinalIgnoreCase);
+            new Dictionary<string, (string Etiqueta, string Formato, string? Explicacion,
+                List<TablaDeStack> Stacks)>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var archivo in Directory.GetFiles(directorio, "*.json").OrderBy(a => a))
         {
@@ -48,7 +48,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 par.Key,
                 par.Value.Etiqueta,
                 par.Value.Formato,
-                par.Value.Stacks.OrderBy(t => t.Stack.MinBB).ToList()))
+                par.Value.Stacks.OrderBy(t => t.Stack.MinBB).ToList(),
+                par.Value.Explicacion))
             .ToList();
 
         return new CatalogoEnMemoria(situaciones, problemas);
@@ -56,7 +57,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
 
     private void LeerArchivo(
         string archivo,
-        Dictionary<string, (string Etiqueta, string Formato, List<TablaDeStack> Stacks)> acumulador,
+        Dictionary<string, (string Etiqueta, string Formato, string? Explicacion,
+            List<TablaDeStack> Stacks)> acumulador,
         List<ProblemaDeTabla> problemas)
     {
         var nombreArchivo = Path.GetFileName(archivo);
@@ -75,8 +77,16 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 ? declarado.GetString()!
                 : "Otros";
 
+        // Opcional: sin ella la situación funciona igual, sólo que la pantalla
+        // no tiene qué contar de ella.
+        var explicacion = situacion.TryGetProperty("explicacion", out var texto)
+            && texto.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(texto.GetString())
+                ? texto.GetString()
+                : null;
+
         if (!acumulador.TryGetValue(claveSituacion, out var entrada))
-            acumulador[claveSituacion] = entrada = (etiquetaSituacion, formato, []);
+            acumulador[claveSituacion] = entrada = (etiquetaSituacion, formato, explicacion, []);
 
         foreach (var stack in raiz.GetProperty("stacks").EnumerateArray())
         {
