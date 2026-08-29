@@ -203,8 +203,30 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+// index.html NUNCA se cachea; los bundles con hash, para siempre.
+//
+// Cada build borra wwwroot y Vite escribe un index-<hash>.js nuevo. Servido
+// solo con ETag —sin Cache-Control—, el navegador cachea index.html por
+// heuristica y despues pide un bundle que ya no existe: la app no arranca y
+// no dice por que. Eso es lo que hacia falta un Ctrl+Shift+R despues de cada
+// build, y lo que hacia parecer que se rompian cosas al azar.
+//
+// Los assets llevan el hash del contenido en el nombre, asi que son inmutables
+// por construccion: si cambia el contenido, cambia la URL. Esos si se cachean
+// un año.
+var opcionesDeEstaticos = new StaticFileOptions
+{
+    OnPrepareResponse = contexto =>
+    {
+        var esElIndice = contexto.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase);
+        contexto.Context.Response.Headers.CacheControl = esElIndice
+            ? "no-cache, no-store, must-revalidate"
+            : "public, max-age=31536000, immutable";
+    }
+};
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapFallbackToFile("index.html");
+app.UseStaticFiles(opcionesDeEstaticos);
+app.MapFallbackToFile("index.html", opcionesDeEstaticos);
 
 app.Run();
