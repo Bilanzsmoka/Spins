@@ -52,16 +52,12 @@ export function Sugerencias({ historial, acciones, onLimpiar }: Props) {
                         {consulta.claveDeStack} · {consulta.spot}
                       </span>
                     </>
-                  ) : consulta.tipo === 'Contexto' ? (
-                    // Una orden de contexto se entendió: decir "no entendí"
-                    // hacía parecer roto justamente lo que había funcionado.
-                    <span className="sugerencia-contexto">{consulta.respuesta}</span>
                   ) : (
-                    // Lo que no se entendió ya no llega acá: el historial es
-                    // el registro de lo que estudiaste. Lo que sí puede caer
-                    // en este ramo es una mano entendida que no resolvió —un
-                    // spot que no existe a ese stack—, y ahí el motivo es lo
-                    // único útil que se puede decir.
+                    // Acá solo llegan consultas de mano: las órdenes de
+                    // contexto y lo que no se entendió no entran al historial.
+                    // Así que este ramo es una mano que se entendió y no
+                    // resolvió —un spot que no existe a ese stack—, y el
+                    // motivo es lo único útil que se puede mostrar.
                     <span className="sugerencia-fallo">{consulta.respuesta || 'Sin respuesta'}</span>
                   )}
                   <time className="sugerencia-hora">{consulta.hora}</time>

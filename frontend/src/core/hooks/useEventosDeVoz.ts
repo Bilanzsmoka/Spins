@@ -47,13 +47,18 @@ export function useEventosDeVoz() {
       const hora = new Date().toLocaleTimeString('es', {
         hour: '2-digit', minute: '2-digit', second: '2-digit',
       })
-      // Lo que no se entendió NO entra al historial: ese es el registro de lo
-      // que estudiaste —manos y spots—, y llenarlo de "no entendí" lo
-      // convierte en un cajón de basura donde ya no se puede repasar la
-      // tanda. La frase fallida se ve igual, en dos lados mejores: el cartel
-      // de arriba, que muestra el último evento, y su propio panel, que
-      // además deja enseñarla.
-      if (evento.tipo !== 'Ignorado')
+      // Al historial SOLO entran consultas de mano: es el registro de lo que
+      // estudiaste, y una consulta es la pregunta entera —situación, stack,
+      // spot y mano—, no cada paso para llegar a ella.
+      //
+      // Dictar es progresivo: se dice el formato, después la situación,
+      // después el stack y recién ahí la mano. Con las órdenes de contexto
+      // adentro, la lista devolvía el camino en vez del resultado — cuatro
+      // renglones por consulta, y el que servía tapado por los otros tres.
+      //
+      // Lo que no se entendió tampoco entra: se ve en el cartel de arriba y
+      // en su propio panel, que además deja enseñarlo.
+      if (evento.tipo === 'Mano')
         setHistorial((previo) => [{ ...evento, hora }, ...previo].slice(0, MAXIMO_HISTORIAL))
 
       if (evento.tipo !== 'Ignorado' || !evento.textoCrudo.trim()) return
