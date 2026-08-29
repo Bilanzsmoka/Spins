@@ -151,19 +151,46 @@ foreach (var problema in catalogo.Problemas)
         problema.Archivo, problema.Stack, problema.Spot, problema.Mensaje);
 
 // La base es opcional: si no esta, se estudia igual sin historial.
+//
+// Las migraciones si esperan: son baratas cuando ya estan aplicadas, y el
+// entrenador necesita su tabla antes de la primera consulta.
 using (var alcance = app.Services.CreateScope())
 {
     try
     {
         var contexto = alcance.ServiceProvider.GetRequiredService<PokerProOSDbContext>();
         await contexto.Database.MigrateAsync();
-        var filas = await new SincronizadorDeCatalogo(contexto).SincronizarAsync(catalogo, default);
-        app.Logger.LogInformation("Catálogo sincronizado: {Filas} celdas.", filas);
     }
     catch (Exception ex)
     {
         app.Logger.LogWarning(ex,
             "Sin base de datos. Las tablas funcionan igual, pero no hay historial de consultas.");
+    }
+}
+
+// El espejo relacional NO espera. Son 339 spots por 169 manos: 57.291 filas
+// que se borran y se reescriben enteras en cada arranque, y con eso el
+// SaveChanges tardaba 35 segundos y moria por timeout — o sea que la app
+// tardaba mas de medio minuto en levantar para no terminar de escribir una
+// tabla que, hoy, no lee nadie. Los JSON son la fuente de verdad y el
+// catalogo vive en memoria: nada de lo que se estudia depende de esto.
+//
+// Va en fuego y olvido, igual que la bitacora. Si la base no esta o tarda,
+// la app ya esta sirviendo tablas.
+_ = SincronizarElEspejoAsync();
+
+async Task SincronizarElEspejoAsync()
+{
+    try
+    {
+        using var alcance = fabricaDeAlcances.CreateScope();
+        var contexto = alcance.ServiceProvider.GetRequiredService<PokerProOSDbContext>();
+        var filas = await new SincronizadorDeCatalogo(contexto).SincronizarAsync(catalogo, default);
+        app.Logger.LogInformation("Catálogo sincronizado: {Filas} celdas.", filas);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "No se pudo sincronizar el espejo del catálogo.");
     }
 }
 
