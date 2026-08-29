@@ -15,8 +15,9 @@ export default function App() {
     useEventosDeVoz()
   // El navegador oye y habla directo, sin pasar por el reconocedor del
   // servidor: la respuesta que llega por SSE es lo que hay que decir en voz.
-  const { disponible, activo, escuchando, falla, fallaAlHablar, alternar, capturar } =
-    useVozDelNavegador(ultimo ?? null)
+  const {
+    disponible, activo, escuchando, ultimoEvento, falla, fallaAlHablar, alternar, capturar,
+  } = useVozDelNavegador(ultimo ?? null)
 
   const grupos: GrupoDeModulos[] = [
     {
@@ -39,6 +40,7 @@ export default function App() {
                 disponible,
                 activo,
                 escuchando,
+                ultimoEvento,
                 // El toggle del navegador es sincrónico: no hay un pedido en
                 // vuelo que mostrar como "cambiando".
                 cambiando: false,

@@ -26,6 +26,15 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
   // pantalla decia "Escuchando" con el reconocedor muerto, y hablabas creyendo
   // que te oia.
   const [escuchando, setEscuchando] = useState(false)
+  /**
+   * Lo último que hizo el motor, en crudo. No es lo mismo que `falla`: acá
+   * entran también los arranques y los `no-speech`, que no son errores.
+   *
+   * Existe porque cuando la voz no anda, lo que hay en pantalla es un cartel
+   * que no distingue "Chrome no me da el micrófono" de "arrancó y nadie
+   * habló", y sin esa diferencia no hay nada que hacer salvo adivinar.
+   */
+  const [ultimoEvento, setUltimoEvento] = useState<string | null>(null)
   const [falla, setFalla] = useState<string | null>(null)
   const [fallaAlHablar, setFallaAlHablar] = useState<string | null>(null)
   const motor = useRef<SpeechRecognition | null>(null)
@@ -59,6 +68,7 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
       // Un resultado bueno demuestra que el permiso sigue en pie: un fatal
       // viejo no debe seguir bloqueando el reenganche.
       ultimoError = null
+      setUltimoEvento('oí algo')
       if (silenciado.current) return
       const ultimo = evento.results[evento.results.length - 1]
       if (!ultimo.isFinal) return
@@ -66,10 +76,11 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
     }
     r.onerror = (evento) => {
       ultimoError = evento.error
+      setUltimoEvento(`error: ${evento.error}`)
       // "no-speech" es silencio, no una falla: Chrome lo emite todo el tiempo.
       if (evento.error !== 'no-speech') setFalla(evento.error)
     }
-    r.onstart = () => setEscuchando(true)
+    r.onstart = () => { setEscuchando(true); setUltimoEvento('arrancó') }
     r.onend = () => {
       // Un fatal no se recupera solo: ni el permiso vuelve ni el microfono
       // aparece porque reintentemos. Y `ultimoError` solo se limpia en
@@ -81,6 +92,7 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
       {
         setEscuchando(false);
         setActivo(false);
+        setUltimoEvento(`se apagó por: ${ultimoError}`);
         return;
       }
 
@@ -96,6 +108,7 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
 
     motor.current = r
     // oxlint-disable-next-line set-state-in-effect
+    setUltimoEvento('pidiendo el micrófono…')
     try { r.start() } catch (e) { setFalla(String(e)); setEscuchando(false) }
 
     // Se anulan los tres handlers, no solo onend: stop() no es instantáneo y
@@ -203,5 +216,7 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
     setActivo((previo) => !previo)
   }, [])
 
-  return { disponible, activo, escuchando, falla, fallaAlHablar, alternar, capturar }
+  return {
+    disponible, activo, escuchando, ultimoEvento, falla, fallaAlHablar, alternar, capturar,
+  }
 }

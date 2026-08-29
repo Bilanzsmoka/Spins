@@ -10,6 +10,8 @@ export interface PropsDeVoz {
    * mentira posible acá — hablabas creyendo que te oía.
    */
   escuchando: boolean
+  /** Lo último que hizo el motor, tal cual. Para poder decir qué pasa. */
+  ultimoEvento: string | null
   cambiando: boolean
   falla: string | null
   fallaAlHablar: string | null
@@ -22,7 +24,8 @@ export interface PropsDeVoz {
  * aplicación no conteste sola mientras no se está jugando.
  */
 export function ControlDeVoz({
-  disponible, activo, escuchando, cambiando, falla, fallaAlHablar, errorAlCambiar, onAlternar,
+  disponible, activo, escuchando, ultimoEvento, cambiando, falla, fallaAlHablar,
+  errorAlCambiar, onAlternar,
 }: PropsDeVoz) {
   const estado = !disponible ? 'sin-motor'
     : escuchando ? 'activo'
@@ -58,6 +61,12 @@ export function ControlDeVoz({
       {/* La síntesis falló en la última respuesta, pero se sigue escuchando. */}
       {fallaAlHablar && <p className="aviso-voz">No se pudo hablar la última respuesta.</p>}
       {errorAlCambiar && <p className="aviso-voz">{errorAlCambiar}</p>}
+
+      {/* Sin esto, "no me escucha" es indistinguible de "nadie habló": los dos
+          se ven igual en pantalla y no hay por dónde empezar a mirar. */}
+      {activo && ultimoEvento && (
+        <p className="detalle-voz">Micrófono: {ultimoEvento}</p>
+      )}
     </section>
   )
 }

@@ -110,6 +110,7 @@ body {
 /* Encendido pero el motor no esta oyendo. Ambar y no verde a proposito: si
    fuera verde volveriamos a decirte que te escucha cuando no te escucha. */
 .punto-reenganchando { background: #d99a5b; box-shadow: 0 0 0 3px rgba(217,154,91,.18); }
+.detalle-voz { margin: 6px 0 0; color: var(--apagado); font-size: 11px; }
 
 .boton-voz {
   padding: 9px 12px; border-radius: 8px;
