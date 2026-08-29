@@ -107,6 +107,9 @@ body {
 .punto-activo { background: #43bf55; box-shadow: 0 0 0 3px rgba(67,191,85,.18); }
 .punto-apagado { background: var(--apagado); }
 .punto-sin-motor { background: #d99a5b; }
+/* Encendido pero el motor no esta oyendo. Ambar y no verde a proposito: si
+   fuera verde volveriamos a decirte que te escucha cuando no te escucha. */
+.punto-reenganchando { background: #d99a5b; box-shadow: 0 0 0 3px rgba(217,154,91,.18); }
 
 .boton-voz {
   padding: 9px 12px; border-radius: 8px;

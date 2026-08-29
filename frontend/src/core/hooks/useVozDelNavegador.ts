@@ -21,6 +21,11 @@ const Reconocimiento: ConstructorDeReconocimiento | undefined =
  */
 export function useVozDelNavegador(evento: EventoDeVoz | null) {
   const [activo, setActivo] = useState(false)
+  // Si el motor esta vivo AHORA, que no es lo mismo que si vos lo prendiste.
+  // Chrome lo corta solo cada tanto y un fatal lo mata del todo; sin esto la
+  // pantalla decia "Escuchando" con el reconocedor muerto, y hablabas creyendo
+  // que te oia.
+  const [escuchando, setEscuchando] = useState(false)
   const [falla, setFalla] = useState<string | null>(null)
   const [fallaAlHablar, setFallaAlHablar] = useState<string | null>(null)
   const motor = useRef<SpeechRecognition | null>(null)
@@ -64,14 +69,34 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
       // "no-speech" es silencio, no una falla: Chrome lo emite todo el tiempo.
       if (evento.error !== 'no-speech') setFalla(evento.error)
     }
+    r.onstart = () => setEscuchando(true)
     r.onend = () => {
-      if (ultimoError !== null && fatales.includes(ultimoError)) return
-      if (activo && !silenciado.current) try { r.start() } catch { /* ya corriendo */ }
+      // Un fatal no se recupera solo: ni el permiso vuelve ni el microfono
+      // aparece porque reintentemos. Y `ultimoError` solo se limpia en
+      // onresult, que ya no puede ocurrir con el motor parado — asi que sin
+      // esto la voz quedaba muerta para siempre mientras el interruptor
+      // seguia en "encendido". Se apaga de verdad, para que se pueda volver
+      // a prender cuando el problema se resuelva.
+      if (ultimoError !== null && fatales.includes(ultimoError))
+      {
+        setEscuchando(false);
+        setActivo(false);
+        return;
+      }
+
+      // Lo normal: Chrome corta la escucha continua sola y se reengancha.
+      if (activo && !silenciado.current)
+      {
+        try { r.start() } catch { setEscuchando(false) }
+        return;
+      }
+
+      setEscuchando(false);
     }
 
     motor.current = r
     // oxlint-disable-next-line set-state-in-effect
-    try { r.start() } catch (e) { setFalla(String(e)) }
+    try { r.start() } catch (e) { setFalla(String(e)); setEscuchando(false) }
 
     // Se anulan los tres handlers, no solo onend: stop() no es instantáneo y
     // un resultado que ya estaba en el buffer llegaría después de apagar la
@@ -81,6 +106,8 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
       r.onresult = null
       r.onerror = null
       r.onend = null
+      r.onstart = null
+      setEscuchando(false)
       r.stop()
     }
   }, [disponible, activo])
@@ -176,5 +203,5 @@ export function useVozDelNavegador(evento: EventoDeVoz | null) {
     setActivo((previo) => !previo)
   }, [])
 
-  return { disponible, activo, falla, fallaAlHablar, alternar, capturar }
+  return { disponible, activo, escuchando, falla, fallaAlHablar, alternar, capturar }
 }

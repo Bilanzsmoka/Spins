@@ -3,6 +3,13 @@ export interface PropsDeVoz {
   disponible: boolean
   /** El usuario lo tiene encendido ahora. */
   activo: boolean
+  /**
+   * El motor está oyendo AHORA. No es lo mismo que <c>activo</c>: Chrome corta
+   * la escucha sola cada tanto, y un permiso denegado o un micrófono ocupado
+   * la matan del todo. Decir "Escuchando" mirando el interruptor era la peor
+   * mentira posible acá — hablabas creyendo que te oía.
+   */
+  escuchando: boolean
   cambiando: boolean
   falla: string | null
   fallaAlHablar: string | null
@@ -15,10 +22,20 @@ export interface PropsDeVoz {
  * aplicación no conteste sola mientras no se está jugando.
  */
 export function ControlDeVoz({
-  disponible, activo, cambiando, falla, fallaAlHablar, errorAlCambiar, onAlternar,
+  disponible, activo, escuchando, cambiando, falla, fallaAlHablar, errorAlCambiar, onAlternar,
 }: PropsDeVoz) {
-  const estado = !disponible ? 'sin-motor' : activo ? 'activo' : 'apagado'
-  const texto = { 'sin-motor': 'Sin micrófono', activo: 'Escuchando', apagado: 'Apagado' }[estado]
+  const estado = !disponible ? 'sin-motor'
+    : escuchando ? 'activo'
+      : activo ? 'reenganchando'
+        : 'apagado'
+  const texto = {
+    'sin-motor': 'Sin micrófono',
+    activo: 'Escuchando',
+    // Encendido pero el motor no está oyendo: o Chrome cortó y estamos
+    // reenganchando —cosa de un instante— o algo lo tiene tomado.
+    reenganchando: 'Reintentando…',
+    apagado: 'Apagado',
+  }[estado]
 
   return (
     <section className="control-voz" aria-live="polite">

@@ -32,6 +32,12 @@ declare class SpeechRecognition extends EventTarget {
   onresult: ((evento: SpeechRecognitionEvent) => void) | null
   onerror: ((evento: SpeechRecognitionErrorEvent) => void) | null
   onend: (() => void) | null
+  /**
+   * El motor empezó a oír de verdad. Es lo único que distingue "lo prendiste"
+   * de "está escuchando": Chrome corta la escucha continua sola cada tanto, y
+   * un permiso denegado o un micrófono ocupado la matan del todo.
+   */
+  onstart: (() => void) | null
   start(): void
   stop(): void
   /** Suelta el micrófono ya, sin esperar a cerrar el resultado en curso. */
