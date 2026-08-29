@@ -82,7 +82,14 @@ public sealed class EditorDeVocabularioJson(
                 if (yaEsta) return new ResultadoDeVocabulario(false, $"«{normalizado}» ya estaba.");
                 // Una misma forma en dos claves seria ambigua al interpretar:
                 // la primera que aparece ganaria, en silencio.
-                if (ColisionaEnOtraClave(raiz, propiedad, clave, normalizado, out var otra))
+                // Las palabras de stack quedan fuera: la seccion es una lista
+                // plana de textos, sin claves, asi que "ya esta en otra clave"
+                // no significa nada ahi. Y recorrerla igual reventaba con
+                // "The node must be of type 'JsonObject'" —el error crudo del
+                // serializador llegaba tal cual a la pantalla—, o sea que
+                // agregar una palabra de stack era imposible.
+                if (categoria != CategoriaDeVocabulario.PalabrasDeStack
+                    && ColisionaEnOtraClave(raiz, propiedad, clave, normalizado, out var otra))
                     return new ResultadoDeVocabulario(false,
                         $"«{normalizado}» ya está en '{otra}'. Una forma no puede significar dos cosas.");
                 lista.Add(normalizado);
@@ -174,7 +181,10 @@ public sealed class EditorDeVocabularioJson(
 
         foreach (var nodo in entradas)
         {
-            var entrada = nodo!.AsObject();
+            // Una seccion de lista plana no tiene claves que comparar. No
+            // deberia llegar aca, pero asumir la forma del nodo es lo que
+            // convirtio esto en una excepcion en pantalla.
+            if (nodo is not JsonObject entrada) continue;
             var suClave = entrada["clave"]?.GetValue<string>();
             if (suClave == clave) continue;
             if (entrada["dichos"]?.AsArray().Any(d => Normalizar(d!.GetValue<string>()) == dicho) == true)
