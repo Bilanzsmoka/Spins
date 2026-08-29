@@ -2,7 +2,8 @@
   "situation": {
     "key": "HU_BB_VS_LIMP_FISH",
     "label": "BB vs limp | fish",
-    "formato": "HU"
+    "formato": "HU",
+    "explicacion": "Sos la ciega grande contra un recreativo. El botón entró pagando la ciega, sin subir: no mostró fuerza y no te cobró nada de más. Ya pusiste tu ciega, así que podés pasar y ver el flop gratis, o subir vos."
   },
   "stacks": [
     {

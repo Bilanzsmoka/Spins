@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_BB_VS_BTN_OS_REG_REG",
     "label": "BB vs BTN open shove | reg reg",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega grande. El botón empujó todo y la ciega chica se fue. Pagás y se ven las cinco cartas, o tirás y perdés lo puesto. Los dos rivales son regulares, no recreativos."
   },
   "stacks": [
     {

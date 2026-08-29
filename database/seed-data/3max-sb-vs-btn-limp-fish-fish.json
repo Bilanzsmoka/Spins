@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_SB_VS_BTN_LIMP_FISH_FISH",
     "label": "SB vs BTN limp | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega chica y el botón entró pagando, sin subir. Todavía queda la ciega grande por hablar detrás tuyo, así que el bote puede crecer después de tu decisión. Los dos son recreativos."
   },
   "stacks": [
     {

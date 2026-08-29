@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_SB_VS_BTN_OS_REG_REG",
     "label": "SB vs BTN open shove | reg reg",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega chica y el botón empujó todo antes del flop. Queda la ciega grande detrás tuyo, que también puede pagar. No hay juego después: es pagar o tirar. Enfrente hay dos regulares, no recreativos."
   },
   "stacks": [
     {

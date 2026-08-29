@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_SB_VS_BB_FISH_FISH",
     "label": "SB vs BB | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "El botón se fue y quedaron dos. Sos la ciega chica, ya pusiste media ciega y ahora actuás primero — y vas a seguir actuando primero todo el resto de la mano. Enfrente, un recreativo en la ciega grande."
   },
   "stacks": [
     {

@@ -9,6 +9,7 @@ import {
   editarCelda, fijarContextoDeVoz, guardarTip, obtenerFicha, obtenerSpot,
 } from '../../core/services/tablasApi'
 import { EditorDeCelda } from './EditorDeCelda'
+import { ExplicacionDeSituacion } from './ExplicacionDeSituacion'
 import { FrasesSinEntender } from './FrasesSinEntender'
 import { FichaDeMemoria } from './FichaDeMemoria'
 import { AvisoDeProblemas } from './AvisoDeProblemas'
@@ -289,6 +290,10 @@ export function PaginaDeTablas({
         spot={spot}
         onOlvidar={onOlvidarFrase}
       />
+
+      {/* Al azar y sin pedirla: reconocer la situacion es lo que la grilla
+          da por sabido, y no se aprende mirandola. */}
+      <ExplicacionDeSituacion situaciones={catalogo.situaciones} />
 
       <AvisoDeProblemas problemas={catalogo.problemas} />
 

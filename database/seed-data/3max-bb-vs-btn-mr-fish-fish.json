@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_BB_VS_BTN_MR_FISH_FISH",
     "label": "BB vs BTN min-raise | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega grande. El botón subió al mínimo y la ciega chica se fue: quedan dos y él tiene la posición todo el resto de la mano. Te falta una ciega para seguir. Es un recreativo."
   },
   "stacks": [
     {

@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_BB_VS_BTN_LIMP_FISH_FISH",
     "label": "BB vs BTN limp | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega grande. El botón entró pagando y la ciega chica se fue: quedan dos, mano a mano, y el bote está chico. Ya pusiste tu ciega, así que podés pasar y ver el flop gratis. El botón es un recreativo."
   },
   "stacks": [
     {

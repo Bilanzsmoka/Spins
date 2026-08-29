@@ -328,6 +328,28 @@ body {
 }
 .filtro-tanda input { width: 82px; }
 
+/* ---------- La situacion, explicada ---------- */
+
+.explicacion {
+  padding: 12px 14px; margin-bottom: 16px;
+  border: 1px solid var(--borde); border-left: 3px solid var(--acento);
+  border-radius: 9px; background: var(--panel);
+}
+.explicacion-cabecera {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+}
+.explicacion-etiqueta {
+  font-size: 12px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--acento);
+}
+.explicacion-cabecera .boton-tenue { margin-left: auto; }
+/* Ancho de lectura: un parrafo que cruza toda la pantalla no se lee, se
+   saltea. */
+.explicacion-texto {
+  margin: 0; max-width: 68ch;
+  color: var(--texto); font-size: 13px; line-height: 1.55;
+}
+
 .entrenamiento-cuerpo {
   display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
 }

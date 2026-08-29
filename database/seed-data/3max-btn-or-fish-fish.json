@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_BTN_OR_FISH_FISH",
     "label": "BTN OR | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Tres jugadores y estás en el botón: no pagaste ciega, actuás primero ahora y último en todas las calles siguientes. Las dos ciegas atrás tuyo son recreativos. La mano arranca con vos."
   },
   "stacks": [
     {

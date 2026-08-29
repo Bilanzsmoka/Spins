@@ -2,7 +2,8 @@
   "situation": {
     "key": "3MAX_BB_VS_3WAY_MR_FISH_FISH",
     "label": "BB vs 3-way min-raise | fish fish",
-    "formato": "3-max"
+    "formato": "3-max",
+    "explicacion": "Sos la ciega grande y quedaron los tres con una subida en el medio: uno subió y el otro pagó. Te falta poner para seguir, el bote ya creció, y si seguís vas a estar fuera de posición contra los dos. Los dos son recreativos."
   },
   "stacks": [
     {
