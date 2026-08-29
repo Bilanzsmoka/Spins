@@ -33,7 +33,17 @@ public record EventoDeCopiloto(
     /// Lo que hay que saber de esa mano, para leer. Nulo si el dictado no
     /// resolvió: no hay nada que explicar de una mano que no se entendió.
     /// </summary>
-    FichaDeMemoria? Ficha = null);
+    FichaDeMemoria? Ficha = null,
+    /// <summary>
+    /// El palo no se dictó y se asumió offsuit, que es la regla del spec.
+    ///
+    /// Viaja hasta la pantalla porque en silencio es una trampa: si el
+    /// reconocedor se come el "suited" —cosa que pasa seguido—, la consulta
+    /// resuelve contra la casilla equivocada y todo se ve normal. La voz ya
+    /// avisaba deletreando la mano, pero estudiando de memoria uno mira la
+    /// grilla, no escucha.
+    /// </summary>
+    bool PaloAsumido = false);
 
 /// <summary>
 /// Une la memoria de contexto, el resolvedor de tabla y el redactor: recibe un
@@ -84,7 +94,8 @@ public sealed class CopilotoDeVoz(
             memoria.Situacion,
             resultado.Respuesta?.ClaveDeStack,
             memoria.Spot,
-            ficha);
+            ficha,
+            resultado.Respuesta?.PaloAsumido ?? false);
 
         Publicar(evento);
         return evento;

@@ -121,6 +121,12 @@ export interface EventoDeVoz {
   claveDeStack: string | null
   spot: string | null
   ficha: FichaDeMemoria | null
+  /**
+   * El palo no se dictó y se asumió offsuit. Se muestra porque en silencio
+   * es una trampa: si el reconocedor se come el «suited», la respuesta es de
+   * otra casilla y en pantalla no se nota.
+   */
+  paloAsumido: boolean
 }
 
 /**

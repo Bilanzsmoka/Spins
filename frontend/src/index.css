@@ -148,6 +148,12 @@ body {
   font-size: 14px; font-weight: 800; letter-spacing: .03em;
 }
 .respuesta-detalle { color: var(--apagado); font-size: 13px; }
+/* Ambar, no rojo: no es un error, es una suposicion que puede estar mal. */
+.respuesta-asumido {
+  padding: 3px 9px; border-radius: 99px;
+  border: 1px solid #7a4a2a; background: #2a1b12; color: #e0a86a;
+  font-size: 11px; font-weight: 700; letter-spacing: .03em;
+}
 
 /* ---------- Frases que no se entendieron ---------- */
 

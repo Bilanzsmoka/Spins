@@ -327,4 +327,34 @@ public class CopilotoDeVozTests
         Assert.NotNull(publicado);
         Assert.Equal(TipoDeDictado.Ignorado, publicado.Tipo);
     }
+
+    /// <summary>
+    /// Una mano dictada sin palo se asume offsuit —es la regla del spec— y el
+    /// evento tiene que decirlo. En silencio es una trampa: si el reconocedor
+    /// se come el "suited", la consulta resuelve contra la casilla equivocada
+    /// y en pantalla no se nota nada raro.
+    /// </summary>
+    [Fact]
+    public void Una_mano_sin_palo_avisa_que_lo_asumio()
+    {
+        var (copiloto, _) = Armar();
+
+        var evento = copiloto.Procesar(Dictado("A", "K"));
+
+        Assert.True(evento.Resuelta);
+        Assert.Equal("AKo", evento.ManoInterpretada);
+        Assert.True(evento.PaloAsumido);
+    }
+
+    /// <summary>Y si se dictó, no hay nada que avisar.</summary>
+    [Fact]
+    public void Una_mano_con_palo_dictado_no_avisa_nada()
+    {
+        var (copiloto, _) = Armar();
+
+        var evento = copiloto.Procesar(Dictado("A", "K", "s"));
+
+        Assert.Equal("AKs", evento.ManoInterpretada);
+        Assert.False(evento.PaloAsumido);
+    }
 }

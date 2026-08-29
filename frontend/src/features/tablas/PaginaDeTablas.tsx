@@ -265,6 +265,11 @@ export function PaginaDeTablas({
                 {accionRespondida?.etiqueta ?? ultimo.accion}
               </span>
               <span className="respuesta-detalle">{ultimo.respuesta}</span>
+              {ultimo.paloAsumido && (
+                <span className="respuesta-asumido" title="No se oyó el palo, así que se asumió offsuit">
+                  ⚠ palo asumido
+                </span>
+              )}
             </>
           ) : ultimo.tipo === 'Contexto' ? (
             // Entendida y sin mano: se dice qué cambió, no que falló.
