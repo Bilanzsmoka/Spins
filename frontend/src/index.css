@@ -258,6 +258,36 @@ body {
   font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
 }
 
+.botones-accion { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.boton-accion {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 18px;
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 800; letter-spacing: .03em;
+  font-family: inherit; cursor: pointer;
+}
+.boton-accion:disabled { opacity: .45; cursor: default; }
+.boton-accion-tecla {
+  padding: 1px 6px; border-radius: 4px;
+  background: rgba(0, 0, 0, .28);
+  font-size: 11px; font-weight: 700;
+}
+
+.veredicto { display: grid; gap: 14px; margin-top: 16px; }
+.veredicto-cabecera {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 9px; border: 1px solid var(--borde);
+}
+.veredicto-bien .veredicto-cabecera { border-color: #2f6b3a; background: #122416; }
+.veredicto-mal .veredicto-cabecera { border-color: #7a4a2a; background: #2a1b12; }
+.veredicto-cabecera strong { font-size: 17px; }
+.veredicto-accion {
+  padding: 5px 11px; border-radius: 6px;
+  font-size: 13px; font-weight: 800; letter-spacing: .03em;
+}
+.veredicto-mix { color: var(--apagado); font-size: 12px; }
+.veredicto-cabecera .boton-principal { margin-left: auto; }
+
 .entrenamiento-cuerpo {
   display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
 }
