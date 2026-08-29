@@ -9,13 +9,18 @@ public record TandaPedida(
     string? Formato, string? Situacion, decimal? MinBB, decimal? MaxBB, string? Spot,
     int Tamano = 20);
 
+/// <summary>Lo que se dijo, sin interpretar, más qué casilla se estaba contestando.</summary>
+public record RespuestaHablada(
+    string Situacion, string ClaveDeStack, string Spot, string Mano, string? Texto);
+
 [ApiController]
 [Route("api/entrenador")]
 public sealed class EntrenadorController(
     ArmarTandaHandler armar,
     ResponderRespuestaHandler responder,
     ICatalogoDeTablas catalogo,
-    IRegistroDeAcciones acciones) : ControllerBase
+    IRegistroDeAcciones acciones,
+    InterpretadorDeRespuesta interprete) : ControllerBase
 {
     /// <summary>
     /// El techo de una tanda. Sin esto, un cuerpo con `tamano: 5000000` haría
@@ -84,5 +89,28 @@ public sealed class EntrenadorController(
             .ToList();
 
         return Ok((IReadOnlyList<AccionDefinida>)delSpot);
+    }
+
+    /// <summary>
+    /// Contestar hablando. El texto que no es una acción se ignora con 200 y
+    /// no cuenta como fallo: hablar cerca del micrófono no puede ensuciarte el
+    /// calendario, y un 400 pintaría la consola de rojo por conversar.
+    /// </summary>
+    [HttpPost("respuesta-hablada")]
+    public async Task<IActionResult> ResponderHablado(
+        [FromBody] RespuestaHablada hablada, CancellationToken ct)
+    {
+        var accion = interprete.Interpretar(hablada.Texto ?? "");
+        if (accion is null) return Ok(new { ignorado = true });
+
+        var veredicto = await responder.ResponderAsync(
+            UsuarioActual,
+            new RespuestaEnviada(
+                hablada.Situacion, hablada.ClaveDeStack, hablada.Spot, hablada.Mano, accion),
+            Hoy, ct);
+
+        return veredicto is null
+            ? NotFound(new { error = "Esa casilla ya no existe en el catálogo." })
+            : Ok(veredicto);
     }
 }

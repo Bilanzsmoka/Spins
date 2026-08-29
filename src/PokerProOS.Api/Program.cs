@@ -86,6 +86,7 @@ builder.Services.AddSingleton<ResolverManoHandler>();
 builder.Services.AddSingleton<RedactorDeRespuesta>();
 builder.Services.AddSingleton<AnalizadorDeMemoria>();
 builder.Services.AddSingleton<PlanificadorDeTanda>();
+builder.Services.AddSingleton<InterpretadorDeRespuesta>();
 builder.Services.AddSingleton(new MemoriaDeContexto
 {
     Situacion = catalogo.Situaciones.FirstOrDefault()?.Clave ?? "",

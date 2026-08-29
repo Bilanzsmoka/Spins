@@ -50,7 +50,8 @@ public class EntrenadorControllerTests
                 catalogo,
                 progreso),
             catalogo,
-            acciones);
+            acciones,
+            new InterpretadorDeRespuesta(acciones));
     }
 
     // IsAssignableFrom y no IsType: T es una interfaz (IReadOnlyList<...>) y el
