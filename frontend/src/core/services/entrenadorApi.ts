@@ -31,3 +31,18 @@ export const accionesDelSpot = (situacion: string, stack: string, spot: string) 
     `/api/entrenador/acciones?situacion=${encodeURIComponent(situacion)}`
     + `&stack=${encodeURIComponent(stack)}&spot=${encodeURIComponent(spot)}`,
     'GET')
+
+/**
+ * Contestar hablando. El servidor devuelve `{ ignorado: true }` cuando el
+ * texto no era una acción: hablar cerca del micrófono no puede contar como
+ * fallo, así que eso llega como null y la pregunta sigue abierta.
+ */
+export async function responderHablado(
+  situacion: string, claveDeStack: string, spot: string, mano: string, texto: string,
+): Promise<VeredictoDeRespuesta | null> {
+  const v = await pedir<VeredictoDeRespuesta | { ignorado: true }>(
+    '/api/entrenador/respuesta-hablada', 'POST',
+    { situacion, claveDeStack, spot, mano, texto })
+
+  return 'ignorado' in v ? null : v
+}

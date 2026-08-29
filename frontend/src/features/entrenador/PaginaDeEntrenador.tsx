@@ -3,10 +3,14 @@ import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type {
   AccionDefinida, PreguntaDeTanda, TandaPedida, VeredictoDeRespuesta,
 } from '../../core/models/catalogo.model'
-import { accionesDelSpot, pedirTanda, responder } from '../../core/services/entrenadorApi'
+import { capturarDictado } from '../../core/services/tablasApi'
+import {
+  accionesDelSpot, pedirTanda, responder, responderHablado,
+} from '../../core/services/entrenadorApi'
 import { BotonesDeAccion } from './BotonesDeAccion'
 import { FiltroDeTanda } from './FiltroDeTanda'
 import { MesaSimulada } from './MesaSimulada'
+import { useCantarPregunta } from './useCantarPregunta'
 import { Veredicto } from './Veredicto'
 
 const PEDIDA_INICIAL: TandaPedida = {
@@ -36,6 +40,9 @@ export function PaginaDeEntrenador() {
   // todavía no llegó: sin esto, dos clicks rápidos mandan dos respuestas para
   // la misma casilla y le mueven el calendario dos veces.
   const [contestando, setContestando] = useState(false)
+  // La voz se enciende a mano. Entrenando en silencio —de noche, o al lado de
+  // alguien— cantar cada pregunta es peor que no tenerla.
+  const [conVoz, setConVoz] = useState(false)
 
   const pregunta = tanda?.[indice] ?? null
 
@@ -95,6 +102,39 @@ export function PaginaDeEntrenador() {
     }
   }
 
+  /**
+   * El mismo camino que el teclado, pero desde lo que se oyó. Si el texto no
+   * era una acción, `responderHablado` devuelve null y la pregunta sigue
+   * abierta: conversar al lado del micrófono no cuenta como fallo.
+   */
+  const contestarHablando = async (texto: string) => {
+    if (!pregunta || veredicto) return
+    try {
+      const v = await responderHablado(
+        pregunta.situacion, pregunta.claveDeStack, pregunta.spot, pregunta.mano, texto)
+      if (!v) return
+      setVeredicto(v)
+      if (v.acerto) setAciertos((previo) => previo + 1)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo guardar la respuesta.')
+    }
+  }
+
+  // Escucha una respuesta por pregunta. Se reinicia con cada `pregunta`, y se
+  // corta apenas hay veredicto para no oír la siguiente antes de tiempo.
+  useEffect(() => {
+    if (!pregunta || veredicto || !conVoz) return
+    let cancelado = false
+    void capturarDictado().then((r) => {
+      if (!cancelado && r.texto) void contestarHablando(r.texto)
+    })
+    return () => { cancelado = true }
+    // oxlint-disable-next-line exhaustive-deps
+  }, [pregunta, veredicto, conVoz])
+
+  // Mientras hay veredicto no se canta: se está leyendo la explicación.
+  useCantarPregunta(veredicto ? null : pregunta, conVoz)
+
   const seguir = () => {
     setVeredicto(null)
     setContestando(false)
@@ -110,6 +150,13 @@ export function PaginaDeEntrenador() {
           <h1>Entrenador</h1>
           <p className="subtitulo">Te pregunta, y al fallar te explica</p>
         </div>
+        <button
+          type="button"
+          className={conVoz ? 'boton-principal' : 'boton-tenue'}
+          onClick={() => setConVoz((previo) => !previo)}
+        >
+          {conVoz ? 'Voz encendida' : 'Voz apagada'}
+        </button>
         {tanda && !terminada && (
           <p className="entrenador-marcador">
             {indice + 1} / {tanda.length} · {aciertos} bien

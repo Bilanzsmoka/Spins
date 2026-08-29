@@ -219,6 +219,26 @@ pide sola en `GET /api/tablas/ficha`, para estudiar tocando la grilla sin
 micrófono. La pantalla la muestra en un popup que además aloja el editor de
 celda. La voz, en cambio, quedó corta a propósito: dice la acción y nada más.
 
+### El entrenador
+
+La unidad de repetición es la **casilla** —situación, stack, spot y mano
+juntos, no la mano sola—: la misma mano en dos spots distintos son dos
+casillas con su propio calendario, porque saberla en una no dice nada de la
+otra. `CalendarioDeRepeticion` la mueve por una escalera de intervalos fija,
+`[1, 3, 7, 16, 35, 90]` días: cada acierto sube un escalón, el último se
+repite para siempre, y fallar no baja un escalón sino que vuelve a cero y
+vence hoy mismo, para que la casilla reentre en la tanda actual. Cuando
+`PlanificadorDeTanda` necesita rellenar con material nuevo (sin progreso
+previo), prioriza los **bordes** —donde se corta el bloque de una familia o
+cambia el umbral de stack— porque son las casillas que separan saber la
+tabla de adivinarla; el resto entra después, para que la tanda igual se
+llene cuando los bordes se agotan. Quién entrena se resuelve en un único
+lugar, `EntrenadorController.UsuarioActual`, para que agregar login sea
+cambiar de dónde sale ese número y nada más. Y es lo único de la app que
+**no** anda sin SQL Server: sin base no hay dónde guardar el calendario, así
+que a diferencia de las tablas y la voz, un error de base acá se muestra en
+pantalla en vez de tragarse.
+
 ## Agregar una tabla nueva
 
 1. Dejar el archivo JSON en `database/seed-data/`.
