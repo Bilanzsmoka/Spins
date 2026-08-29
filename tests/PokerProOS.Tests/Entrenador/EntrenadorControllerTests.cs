@@ -1,4 +1,7 @@
+using System.Data.Common;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 using PokerProOS.Api.Controllers;
 using PokerProOS.Application.Entrenador;
 using PokerProOS.Application.Tablas;
@@ -35,12 +38,40 @@ public class EntrenadorControllerTests
         }
     }
 
+    /// <summary>
+    /// Una base caída. DbException es abstracta y no se puede instanciar: se
+    /// hereda para poder probar el borde sin levantar un SQL Server.
+    /// </summary>
+    private sealed class BaseCaida : DbException
+    {
+        public BaseCaida() : base("No se pudo abrir la conexión.") { }
+    }
+
+    /// <summary>El progreso cuando la base no responde: todo tira.</summary>
+    private sealed class ProgresoQueFalla : IProgresoDeEntrenamiento
+    {
+        public Task<IReadOnlyList<ProgresoDeCasilla>> VencidasAsync(
+            int usuarioId, DateOnly hoy, CancellationToken ct) => throw new BaseCaida();
+
+        public Task<IReadOnlyList<ProgresoDeCasilla>> TodasAsync(int usuarioId, CancellationToken ct)
+            => throw new BaseCaida();
+
+        public Task<ProgresoDeCasilla?> BuscarAsync(
+            int usuarioId, string situacion, string claveDeStack, string spot, string mano,
+            CancellationToken ct) => throw new BaseCaida();
+
+        public Task GuardarAsync(ProgresoDeCasilla progreso, CancellationToken ct)
+            => throw new BaseCaida();
+    }
+
     private static EntrenadorController Armar()
+        => Armar(new ProgresoEnMemoria());
+
+    private static EntrenadorController Armar(IProgresoDeEntrenamiento progreso)
     {
         var acciones = RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"));
         var catalogo = new CargadorDeTablas(new ValidadorDeTabla(acciones), acciones)
             .CargarDirectorio(Rutas.SemillasDeTablas);
-        var progreso = new ProgresoEnMemoria();
 
         return new EntrenadorController(
             new ArmarTandaHandler(progreso, new PlanificadorDeTanda(catalogo)),
@@ -51,7 +82,8 @@ public class EntrenadorControllerTests
                 progreso),
             catalogo,
             acciones,
-            new InterpretadorDeRespuesta(acciones));
+            new InterpretadorDeRespuesta(acciones),
+            NullLogger<EntrenadorController>.Instance);
     }
 
     // IsAssignableFrom y no IsType: T es una interfaz (IReadOnlyList<...>) y el
@@ -112,4 +144,30 @@ public class EntrenadorControllerTests
     public void Las_acciones_de_un_spot_inexistente_dan_404()
         => Assert.IsType<NotFoundObjectResult>(
             Armar().Acciones("HU_SB_OR_FISH", "1-4bb", "NO_EXISTE"));
+
+    /// <summary>
+    /// El entrenador es lo único que no anda sin base, y el usuario tiene que
+    /// enterarse de eso: el middleware genérico contestaba
+    /// «An internal error occurred», en inglés y sin nombrar la base.
+    /// </summary>
+    [Fact]
+    public async Task Sin_base_la_tanda_lo_dice_en_castellano()
+    {
+        var resultado = await Armar(new ProgresoQueFalla())
+            .Tanda(new TandaPedida(null, null, null, null, null, 5), default);
+
+        var respuesta = Assert.IsType<ObjectResult>(resultado);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, respuesta.StatusCode);
+        Assert.Contains("base de datos", respuesta.Value!.ToString());
+    }
+
+    [Fact]
+    public async Task Sin_base_la_respuesta_avisa_que_no_quedo_guardada()
+    {
+        var resultado = await Armar(new ProgresoQueFalla()).Responder(
+            new RespuestaEnviada("HU_SB_OR_FISH", "1-4bb", "SB_OR", "AA", "ALL-IN"), default);
+
+        var respuesta = Assert.IsType<ObjectResult>(resultado);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, respuesta.StatusCode);
+    }
 }

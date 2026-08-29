@@ -1,4 +1,6 @@
+using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PokerProOS.Application.Entrenador;
 using PokerProOS.Application.Tablas;
 
@@ -20,7 +22,8 @@ public sealed class EntrenadorController(
     ResponderRespuestaHandler responder,
     ICatalogoDeTablas catalogo,
     IRegistroDeAcciones acciones,
-    InterpretadorDeRespuesta interprete) : ControllerBase
+    InterpretadorDeRespuesta interprete,
+    ILogger<EntrenadorController> registro) : ControllerBase
 {
     /// <summary>
     /// El techo de una tanda. Sin esto, un cuerpo con `tamano: 5000000` haría
@@ -51,15 +54,30 @@ public sealed class EntrenadorController(
         var filtro = new FiltroDeTanda(
             pedida.Formato, pedida.Situacion, pedida.MinBB, pedida.MaxBB, pedida.Spot);
 
-        var preguntas = await armar.ArmarAsync(UsuarioActual, filtro, tamano, Hoy, ct);
-        return Ok(preguntas);
+        try
+        {
+            var preguntas = await armar.ArmarAsync(UsuarioActual, filtro, tamano, Hoy, ct);
+            return Ok(preguntas);
+        }
+        catch (Exception ex) when (EsFalloDeBase(ex))
+        {
+            return BaseCaida(ex, "no se pudo armar la tanda");
+        }
     }
 
     [HttpPost("respuesta")]
     public async Task<IActionResult> Responder(
         [FromBody] RespuestaEnviada respuesta, CancellationToken ct)
     {
-        var veredicto = await responder.ResponderAsync(UsuarioActual, respuesta, Hoy, ct);
+        VeredictoDeRespuesta? veredicto;
+        try
+        {
+            veredicto = await responder.ResponderAsync(UsuarioActual, respuesta, Hoy, ct);
+        }
+        catch (Exception ex) when (EsFalloDeBase(ex))
+        {
+            return BaseCaida(ex, "tu respuesta no quedó guardada");
+        }
 
         // La tabla pudo haberse corregido entre que se armo la tanda y se
         // contesto. No es un error del usuario: la pantalla saltea la pregunta.
@@ -103,14 +121,65 @@ public sealed class EntrenadorController(
         var accion = interprete.Interpretar(hablada.Texto ?? "");
         if (accion is null) return Ok(new { ignorado = true });
 
-        var veredicto = await responder.ResponderAsync(
-            UsuarioActual,
-            new RespuestaEnviada(
-                hablada.Situacion, hablada.ClaveDeStack, hablada.Spot, hablada.Mano, accion),
-            Hoy, ct);
+        VeredictoDeRespuesta? veredicto;
+        try
+        {
+            veredicto = await responder.ResponderAsync(
+                UsuarioActual,
+                new RespuestaEnviada(
+                    hablada.Situacion, hablada.ClaveDeStack, hablada.Spot, hablada.Mano, accion),
+                Hoy, ct);
+        }
+        catch (Exception ex) when (EsFalloDeBase(ex))
+        {
+            return BaseCaida(ex, "tu respuesta no quedó guardada");
+        }
 
         return veredicto is null
             ? NotFound(new { error = "Esa casilla ya no existe en el catálogo." })
             : Ok(veredicto);
+    }
+
+    /// <summary>
+    /// El entrenador es lo único de la app que NO anda sin base de datos, y
+    /// <c>ProgresoDeEntrenamientoSql</c> no se traga la excepción a propósito:
+    /// un calendario que pierde respuestas en silencio no es un calendario.
+    /// Quien la traduce a algo legible es este borde. Sin esto la excepción
+    /// llegaba al middleware genérico y el usuario leía
+    /// «An internal error occurred», en inglés y sin enterarse de que lo que
+    /// falta es la base.
+    ///
+    /// 503 y no 500: no está roto, está caído — reintentar con SQL Server
+    /// arriba es exactamente lo que corresponde hacer.
+    /// </summary>
+    private ObjectResult BaseCaida(Exception ex, string consecuencia)
+    {
+        // El texto real del fallo no viaja a la pantalla —no le dice nada a
+        // quien está estudiando— pero tiene que quedar en algún lado o
+        // diagnosticar por qué no conecta se vuelve adivinanza.
+        registro.LogError(ex, "El entrenador no pudo hablar con la base de datos");
+
+        return StatusCode(
+            StatusCodes.Status503ServiceUnavailable,
+            new
+            {
+                error = "El entrenador necesita la base de datos para llevar tu calendario "
+                        + $"de repaso, y no pudo conectarse: {consecuencia}. "
+                        + "El resto de la app funciona sin ella."
+            });
+    }
+
+    /// <summary>
+    /// Si el fallo viene de la base. Se recorre la cadena porque EF envuelve:
+    /// un SQL Server apagado al guardar llega como DbUpdateException con la
+    /// excepción del proveedor adentro. Se mira DbException —de
+    /// System.Data.Common— y no el tipo de un proveedor concreto: la Api no
+    /// tiene por qué saber que abajo hay SQL Server.
+    /// </summary>
+    private static bool EsFalloDeBase(Exception excepcion)
+    {
+        for (Exception? actual = excepcion; actual is not null; actual = actual.InnerException)
+            if (actual is DbException or DbUpdateException) return true;
+        return false;
     }
 }
