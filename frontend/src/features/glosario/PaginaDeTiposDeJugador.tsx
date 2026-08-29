@@ -30,7 +30,11 @@ export function PaginaDeTiposDeJugador() {
     return () => { cancelado = true }
   }, [])
 
-  const ejes = [...new Set(grupo?.terminos.map((t) => t.eje ?? '') ?? [])]
+  // El orden y la explicación de cada eje los declara el JSON. Si no los
+  // declara, se cae a los ejes que los términos mencionen, en el orden en que
+  // aparezcan: un glosario sin ejes se sigue viendo.
+  const ejes = grupo?.ejes
+    ?? [...new Set(grupo?.terminos.map((t) => t.eje ?? '') ?? [])].map((clave) => ({ clave, nota: '' }))
 
   return (
     <div className="diccionario">
@@ -42,11 +46,12 @@ export function PaginaDeTiposDeJugador() {
       </header>
 
       {ejes.map((eje) => (
-        <section key={eje} className="glosario-grupo">
-          {eje && <h2>{eje}</h2>}
+        <section key={eje.clave} className="glosario-grupo">
+          {eje.clave && <h2>{eje.clave}</h2>}
+          {eje.nota && <p className="glosario-nota">{eje.nota}</p>}
           <ul className="jugador-lista">
             {grupo!.terminos
-              .filter((t) => (t.eje ?? '') === eje)
+              .filter((t) => (t.eje ?? '') === eje.clave)
               .map((t) => (
                 <FichaDeJugador key={t.termino} jugador={t} />
               ))}

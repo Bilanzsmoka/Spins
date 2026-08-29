@@ -313,10 +313,18 @@ export interface TerminoDelGlosario {
   rasgos?: string[]
 }
 
+export interface EjeDelGlosario {
+  clave: string
+  /** Qué significan los colores de este eje. Un color sin convención es una mancha. */
+  nota: string
+}
+
 export interface GrupoDelGlosario {
   clave: string
   titulo: string
   terminos: TerminoDelGlosario[]
+  /** Los costados por los que se separan sus términos, en el orden que van en pantalla. */
+  ejes?: EjeDelGlosario[]
 }
 
 /* ---------- Entrenador ---------- */

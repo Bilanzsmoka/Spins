@@ -42,6 +42,23 @@ public class RegistroDeGlosarioTests
     }
 
     /// <summary>
+    /// Un eje sin nota es un color sin convención, y un color sin convención
+    /// es una mancha. Y un término que nombra un eje que no está declarado no
+    /// se dibuja en ninguna sección: desaparece de la pantalla sin avisar.
+    /// </summary>
+    [Fact]
+    public void Los_ejes_estan_declarados_y_explicados()
+    {
+        var grupo = RegistroDeGlosarioJson.Cargar(Rutas.Registro("glosario.json"))
+            .Grupos.Single(g => g.Clave == "jugadores");
+
+        Assert.NotNull(grupo.Ejes);
+        Assert.All(grupo.Ejes, e => Assert.False(string.IsNullOrWhiteSpace(e.Nota), e.Clave));
+        Assert.All(grupo.Terminos, j =>
+            Assert.Contains(grupo.Ejes!, e => e.Clave == j.Eje));
+    }
+
+    /// <summary>
     /// La ficha es opcional: una palabra suelta del diccionario no tiene color
     /// ni ícono, y el cargador no puede caerse por eso ni dejar el grupo afuera.
     /// </summary>

@@ -24,8 +24,27 @@ public record TerminoDelGlosario(
     string? Icono = null,
     IReadOnlyList<string>? Rasgos = null);
 
-/// <summary>Los términos juntados por tema, para que la página se pueda leer.</summary>
-public record GrupoDelGlosario(string Clave, string Titulo, IReadOnlyList<TerminoDelGlosario> Terminos);
+/// <summary>
+/// Un costado por el que se clasifica, y qué significan sus colores.
+///
+/// La nota no es adorno: un color sin convención declarada es una mancha. Acá
+/// es donde dice que el verde es plata y el rojo peligro, que es lo que hace
+/// que el color sirva para marcar a alguien en la mesa.
+/// </summary>
+public record EjeDelGlosario(string Clave, string Nota);
+
+/// <summary>
+/// Los términos juntados por tema, para que la página se pueda leer.
+/// </summary>
+/// <param name="Ejes">
+/// Los costados por los que se separan sus términos, en el orden en que van en
+/// pantalla. Sólo los trae el grupo de jugadores; el resto se lee de corrido.
+/// </param>
+public record GrupoDelGlosario(
+    string Clave,
+    string Titulo,
+    IReadOnlyList<TerminoDelGlosario> Terminos,
+    IReadOnlyList<EjeDelGlosario>? Ejes = null);
 
 /// <summary>
 /// La jerga del juego, explicada.

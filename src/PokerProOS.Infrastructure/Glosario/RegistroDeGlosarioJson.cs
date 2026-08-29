@@ -30,7 +30,8 @@ public sealed class RegistroDeGlosarioJson : IRegistroDeGlosario
                     g.GetProperty("titulo").GetString()!,
                     g.GetProperty("terminos").EnumerateArray()
                         .Select(Leer)
-                        .ToList()))
+                        .ToList(),
+                    Ejes(g)))
                 .ToList();
 
             return new RegistroDeGlosarioJson(grupos);
@@ -55,6 +56,16 @@ public sealed class RegistroDeGlosarioJson : IRegistroDeGlosario
         Texto(t, "colorTexto"),
         Texto(t, "icono"),
         Lista(t, "rasgos"));
+
+    /// <summary>Los ejes son opcionales: sin ellos el grupo se lee de corrido.</summary>
+    private static IReadOnlyList<EjeDelGlosario>? Ejes(JsonElement grupo) =>
+        grupo.TryGetProperty("ejes", out var ejes)
+            ? ejes.EnumerateArray()
+                .Select(e => new EjeDelGlosario(
+                    e.GetProperty("clave").GetString()!,
+                    e.GetProperty("nota").GetString()!))
+                .ToList()
+            : null;
 
     private static string? Texto(JsonElement elemento, string propiedad) =>
         elemento.TryGetProperty(propiedad, out var valor) ? valor.GetString() : null;
