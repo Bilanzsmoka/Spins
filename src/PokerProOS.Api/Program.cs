@@ -2,10 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using PokerProOS.Api.Voz;
 using PokerProOS.Application.Bitacora;
 using PokerProOS.Application.Diario;
+using PokerProOS.Application.Entrenador;
 using PokerProOS.Application.Tablas;
 using PokerProOS.Application.Voz;
 using PokerProOS.Infrastructure;
 using PokerProOS.Infrastructure.Database;
+using PokerProOS.Infrastructure.Entrenador;
 using PokerProOS.Infrastructure.Tablas;
 using PokerProOS.Infrastructure.Diario;
 using PokerProOS.Infrastructure.Voz;
@@ -83,6 +85,7 @@ builder.Services.AddSingleton<IEditorDeVocabulario>(
 builder.Services.AddSingleton<ResolverManoHandler>();
 builder.Services.AddSingleton<RedactorDeRespuesta>();
 builder.Services.AddSingleton<AnalizadorDeMemoria>();
+builder.Services.AddSingleton<PlanificadorDeTanda>();
 builder.Services.AddSingleton(new MemoriaDeContexto
 {
     Situacion = catalogo.Situaciones.FirstOrDefault()?.Clave ?? "",
@@ -97,6 +100,10 @@ builder.Services.AddDbContext<PokerProOSDbContext>(opciones =>
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IBitacoraDeConsultas, BitacoraDeConsultas>();
 builder.Services.AddScoped<IRepositorioDeDiario, RepositorioDeDiario>();
+// Scoped como el resto de lo que toca la base: el DbContext lo es.
+builder.Services.AddScoped<IProgresoDeEntrenamiento, ProgresoDeEntrenamientoSql>();
+builder.Services.AddScoped<ArmarTandaHandler>();
+builder.Services.AddScoped<ResponderRespuestaHandler>();
 
 // Los enums salen como palabra, no como numero: la pantalla compara el tipo
 // de dictado contra 'Contexto' e 'Ignorado'. Es la misma configuracion que
