@@ -199,8 +199,19 @@ public sealed class InterpretadorDeTexto(IRegistroDeVocabulario vocabulario)
         return null;
     }
 
-    private static List<string> Palabras(string dicho) =>
-        dicho.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+    /// <summary>
+    /// La forma guardada, partida igual que lo que se oyó.
+    ///
+    /// Tiene que ser la MISMA normalización que la del texto entrante o la
+    /// comparación es una mentira: esto solo bajaba a minúsculas, así que un
+    /// dicho guardado como "bebé versus botón raíz" se comparaba contra el
+    /// "bebe versus boton raiz" que salía del entrante —al que sí se le sacan
+    /// las tildes— y no coincidía nunca. En castellano las tildes están en
+    /// todos lados, y el reconocedor las escribe: eso mataba casi todo lo que
+    /// se enseñara desde la pantalla, mientras el editor contestaba que la
+    /// forma "ya estaba".
+    /// </summary>
+    private static List<string> Palabras(string dicho) => NormalizadorDeTexto.EnPalabras(dicho);
 
     /// <summary>
     /// Busca la primera forma de la categoría que aparezca completa y la marca

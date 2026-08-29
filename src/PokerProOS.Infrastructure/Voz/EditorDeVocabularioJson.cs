@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using PokerProOS.Application.Texto;
 using PokerProOS.Application.Voz;
 using PokerProOS.Domain.Manos;
 
@@ -185,11 +186,14 @@ public sealed class EditorDeVocabularioJson(
         return false;
     }
 
-    private static string Normalizar(string texto) => new string(
-            texto.Trim().ToLowerInvariant()
-                .Where(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c))
-                .ToArray())
-        .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .Aggregate(string.Empty, (acumulado, palabra) =>
-            acumulado.Length == 0 ? palabra : $"{acumulado} {palabra}");
+    /// <summary>
+    /// La misma vara que usa el intérprete para leer lo que se oyó.
+    ///
+    /// Antes eran dos: ésta conservaba las tildes y la del intérprete las
+    /// sacaba, así que el editor guardaba "bebé" y el intérprete buscaba
+    /// "bebe" — la forma quedaba escrita y muerta, y el chequeo de duplicados
+    /// decía "ya estaba" sobre algo que el dictado no podía usar. Si las dos
+    /// puntas no miden igual, "la misma forma" no significa nada.
+    /// </summary>
+    private static string Normalizar(string texto) => NormalizadorDeTexto.EnFrase(texto);
 }
