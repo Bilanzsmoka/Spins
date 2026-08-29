@@ -300,6 +300,17 @@ export interface ReglaDelSpot {
 export interface TerminoDelGlosario {
   termino: string
   explicacion: string
+  /**
+   * De acá para abajo es la ficha de perfil, y sólo la traen los jugadores.
+   * Una palabra suelta del diccionario no tiene color ni ícono: se lee, no se
+   * reconoce de un vistazo.
+   */
+  eje?: string
+  perfil?: string
+  color?: string
+  colorTexto?: string
+  icono?: string
+  rasgos?: string[]
 }
 
 export interface GrupoDelGlosario {

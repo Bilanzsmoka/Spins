@@ -382,6 +382,47 @@ body {
   text-transform: uppercase; letter-spacing: .06em; text-align: center;
 }
 
+/* ---------- Tipos de jugador ---------- */
+
+/*
+ * Fichas anchas y no renglones: un perfil se reconoce, no se lee. El circulo
+ * de color con su figura es lo que tiene que entrar por el ojo primero.
+ */
+.jugador-lista {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+.jugador-ficha {
+  display: flex; gap: 13px; align-items: flex-start;
+  padding: 13px;
+  border: 1px solid var(--borde); border-radius: 11px; background: var(--panel);
+}
+.jugador-circulo {
+  flex: none; width: 52px; height: 52px;
+  display: grid; place-items: center;
+  border-radius: 50%; font-size: 26px; line-height: 1;
+}
+.jugador-cuerpo { display: grid; gap: 7px; min-width: 0; }
+.jugador-titulo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* El perfil lleva el mismo color que el circulo: es la misma informacion. */
+.jugador-perfil {
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--panel-2); color: var(--apagado);
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.jugador-rasgos {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.jugador-rasgos li {
+  padding: 3px 9px; border-radius: 999px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  color: var(--texto); font-size: 11px; font-weight: 600;
+}
+.jugador-ficha .glosario-explicacion { margin: 0; }
+
 /* ---------- La situacion, explicada ---------- */
 
 .explicacion {

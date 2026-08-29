@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useVozQueLee } from './useVozQueLee'
 
 interface Props {
   termino: string
@@ -14,33 +14,7 @@ interface Props {
  * subir" sí.
  */
 export function TerminoConVoz({ termino, explicacion }: Props) {
-  const [hablando, setHablando] = useState(false)
-
-  // Al desmontar hay que callar: si no, cambiás de página y la voz sigue
-  // leyendo un término que ya no está en pantalla.
-  useEffect(() => () => window.speechSynthesis?.cancel(), [])
-
-  const decir = () => {
-    if (!('speechSynthesis' in window)) return
-
-    // Si ya está hablando, el play es un stop: es lo que espera cualquiera
-    // que le da al botón de nuevo para callarlo.
-    if (hablando) {
-      window.speechSynthesis.cancel()
-      setHablando(false)
-      return
-    }
-
-    // speak() encola en vez de reemplazar, así que sin cancelar antes, darle
-    // play a cinco términos seguidos los apila y los escuchás todos.
-    window.speechSynthesis.cancel()
-    const frase = new SpeechSynthesisUtterance(`${termino}. ${explicacion}`)
-    frase.lang = 'es-ES'
-    frase.onend = () => setHablando(false)
-    frase.onerror = () => setHablando(false)
-    setHablando(true)
-    window.speechSynthesis.speak(frase)
-  }
+  const { hablando, decir } = useVozQueLee(`${termino}. ${explicacion}`)
 
   return (
     <li className="glosario-termino">

@@ -146,19 +146,129 @@
       "terminos": [
         {
           "termino": "Fish",
+          "eje": "Qué tan fuerte es",
+          "perfil": "Recreativo",
+          "color": "#38BDF8",
+          "colorTexto": "#0D1117",
+          "icono": "🐟",
+          "rasgos": [
+            "Juega por diversión",
+            "Paga de más",
+            "No ajusta por posición"
+          ],
           "explicacion": "Jugador recreativo: juega por diversión y comete errores previsibles. Suele pagar de más, tirar de menos y no ajustar según la posición ni el stack."
         },
         {
+          "termino": "Whale",
+          "eje": "Qué tan fuerte es",
+          "perfil": "Recreativo con plata",
+          "color": "#A855F7",
+          "colorTexto": "#FFFFFF",
+          "icono": "🐳",
+          "rasgos": [
+            "Juega casi todo",
+            "No le duele perder",
+            "El pozo más grande de la mesa"
+          ],
+          "explicacion": "Un recreativo que además pone mucho dinero: entra en casi todas las manos y no le importa perder. Es el jugador que más plata reparte en una mesa."
+        },
+        {
           "termino": "Reg",
+          "eje": "Qué tan fuerte es",
+          "perfil": "Regular",
+          "color": "#94A3B8",
+          "colorTexto": "#0D1117",
+          "icono": "♟️",
+          "rasgos": [
+            "Juega seguido",
+            "Estudia",
+            "Cuesta sorprenderlo"
+          ],
           "explicacion": "Regular: juega seguido y estudia. Sus decisiones están cerca de lo que dice la teoría, así que sorprenderlo cuesta mucho más que a un recreativo."
         },
         {
+          "termino": "Shark",
+          "eje": "Qué tan fuerte es",
+          "perfil": "Regular fuerte",
+          "color": "#475569",
+          "colorTexto": "#FFFFFF",
+          "icono": "🦈",
+          "rasgos": [
+            "Te lee a vos",
+            "Cambia de plan",
+            "Ganador a largo plazo"
+          ],
+          "explicacion": "Un regular fuerte: no sólo juega bien, además te estudia y ajusta contra vos. Contra un shark lo que se busca es no regalarle nada, no ganarle."
+        },
+        {
           "termino": "Nit",
-          "explicacion": "Un regular extremadamente cerrado: juega pocas manos y sólo con cartas fuertes. Cuando pone fichas, casi siempre tiene."
+          "eje": "Cómo juega",
+          "perfil": "Cerrado y pasivo",
+          "color": "#3B82F6",
+          "colorTexto": "#FFFFFF",
+          "icono": "🪨",
+          "rasgos": [
+            "Pocas manos",
+            "Si pone fichas, tiene",
+            "VPIP menor a 15%"
+          ],
+          "explicacion": "Un jugador extremadamente cerrado: juega pocas manos y sólo con cartas fuertes. Cuando pone fichas, casi siempre tiene. También se lo llama rock."
+        },
+        {
+          "termino": "TAG",
+          "eje": "Cómo juega",
+          "perfil": "Cerrado y agresivo",
+          "color": "#22C55E",
+          "colorTexto": "#0D1117",
+          "icono": "🎯",
+          "rasgos": [
+            "Elige pocas manos",
+            "Las juega subiendo",
+            "VPIP de 15 a 20%"
+          ],
+          "explicacion": "Tight-aggressive: elige pocas manos pero las juega subiendo, casi nunca pagando. Es el estilo que se considera la base del póker sólido."
+        },
+        {
+          "termino": "Calling station",
+          "eje": "Cómo juega",
+          "perfil": "Suelto y pasivo",
+          "color": "#EAB308",
+          "colorTexto": "#0D1117",
+          "icono": "☎️",
+          "rasgos": [
+            "Entra en todo",
+            "Paga y paga",
+            "Casi nunca sube"
+          ],
+          "explicacion": "Suelto y pasivo: entra en muchas manos y paga casi cualquier apuesta, pero rara vez es el que sube. Contra él los faroles no sirven."
+        },
+        {
+          "termino": "LAG",
+          "eje": "Cómo juega",
+          "perfil": "Suelto y agresivo",
+          "color": "#F97316",
+          "colorTexto": "#0D1117",
+          "icono": "🌪️",
+          "rasgos": [
+            "Muchas manos",
+            "Siempre subiendo",
+            "VPIP de 25 a 40%"
+          ],
+          "explicacion": "Loose-aggressive: juega muchas manos y las juega agresivo. Bien hecho es el estilo más difícil de enfrentar, porque su rango es enorme y siempre presiona."
         },
         {
           "termino": "Maniac",
-          "explicacion": "Lo contrario del nit: sube y paga con muchísimas manos. Difícil de leer porque su rango es enorme."
+          "eje": "Cómo juega",
+          "perfil": "Suelto y agresivo al extremo",
+          "color": "#EF4444",
+          "colorTexto": "#FFFFFF",
+          "icono": "🔥",
+          "rasgos": [
+            "Sube casi siempre",
+            "Rango enorme",
+            "VPIP arriba de 50%"
+          ],
+          "explicacion": "El extremo del LAG: sube y re-sube con muchísimas manos, tenga o no. Difícil de leer porque su rango es enorme, y hace pozos gigantes de la nada."
         }
       ]
     }

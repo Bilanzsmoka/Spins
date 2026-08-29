@@ -88,8 +88,8 @@ export default function App() {
       ],
     },
     {
-      clave: 'ajustes',
-      etiqueta: 'Ajustes',
+      clave: 'juego',
+      etiqueta: 'El juego',
       modulos: [
         {
           clave: 'diccionario',
@@ -105,6 +105,12 @@ export default function App() {
           disponible: true,
           contenido: <PaginaDeTiposDeJugador />,
         },
+      ],
+    },
+    {
+      clave: 'ajustes',
+      etiqueta: 'Ajustes',
+      modulos: [
         {
           clave: 'voz',
           etiqueta: 'Voz',

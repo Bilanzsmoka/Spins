@@ -2,15 +2,19 @@ import { useEffect, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type { GrupoDelGlosario } from '../../core/models/catalogo.model'
 import { obtenerGlosario } from '../../core/services/tablasApi'
-import { TerminoConVoz } from './TerminoConVoz'
+import { FichaDeJugador } from './FichaDeJugador'
 
 /**
  * Contra quién estás jugando, y qué tablas tenés para cada uno.
  *
- * Los términos salen del grupo "jugadores" del glosario. La lista de abajo no
- * la escribe nadie: son las etiquetas de tus propias situaciones, que ya
- * dicen contra quién es cada tabla. Se muestran tal cual — el código no
- * interpreta la etiqueta ni deduce nada de la clave, sólo la enseña.
+ * Los perfiles salen del grupo "jugadores" del glosario y se muestran
+ * separados por eje: qué tan fuerte es alguien y cómo juega son dos preguntas
+ * distintas —un fish puede ser pasivo o maniaco— y mezclarlas es lo que hace
+ * que la clasificación no sirva. Los ejes no están escritos acá: son los que
+ * el JSON traiga, en el orden en que aparezcan.
+ *
+ * La lista de abajo tampoco la escribe nadie: son las etiquetas de tus propias
+ * situaciones, que ya dicen contra quién es cada tabla.
  */
 export function PaginaDeTiposDeJugador() {
   const { catalogo } = useCatalogo()
@@ -26,24 +30,29 @@ export function PaginaDeTiposDeJugador() {
     return () => { cancelado = true }
   }, [])
 
+  const ejes = [...new Set(grupo?.terminos.map((t) => t.eje ?? '') ?? [])]
+
   return (
     <div className="diccionario">
       <header className="entrenamiento-cabecera">
         <div>
           <h1>Tipos de jugador</h1>
-          <p className="subtitulo">Contra quién es cada tabla</p>
+          <p className="subtitulo">A quién tenés enfrente, de un vistazo</p>
         </div>
       </header>
 
-      {grupo && (
-        <section className="glosario-grupo">
-          <ul className="glosario-lista">
-            {grupo.terminos.map((t) => (
-              <TerminoConVoz key={t.termino} termino={t.termino} explicacion={t.explicacion} />
-            ))}
+      {ejes.map((eje) => (
+        <section key={eje} className="glosario-grupo">
+          {eje && <h2>{eje}</h2>}
+          <ul className="jugador-lista">
+            {grupo!.terminos
+              .filter((t) => (t.eje ?? '') === eje)
+              .map((t) => (
+                <FichaDeJugador key={t.termino} jugador={t} />
+              ))}
           </ul>
         </section>
-      )}
+      ))}
 
       {catalogo && (
         <section className="glosario-grupo">

@@ -29,9 +29,7 @@ public sealed class RegistroDeGlosarioJson : IRegistroDeGlosario
                     g.GetProperty("clave").GetString()!,
                     g.GetProperty("titulo").GetString()!,
                     g.GetProperty("terminos").EnumerateArray()
-                        .Select(t => new TerminoDelGlosario(
-                            t.GetProperty("termino").GetString()!,
-                            t.GetProperty("explicacion").GetString()!))
+                        .Select(Leer)
                         .ToList()))
                 .ToList();
 
@@ -42,4 +40,27 @@ public sealed class RegistroDeGlosarioJson : IRegistroDeGlosario
             return new RegistroDeGlosarioJson([]);
         }
     }
+
+    /// <summary>
+    /// Término y explicación son obligatorios; el resto es la ficha de perfil,
+    /// que sólo traen los jugadores. Una palabra suelta del diccionario no
+    /// tiene color ni ícono y no por eso está mal escrita.
+    /// </summary>
+    private static TerminoDelGlosario Leer(JsonElement t) => new(
+        t.GetProperty("termino").GetString()!,
+        t.GetProperty("explicacion").GetString()!,
+        Texto(t, "eje"),
+        Texto(t, "perfil"),
+        Texto(t, "color"),
+        Texto(t, "colorTexto"),
+        Texto(t, "icono"),
+        Lista(t, "rasgos"));
+
+    private static string? Texto(JsonElement elemento, string propiedad) =>
+        elemento.TryGetProperty(propiedad, out var valor) ? valor.GetString() : null;
+
+    private static IReadOnlyList<string>? Lista(JsonElement elemento, string propiedad) =>
+        elemento.TryGetProperty(propiedad, out var valor)
+            ? valor.EnumerateArray().Select(v => v.GetString()!).ToList()
+            : null;
 }
