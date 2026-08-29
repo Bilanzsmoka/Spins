@@ -3,6 +3,25 @@ import type {
 } from '../models/catalogo.model'
 
 /**
+ * Un fallo del servidor con su código HTTP a mano.
+ *
+ * El código viaja porque la pantalla trata dos fallos distinto: un 404 de
+ * `/respuesta` es la casilla que dejó de existir —el controlador lo documenta
+ * y la pantalla saltea la pregunta— y cualquier otro es un error que se
+ * muestra. Se distingue por código y no por el texto del mensaje: reescribir
+ * esa frase en el controlador no puede romper el salteo en silencio.
+ */
+export class ErrorDeApi extends Error {
+  readonly estado: number
+
+  constructor(mensaje: string, estado: number) {
+    super(mensaje)
+    this.name = 'ErrorDeApi'
+    this.estado = estado
+  }
+}
+
+/**
  * El entrenador es lo único de la app que NO anda sin base de datos: un
  * calendario de repetición que pierde respuestas no es un calendario. Por eso
  * los errores se propagan en vez de tragarse — la pantalla los muestra.
@@ -15,7 +34,8 @@ async function pedir<T>(url: string, metodo: string, cuerpo?: unknown): Promise<
   })
   if (!respuesta.ok) {
     const error = await respuesta.json().catch(() => null) as { error?: string } | null
-    throw new Error(error?.error ?? `${respuesta.status} ${respuesta.statusText}`)
+    throw new ErrorDeApi(
+      error?.error ?? `${respuesta.status} ${respuesta.statusText}`, respuesta.status)
   }
   return respuesta.json() as Promise<T>
 }

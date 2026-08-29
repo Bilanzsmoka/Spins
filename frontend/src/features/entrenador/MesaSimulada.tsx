@@ -4,7 +4,14 @@ interface Props {
   pregunta: PreguntaDeTanda
 }
 
-/** Los símbolos de los dos palos que una casilla puede representar. */
+/**
+ * Los símbolos de los dos palos que una casilla puede representar.
+ *
+ * Los glifos son literales a propósito: no hay registro del que puedan salir,
+ * y ♠ no cambia. Las claves `s` y `o`, en cambio, son las de
+ * `vocabulario.palos` — si algún día aparece un tercer palo ahí, esto lo
+ * dibuja como offsuit sin quejarse: pinta rojo en silencio.
+ */
 const PALOS = { s: '♠', o: '♦' } as const
 
 /**

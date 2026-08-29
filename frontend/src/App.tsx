@@ -54,7 +54,11 @@ export default function App() {
           etiqueta: 'Entrenador',
           descripcion: 'Te pregunta y te corrige',
           disponible: true,
-          contenido: <PaginaDeEntrenador />,
+          // Misma razón que la pantalla de Voz: el micrófono es uno solo. Si
+          // el entrenador abriera el suyo, el copiloto —que sigue vivo al
+          // cambiar de módulo— oiría la respuesta hablada y la mandaría como
+          // consulta.
+          contenido: <PaginaDeEntrenador onCapturar={capturar} />,
         },
         {
           clave: 'diario',

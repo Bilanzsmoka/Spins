@@ -13,8 +13,11 @@ const TAMANOS = [20, 10, 40, 60]
 
 /**
  * Sobre qué entrenar. Todo sale del catálogo: los formatos son los que los
- * archivos declaran y las situaciones se acotan al formato elegido, igual que
- * en los selectores de la grilla.
+ * archivos declaran, las situaciones se acotan al formato elegido y los spots
+ * a la situación, igual que en los selectores de la grilla.
+ *
+ * Cada nivel resetea al de abajo: un spot de otra tabla no significa nada, y
+ * dejarlo puesto arma una tanda vacía sin decir por qué.
  *
  * El rango de stack va en BB y se compara contra la cobertura real de cada
  * tabla, no contra su clave: pedir de 7 a 12 trae toda tabla cuya banda toque
@@ -27,6 +30,17 @@ export function FiltroDeTanda({
   const delFormato = pedida.formato
     ? situaciones.filter((s) => s.formato === pedida.formato)
     : situaciones
+  const deLaSituacion = pedida.situacion
+    ? delFormato.filter((s) => s.clave === pedida.situacion)
+    : delFormato
+
+  // Un mismo spot aparece en muchos stacks con la misma clave: sin deduplicar,
+  // la lista repetiría la misma opción decenas de veces.
+  const spots = [...new Map(
+    deLaSituacion
+      .flatMap((s) => s.stacks.flatMap((t) => t.spots))
+      .map((p) => [p.clave, p.etiqueta] as const),
+  )]
 
   return (
     <div className="filtro-tanda">
@@ -35,7 +49,9 @@ export function FiltroDeTanda({
         <select
           value={pedida.formato ?? ''}
           onChange={(e) =>
-            onCambiar({ ...pedida, formato: e.target.value || null, situacion: null })}
+            onCambiar({
+              ...pedida, formato: e.target.value || null, situacion: null, spot: null,
+            })}
         >
           <option value="">Todos</option>
           {formatos.map((f) => <option key={f} value={f}>{f}</option>)}
@@ -46,11 +62,25 @@ export function FiltroDeTanda({
         Situación
         <select
           value={pedida.situacion ?? ''}
-          onChange={(e) => onCambiar({ ...pedida, situacion: e.target.value || null })}
+          onChange={(e) =>
+            onCambiar({ ...pedida, situacion: e.target.value || null, spot: null })}
         >
           <option value="">Todas</option>
           {delFormato.map((s) => (
             <option key={s.clave} value={s.clave}>{s.etiqueta}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        Spot
+        <select
+          value={pedida.spot ?? ''}
+          onChange={(e) => onCambiar({ ...pedida, spot: e.target.value || null })}
+        >
+          <option value="">Todos</option>
+          {spots.map(([clave, etiqueta]) => (
+            <option key={clave} value={clave}>{etiqueta}</option>
           ))}
         </select>
       </label>
