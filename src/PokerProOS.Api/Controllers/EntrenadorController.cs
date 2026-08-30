@@ -13,7 +13,8 @@ public record TandaPedida(
 
 /// <summary>Lo que se dijo, sin interpretar, más qué casilla se estaba contestando.</summary>
 public record RespuestaHablada(
-    string Situacion, string ClaveDeStack, string Spot, string Mano, string? Texto);
+    string Situacion, string ClaveDeStack, string Spot, string Mano, string? Texto,
+    int Milisegundos = 0);
 
 [ApiController]
 [Route("api/entrenador")]
@@ -127,7 +128,8 @@ public sealed class EntrenadorController(
             veredicto = await responder.ResponderAsync(
                 UsuarioActual,
                 new RespuestaEnviada(
-                    hablada.Situacion, hablada.ClaveDeStack, hablada.Spot, hablada.Mano, accion),
+                    hablada.Situacion, hablada.ClaveDeStack, hablada.Spot, hablada.Mano, accion,
+                    hablada.Milisegundos),
                 Hoy, ct);
         }
         catch (Exception ex) when (EsFalloDeBase(ex))

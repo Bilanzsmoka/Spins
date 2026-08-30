@@ -65,6 +65,10 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   const [indice, setIndice] = useState(0)
   const [acciones, setAcciones] = useState<AccionDefinida[]>([])
   const [veredicto, setVeredicto] = useState<VeredictoDeRespuesta | null>(null)
+  // Lo que tardaste en la que acabás de contestar, para mostrarlo. Verlo es lo
+  // que hace que empieces a contestar más rápido; guardarlo en silencio no
+  // cambia nada hoy.
+  const [tardo, setTardo] = useState(0)
   const [aciertos, setAciertos] = useState(0)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -88,11 +92,30 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   // fallar veinte de veinte haría crecer la tanda sin fin y el tamaño elegido
   // dejaría de significar algo: se reentra una sola vez por tanda.
   const reingresadas = useRef(new Set<string>())
+  /**
+   * Cuándo apareció la pregunta que está abierta. De acá sale el tiempo de
+   * respuesta, que es la mitad de lo que define un reflejo: acertar en once
+   * segundos y acertar en uno no son lo mismo, y hasta ahora se guardaban
+   * igual.
+   *
+   * Va en un ref y no en estado porque leerlo no tiene que redibujar nada, y
+   * porque los dos caminos que contestan —el click y la voz— lo leen desde
+   * closures de renderizaciones distintas.
+   */
+  const desdeQueAparecio = useRef<number>(0)
   // La voz se enciende a mano. Entrenando en silencio —de noche, o al lado de
   // alguien— cantar cada pregunta es peor que no tenerla.
   const [conVoz, setConVoz] = useState(false)
 
   const pregunta = tanda?.[indice] ?? null
+
+  // El reloj arranca cuando la pregunta aparece en pantalla, no cuando se
+  // pidió la tanda: lo que se mide es cuánto tardás vos, no la red.
+  useEffect(() => { desdeQueAparecio.current = performance.now() }, [pregunta])
+
+  /** Cuánto tardaste, redondeado. Cero si por algo no se pudo medir. */
+  const tardanza = () =>
+    desdeQueAparecio.current > 0 ? Math.round(performance.now() - desdeQueAparecio.current) : 0
 
   // Los botones son los del spot de la pregunta, no una lista fija: cada spot
   // usa las acciones que usa.
@@ -173,6 +196,8 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
     contestandoRef.current = true
     setContestando(true)
     setError(null)
+    const ms = tardanza()
+    setTardo(ms)
     try {
       const v = await responder({
         situacion: pregunta.situacion,
@@ -180,6 +205,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         spot: pregunta.spot,
         mano: pregunta.mano,
         accion,
+        milisegundos: ms,
       })
       setVeredicto(v)
       if (v.acerto) setAciertos((previo) => previo + 1)
@@ -208,9 +234,11 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
     contestandoRef.current = true
     setContestando(true)
     setError(null)
+    const ms = tardanza()
+    setTardo(ms)
     try {
       const v = await responderHablado(
-        pregunta.situacion, pregunta.claveDeStack, pregunta.spot, pregunta.mano, texto)
+        pregunta.situacion, pregunta.claveDeStack, pregunta.spot, pregunta.mano, texto, ms)
       if (!v) return false
       setVeredicto(v)
       if (v.acerto) setAciertos((previo) => previo + 1)
@@ -336,7 +364,12 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
             onElegir={(clave) => void elegir(clave)}
           />
           {veredicto && (
-            <Veredicto veredicto={veredicto} acciones={acciones} onSeguir={seguir} />
+            <Veredicto
+              veredicto={veredicto}
+              acciones={acciones}
+              milisegundos={tardo}
+              onSeguir={seguir}
+            />
           )}
         </>
       )}

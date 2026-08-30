@@ -27,8 +27,15 @@ public record PreguntaDeTanda(
     bool EsNueva);
 
 /// <summary>Lo que la pantalla manda al contestar.</summary>
+/// <param name="Milisegundos">
+/// Cuánto tardaste desde que apareció la pregunta. Con valor por defecto
+/// porque no todos los caminos lo miden todavía, y porque una respuesta sin
+/// tiempo tiene que seguir contando: perder el acierto por no haber medido
+/// sería peor que no medir.
+/// </param>
 public record RespuestaEnviada(
-    string Situacion, string ClaveDeStack, string Spot, string Mano, string Accion);
+    string Situacion, string ClaveDeStack, string Spot, string Mano, string Accion,
+    int Milisegundos = 0);
 
 /// <summary>
 /// Qué pasó con la respuesta. La ficha viene solo al fallar: acertar sigue de

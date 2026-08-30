@@ -239,6 +239,18 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+Cada respuesta, además, queda registrada en `RespuestaRegistrada`: qué casilla
+era, qué contestaste, qué decía la tabla y **cuánto tardaste**. Va aparte de
+`ProgresoDeCasilla` a propósito — aquél guarda el estado y se pisa en cada
+respuesta; éste guarda el hecho y no se pisa nunca. Sin historial no se puede
+saber *qué* se erra repetido ni si se está contestando más rápido que el mes
+pasado, y ésas son las dos preguntas que separan saber una tabla de tenerla
+como reflejo. Hoy sólo se escribe: nada lo lee todavía, porque ninguna de esas
+respuestas se puede evaluar sin meses de datos. El tiempo llega del navegador
+—se mide desde que la pregunta aparece en pantalla, no desde que se pidió la
+tanda— y se guarda cero cuando no se pudo medir: contarlo como rápido sería
+peor que no contarlo.
+
 ### El plan de estudio
 
 La app medía todo y no comparaba nada: el hábito `VOLUMEN` guardaba cuántos

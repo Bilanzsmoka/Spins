@@ -395,6 +395,8 @@ export interface RespuestaEnviada {
   spot: string
   mano: string
   accion: string
+  /** Cuánto tardaste desde que apareció la pregunta. */
+  milisegundos: number
 }
 
 export interface VeredictoDeRespuesta {

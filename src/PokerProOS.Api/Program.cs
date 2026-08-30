@@ -116,6 +116,7 @@ builder.Services.AddScoped<IBitacoraDeConsultas, BitacoraDeConsultas>();
 builder.Services.AddScoped<IRepositorioDeDiario, RepositorioDeDiario>();
 // Scoped como el resto de lo que toca la base: el DbContext lo es.
 builder.Services.AddScoped<IProgresoDeEntrenamiento, ProgresoDeEntrenamientoSql>();
+builder.Services.AddScoped<IBitacoraDeRespuestas, BitacoraDeRespuestasSql>();
 builder.Services.AddScoped<ArmarTandaHandler>();
 builder.Services.AddScoped<ResponderRespuestaHandler>();
 

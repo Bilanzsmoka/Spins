@@ -18,7 +18,8 @@ public sealed class ResponderRespuestaHandler(
     ResolverManoHandler resolver,
     AnalizadorDeMemoria analizador,
     ICatalogoDeTablas catalogo,
-    IProgresoDeEntrenamiento progreso)
+    IProgresoDeEntrenamiento progreso,
+    IBitacoraDeRespuestas bitacora)
 {
     /// <summary>
     /// Null si esa casilla no existe en el catálogo. Pasa cuando una tabla se
@@ -55,6 +56,23 @@ public sealed class ResponderRespuestaHandler(
         fila.IntervaloEnDias = calculado.IntervaloEnDias;
         fila.Vence = calculado.Vence;
         await progreso.GuardarAsync(fila, ct);
+
+        // El calendario guarda el estado y se pisa; esto guarda el hecho y no
+        // se pisa nunca. Va después de graduar la casilla porque lo que no
+        // puede perderse es el progreso: si algo falla acá, ya está anotado
+        // que acertaste.
+        await bitacora.RegistrarAsync(new RespuestaRegistrada
+        {
+            UsuarioId = usuarioId,
+            Situacion = respuesta.Situacion,
+            ClaveDeStack = respuesta.ClaveDeStack,
+            Spot = respuesta.Spot,
+            Mano = respuesta.Mano,
+            AccionElegida = respuesta.Accion,
+            AccionCorrecta = correcta.Accion,
+            Acerto = acerto,
+            Milisegundos = respuesta.Milisegundos,
+        }, ct);
 
         // La ficha solo al fallar: acertar sigue de largo, y es al errar
         // cuando una explicacion entra de verdad.

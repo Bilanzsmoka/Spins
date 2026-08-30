@@ -386,6 +386,15 @@ body {
 .entrada-nombre { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .entrada-etiqueta { color: var(--apagado); font-size: 12px; font-style: normal; }
 
+/* El tiempo de la respuesta, al lado de la accion correcta. */
+.veredicto-tiempo {
+  font-size: 12px; font-weight: 700;
+  color: var(--apagado);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+}
+
 /* ---------- El plan: como venis hoy ---------- */
 
 /*

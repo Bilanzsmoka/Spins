@@ -64,6 +64,18 @@ public class EntrenadorControllerTests
             => throw new BaseCaida();
     }
 
+    /// <summary>
+    /// La bitácora no participa de lo que prueba esta clase. Cuando el caso es
+    /// "la base se cayó", el progreso revienta antes de llegar acá — que es
+    /// justo el orden que importa: lo que no puede perderse es la graduación
+    /// de la casilla.
+    /// </summary>
+    private sealed class BitacoraNula : IBitacoraDeRespuestas
+    {
+        public Task RegistrarAsync(RespuestaRegistrada respuesta, CancellationToken ct)
+            => Task.CompletedTask;
+    }
+
     private static EntrenadorController Armar()
         => Armar(new ProgresoEnMemoria());
 
@@ -79,7 +91,8 @@ public class EntrenadorControllerTests
                 new ResolverManoHandler(catalogo),
                 new AnalizadorDeMemoria(catalogo),
                 catalogo,
-                progreso),
+                progreso,
+                new BitacoraNula()),
             catalogo,
             acciones,
             new InterpretadorDeRespuesta(acciones),

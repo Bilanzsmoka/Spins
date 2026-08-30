@@ -59,10 +59,11 @@ export const accionesDelSpot = (situacion: string, stack: string, spot: string) 
  */
 export async function responderHablado(
   situacion: string, claveDeStack: string, spot: string, mano: string, texto: string,
+  milisegundos: number,
 ): Promise<VeredictoDeRespuesta | null> {
   const v = await pedir<VeredictoDeRespuesta | { ignorado: true }>(
     '/api/entrenador/respuesta-hablada', 'POST',
-    { situacion, claveDeStack, spot, mano, texto })
+    { situacion, claveDeStack, spot, mano, texto, milisegundos })
 
   return 'ignorado' in v ? null : v
 }
