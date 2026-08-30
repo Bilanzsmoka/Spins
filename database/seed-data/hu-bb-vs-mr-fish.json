@@ -3,7 +3,19 @@
     "key": "HU_BB_VS_MR_FISH",
     "label": "BB vs min-raise | fish",
     "formato": "HU",
-    "explicacion": "Sos la ciega grande contra un recreativo. El botón subió al mínimo, 2 ciegas: la subida más chica que existe. Te toca poner una ciega más para seguir, y el bote ya está en cuatro."
+    "explicacion": "Sos la ciega grande contra un recreativo. El botón subió al mínimo, 2 ciegas: la subida más chica que existe. Te toca poner una ciega más para seguir, y el bote ya está en cuatro.",
+    "mesa": {
+      "heroe": "BB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "SB",
+          "tipo": "Fish",
+          "hizo": "min-raise"
+        }
+      ]
+    }
   },
   "stacks": [
     {

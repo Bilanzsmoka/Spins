@@ -47,6 +47,10 @@ public sealed class TablasController(
             s.Etiqueta,
             s.Formato,
             s.Explicacion,
+            // La mesa viaja con el catálogo y no con cada pregunta: la pantalla
+            // ya lo tiene cargado, y mandarla en cada pregunta repetiría las
+            // mismas tres sillas todo el tiempo.
+            s.Mesa,
             stacks = s.Stacks.Select(t => new
             {
                 t.Stack.Clave,

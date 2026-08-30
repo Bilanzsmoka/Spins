@@ -16,7 +16,7 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
         var problemas = new List<ProblemaDeTabla>();
         var stacksPorSituacion =
             new Dictionary<string, (string Etiqueta, string Formato, string? Explicacion,
-                List<TablaDeStack> Stacks)>(StringComparer.OrdinalIgnoreCase);
+                MesaDeSituacion? Mesa, List<TablaDeStack> Stacks)>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var archivo in Directory.GetFiles(directorio, "*.json").OrderBy(a => a))
         {
@@ -49,7 +49,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 par.Value.Etiqueta,
                 par.Value.Formato,
                 par.Value.Stacks.OrderBy(t => t.Stack.MinBB).ToList(),
-                par.Value.Explicacion))
+                par.Value.Explicacion,
+                par.Value.Mesa))
             .ToList();
 
         return new CatalogoEnMemoria(situaciones, problemas);
@@ -58,7 +59,7 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
     private void LeerArchivo(
         string archivo,
         Dictionary<string, (string Etiqueta, string Formato, string? Explicacion,
-            List<TablaDeStack> Stacks)> acumulador,
+            MesaDeSituacion? Mesa, List<TablaDeStack> Stacks)> acumulador,
         List<ProblemaDeTabla> problemas)
     {
         var nombreArchivo = Path.GetFileName(archivo);
@@ -86,7 +87,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 : null;
 
         if (!acumulador.TryGetValue(claveSituacion, out var entrada))
-            acumulador[claveSituacion] = entrada = (etiquetaSituacion, formato, explicacion, []);
+            acumulador[claveSituacion] = entrada = (
+                etiquetaSituacion, formato, explicacion, LeerMesa(situacion), []);
 
         foreach (var stack in raiz.GetProperty("stacks").EnumerateArray())
         {
@@ -198,4 +200,44 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 ? tip.GetString()
                 : null);
     }
+
+    /// <summary>
+    /// La mesa declarada, o null si el archivo no la trae. Es opcional a
+    /// propósito: una tabla sin mesa se estudia igual, sólo que el entrenador
+    /// no puede dibujarla. Un rival sin posición se descarta en vez de dibujar
+    /// una silla vacía, que confundiría más que faltar.
+    /// </summary>
+    private static MesaDeSituacion? LeerMesa(JsonElement situacion)
+    {
+        if (!situacion.TryGetProperty("mesa", out var mesa)
+            || mesa.ValueKind != JsonValueKind.Object) return null;
+
+        var heroe = mesa.TryGetProperty("heroe", out var h) ? h.GetString() : null;
+        if (string.IsNullOrWhiteSpace(heroe)) return null;
+
+        var rivales = new List<RivalEnLaMesa>();
+        if (mesa.TryGetProperty("rivales", out var lista)
+            && lista.ValueKind == JsonValueKind.Array)
+            foreach (var rival in lista.EnumerateArray())
+            {
+                var posicion = rival.TryGetProperty("posicion", out var p) ? p.GetString() : null;
+                if (string.IsNullOrWhiteSpace(posicion)) continue;
+                rivales.Add(new RivalEnLaMesa(
+                    posicion,
+                    (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
+                    (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? ""));
+            }
+
+        return new MesaDeSituacion(
+            heroe,
+            Ciega(mesa, "ciegaChica", 0.5m),
+            Ciega(mesa, "ciegaGrande", 1m),
+            rivales);
+    }
+
+    private static decimal Ciega(JsonElement mesa, string propiedad, decimal porDefecto)
+        => mesa.TryGetProperty(propiedad, out var valor)
+           && valor.TryGetDecimal(out var numero)
+            ? numero
+            : porDefecto;
 }

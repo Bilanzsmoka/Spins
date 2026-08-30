@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCatalogo } from '../../core/hooks/useCatalogo'
 import type {
-  AccionDefinida, PreguntaDeTanda, TandaPedida, VeredictoDeRespuesta,
+  AccionDefinida, PreguntaDeTanda, TandaPedida, TerminoDelGlosario, VeredictoDeRespuesta,
 } from '../../core/models/catalogo.model'
 import type { ResultadoDeCaptura } from '../../core/services/tablasApi'
 import {
   accionesDelSpot, ErrorDeApi, pedirTanda, responder, responderHablado,
 } from '../../core/services/entrenadorApi'
+import { obtenerGlosario } from '../../core/services/tablasApi'
 import { BotonesDeAccion } from './BotonesDeAccion'
 import { FiltroDeTanda } from './FiltroDeTanda'
 import { MesaSimulada } from './MesaSimulada'
@@ -106,12 +107,44 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   // La voz se enciende a mano. Entrenando en silencio —de noche, o al lado de
   // alguien— cantar cada pregunta es peor que no tenerla.
   const [conVoz, setConVoz] = useState(false)
+  // El reloj es información, no castigo: cuenta hacia arriba y no reprueba
+  // nada. Verlo es lo que empieza a cambiar cómo contestás; que además decida
+  // si sabés una casilla es otra etapa.
+  const [conReloj, setConReloj] = useState(true)
+  const [transcurrido, setTranscurrido] = useState(0)
+  // Los perfiles del glosario, para pintar cada rival de su color. Se piden una
+  // vez: si el glosario no está, la mesa se dibuja igual, sin colores.
+  const [perfiles, setPerfiles] = useState<TerminoDelGlosario[]>([])
+
+  useEffect(() => {
+    let cancelado = false
+    obtenerGlosario()
+      .then((g) => {
+        if (!cancelado) setPerfiles(g.find((x) => x.clave === 'jugadores')?.terminos ?? [])
+      })
+      .catch(() => { if (!cancelado) setPerfiles([]) })
+    return () => { cancelado = true }
+  }, [])
 
   const pregunta = tanda?.[indice] ?? null
 
   // El reloj arranca cuando la pregunta aparece en pantalla, no cuando se
   // pidió la tanda: lo que se mide es cuánto tardás vos, no la red.
   useEffect(() => { desdeQueAparecio.current = performance.now() }, [pregunta])
+
+  // Corre mientras la pregunta está abierta y se frena con el veredicto: seguir
+  // contando mientras leés la explicación no mediría nada.
+  useEffect(() => {
+    // Se pone en cero acá y no en el tic: entre que aparece la pregunta y el
+    // primer tic pasan 100 ms, y en esos 100 ms se vería el tiempo de la mano
+    // anterior.
+    // oxlint-disable-next-line set-state-in-effect
+    setTranscurrido(0)
+    if (!pregunta || veredicto || !conReloj) return
+    const tic = setInterval(
+      () => setTranscurrido(performance.now() - desdeQueAparecio.current), 100)
+    return () => clearInterval(tic)
+  }, [pregunta, veredicto, conReloj])
 
   /** Cuánto tardaste, redondeado. Cero si por algo no se pudo medir. */
   const tardanza = () =>
@@ -330,6 +363,13 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         >
           {conVoz ? 'Voz encendida' : 'Voz apagada'}
         </button>
+        <button
+          type="button"
+          className={conReloj ? 'boton-principal' : 'boton-tenue'}
+          onClick={() => setConReloj((previo) => !previo)}
+        >
+          {conReloj ? 'Reloj encendido' : 'Reloj apagado'}
+        </button>
         {tanda && !terminada && (
           <p className="entrenador-marcador">
             {indice + 1} / {tanda.length} · {aciertos} bien
@@ -357,7 +397,12 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
 
       {pregunta && (
         <>
-          <MesaSimulada pregunta={pregunta} />
+          <MesaSimulada
+            pregunta={pregunta}
+            situacion={catalogo?.situaciones.find((s) => s.clave === pregunta.situacion) ?? null}
+            perfiles={perfiles}
+            milisegundos={conReloj ? transcurrido : 0}
+          />
           <BotonesDeAccion
             acciones={acciones}
             deshabilitado={veredicto !== null || contestando}

@@ -3,7 +3,19 @@
     "key": "HU_BB_VS_OS_FISH",
     "label": "BB vs open shove | fish",
     "formato": "HU",
-    "explicacion": "Sos la ciega grande contra un recreativo. El botón empujó todas sus fichas antes del flop. No hay decisión intermedia: pagás y se ven las cinco cartas, o tirás y perdés la ciega que ya pusiste."
+    "explicacion": "Sos la ciega grande contra un recreativo. El botón empujó todas sus fichas antes del flop. No hay decisión intermedia: pagás y se ven las cinco cartas, o tirás y perdés la ciega que ya pusiste.",
+    "mesa": {
+      "heroe": "BB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "SB",
+          "tipo": "Fish",
+          "hizo": "all-in"
+        }
+      ]
+    }
   },
   "stacks": [
     {

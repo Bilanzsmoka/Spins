@@ -19,11 +19,28 @@ export interface StackResumen {
   spots: SpotResumen[]
 }
 
+export interface RivalEnLaMesa {
+  posicion: string
+  /** El término del glosario del que salen su color y su figura. */
+  tipo: string
+  /** "limp", "min-raise", "all-in", "call", "fold", "por actuar". */
+  hizo: string
+}
+
+export interface MesaDeSituacion {
+  heroe: string
+  ciegaChica: number
+  ciegaGrande: number
+  rivales: RivalEnLaMesa[]
+}
+
 export interface SituacionResumen {
   clave: string
   etiqueta: string
   /** El formato de mesa ("HU", "3-max"), declarado por el archivo de la tabla. */
   formato: string
+  /** Cómo se ve la mesa cuando te toca decidir. Nula si el archivo no la declara. */
+  mesa: MesaDeSituacion | null
   /**
    * Qué es esta situación, escrito a mano. Nula si el archivo no la declara:
    * ningún cálculo puede deducir qué significa "BB vs 3-way limp".

@@ -239,6 +239,22 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+El entrenador dibuja **la mesa**, no una ficha de estudio: quién está sentado
+dónde, de qué tipo es cada rival —con el color y la figura del glosario— y qué
+hizo antes de tu turno, más tu stack en BB, las ciegas y un reloj que cuenta
+hacia arriba y avisa con color sin reprobar nada. Y **no dice la mano**: en una
+mesa nunca ves «AKo», ves dos cartas y las tenés que leer; mostrar la etiqueta
+convertía el ejercicio en reconocer un código, que es lo que no se transfiere
+al juego.
+
+Todo eso sale del bloque `mesa` de cada situación —`heroe`, `ciegaChica`,
+`ciegaGrande` y `rivales` con `posicion`, `tipo` y `hizo`—, **declarado, nunca
+deducido de la clave**. Acá esa regla importa más que en ningún lado: una mesa
+mal dibujada no rompe nada visible y enseña una mano equivocada durante meses.
+Por eso las pruebas controlan el archivo y no el código que lo lee: que toda
+situación declare mesa, que nadie comparta silla, que el tipo de cada rival
+exista en el glosario y que las sillas coincidan con el formato.
+
 La tanda además **se intercala**: ninguna página —situación + stack + spot—
 aporta más de la mitad, el material entra de a uno por página por vuelta, y un
 reparto final evita que dos seguidas compartan página. Practicar agrupado hace

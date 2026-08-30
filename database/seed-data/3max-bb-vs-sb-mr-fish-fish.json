@@ -3,7 +3,24 @@
     "key": "3MAX_BB_VS_SB_MR_FISH_FISH",
     "label": "BB vs SB min-raise | fish fish",
     "formato": "3-max",
-    "explicacion": "Sos la ciega grande. El botón se fue y la ciega chica subió al mínimo. Quedan dos y desde el flop vos actuás último toda la mano. Es un recreativo."
+    "explicacion": "Sos la ciega grande. El botón se fue y la ciega chica subió al mínimo. Quedan dos y desde el flop vos actuás último toda la mano. Es un recreativo.",
+    "mesa": {
+      "heroe": "BB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "BTN",
+          "tipo": "Fish",
+          "hizo": "fold"
+        },
+        {
+          "posicion": "SB",
+          "tipo": "Fish",
+          "hizo": "min-raise"
+        }
+      ]
+    }
   },
   "stacks": [
     {

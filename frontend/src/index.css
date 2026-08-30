@@ -252,6 +252,60 @@ body {
   background: var(--panel-2); color: var(--acento);
   font-size: 10px; text-transform: uppercase; letter-spacing: .09em;
 }
+/*
+ * El pano: rivales arriba, el centro con stack y ciegas, y vos abajo. Es la
+ * unica pantalla del proyecto que imita algo fisico, y es a proposito — lo que
+ * se entrena se parece a lo que se practica.
+ */
+.mesa-panio {
+  width: 100%; max-width: 520px;
+  display: grid; gap: 16px; justify-items: center;
+  padding: 20px 18px;
+  border-radius: 120px / 46px;
+  border: 1px solid var(--borde);
+  background: radial-gradient(ellipse at 50% 40%, var(--panel-2) 0%, var(--fondo) 100%);
+}
+.mesa-rivales { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; }
+.mesa-silla { display: grid; justify-items: center; gap: 3px; }
+.mesa-silla strong { font-size: 13px; letter-spacing: .04em; }
+/* Quien ya solto la mano se apaga, no se esconde: seguir viendo la silla
+   vacia es parte de leer la mesa. */
+.mesa-silla-fuera { opacity: .42; }
+.mesa-silla-fuera strong { text-decoration: line-through; }
+.mesa-ficha {
+  width: 38px; height: 38px; display: grid; place-items: center;
+  border-radius: 50%; font-size: 19px; line-height: 1;
+  background: var(--desconocido); color: var(--texto);
+  border: 1px solid var(--borde);
+}
+.mesa-hizo {
+  font-size: 11px; font-weight: 700; color: var(--apagado);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.mesa-centro { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.mesa-stack {
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--borde);
+  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.mesa-ciegas { color: var(--tenue, var(--apagado)); font-size: 11px; }
+.mesa-heroe { display: grid; justify-items: center; gap: 7px; }
+.mesa-posicion {
+  font-size: 12px; font-weight: 800; letter-spacing: .1em;
+  color: var(--acento); text-transform: uppercase;
+}
+
+/* El reloj cuenta hacia arriba y avisa con color. No reprueba nada. */
+.mesa-reloj {
+  margin-left: auto;
+  padding: 2px 9px; border-radius: 999px;
+  border: 1px solid var(--borde); background: var(--panel-2);
+  font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--apagado);
+}
+.mesa-reloj-pensando { color: #f59e0b; border-color: #f59e0b; }
+.mesa-reloj-lento { color: #ef4444; border-color: #ef4444; }
+
 .mesa-cartas { display: flex; gap: 12px; }
 .carta {
   display: grid; justify-items: center; gap: 2px;

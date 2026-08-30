@@ -3,7 +3,24 @@
     "key": "3MAX_BB_VS_3WAY_LIMP_FISH_FISH",
     "label": "BB vs 3-way limp | fish fish",
     "formato": "3-max",
-    "explicacion": "Sos la ciega grande y quedaron los tres. El botón y la ciega chica entraron pagando, sin subir: nadie mostró fuerza y el bote está grande respecto de lo que te falta poner. Podés pasar y ver el flop gratis, pero después vas a jugar fuera de posición contra dos recreativos."
+    "explicacion": "Sos la ciega grande y quedaron los tres. El botón y la ciega chica entraron pagando, sin subir: nadie mostró fuerza y el bote está grande respecto de lo que te falta poner. Podés pasar y ver el flop gratis, pero después vas a jugar fuera de posición contra dos recreativos.",
+    "mesa": {
+      "heroe": "BB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "BTN",
+          "tipo": "Fish",
+          "hizo": "limp"
+        },
+        {
+          "posicion": "SB",
+          "tipo": "Fish",
+          "hizo": "limp"
+        }
+      ]
+    }
   },
   "stacks": [
     {

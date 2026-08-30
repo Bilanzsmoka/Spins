@@ -3,7 +3,24 @@
     "key": "3MAX_BB_VS_SB_OS_FISH_FISH",
     "label": "BB vs SB open shove | fish fish",
     "formato": "3-max",
-    "explicacion": "Sos la ciega grande. El botón se fue y la ciega chica empujó todo antes del flop. Es pagar y ver las cinco cartas, o tirar. Es un recreativo."
+    "explicacion": "Sos la ciega grande. El botón se fue y la ciega chica empujó todo antes del flop. Es pagar y ver las cinco cartas, o tirar. Es un recreativo.",
+    "mesa": {
+      "heroe": "BB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "BTN",
+          "tipo": "Fish",
+          "hizo": "fold"
+        },
+        {
+          "posicion": "SB",
+          "tipo": "Fish",
+          "hizo": "all-in"
+        }
+      ]
+    }
   },
   "stacks": [
     {

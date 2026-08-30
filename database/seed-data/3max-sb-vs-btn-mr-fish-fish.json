@@ -3,7 +3,24 @@
     "key": "3MAX_SB_VS_BTN_MR_FISH_FISH",
     "label": "SB vs BTN min-raise | fish fish",
     "formato": "3-max",
-    "explicacion": "Sos la ciega chica y el botón subió al mínimo. Queda la ciega grande por hablar detrás tuyo, y si seguís vas a jugar el resto de la mano fuera de posición contra el botón. Los dos son recreativos."
+    "explicacion": "Sos la ciega chica y el botón subió al mínimo. Queda la ciega grande por hablar detrás tuyo, y si seguís vas a jugar el resto de la mano fuera de posición contra el botón. Los dos son recreativos.",
+    "mesa": {
+      "heroe": "SB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "BTN",
+          "tipo": "Fish",
+          "hizo": "min-raise"
+        },
+        {
+          "posicion": "BB",
+          "tipo": "Fish",
+          "hizo": "por actuar"
+        }
+      ]
+    }
   },
   "stacks": [
     {

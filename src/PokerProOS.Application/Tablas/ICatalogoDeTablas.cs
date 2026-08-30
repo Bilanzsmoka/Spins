@@ -56,6 +56,32 @@ public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)
 }
 
 /// <summary>
+/// Un rival en la mesa: dónde está sentado, qué clase de jugador es y qué hizo
+/// antes de que sea tu turno.
+/// </summary>
+/// <param name="Tipo">
+/// El término del glosario —"Fish", "Reg"— del que salen su color y su figura.
+/// Es lo que hace que el rival se reconozca sin leer.
+/// </param>
+/// <param name="Hizo">"limp", "min-raise", "all-in", "call", "fold", "por actuar".</param>
+public record RivalEnLaMesa(string Posicion, string Tipo, string Hizo);
+
+/// <summary>
+/// Cómo se ve la mesa cuando te toca decidir: dónde estás sentado, quién más
+/// hay y qué hicieron.
+///
+/// Se <b>declara</b> en el archivo, no se deduce de la clave de la situación.
+/// Deducir "BB vs BTN limp" de un identificador es exactamente lo que este
+/// proyecto no hace, y acá importa más que en ningún lado: una mesa mal
+/// dibujada enseña una mano equivocada.
+/// </summary>
+public record MesaDeSituacion(
+    string Heroe,
+    decimal CiegaChica,
+    decimal CiegaGrande,
+    IReadOnlyList<RivalEnLaMesa> Rivales);
+
+/// <summary>
 /// El formato de mesa al que pertenece la situación ("HU", "3-max"). Lo
 /// declara el archivo, no lo deduce el código de la clave: agregar un formato
 /// nuevo tiene que ser dejar un JSON, igual que agregar una tabla.
@@ -73,7 +99,9 @@ public record SituacionDeTabla(
     /// Es descripción, no estrategia: la estrategia vive en el tip de cada
     /// spot, que depende del stack. Nula si el archivo no la declara.
     /// </summary>
-    string? Explicacion = null);
+    string? Explicacion = null,
+    /// <summary>Cómo se ve la mesa. Nula si el archivo no la declara.</summary>
+    MesaDeSituacion? Mesa = null);
 
 public interface ICatalogoDeTablas
 {

@@ -3,7 +3,19 @@
     "key": "HU_SB_OR_FISH",
     "label": "SB OR | fish",
     "formato": "HU",
-    "explicacion": "Quedaron dos y sos la ciega chica, que en heads-up es el botón: pagás menos ciega, actuás primero antes del flop y último después. Nadie hizo nada todavía — la mano empieza con vos. Enfrente hay un recreativo."
+    "explicacion": "Quedaron dos y sos la ciega chica, que en heads-up es el botón: pagás menos ciega, actuás primero antes del flop y último después. Nadie hizo nada todavía — la mano empieza con vos. Enfrente hay un recreativo.",
+    "mesa": {
+      "heroe": "SB",
+      "ciegaChica": 0.5,
+      "ciegaGrande": 1,
+      "rivales": [
+        {
+          "posicion": "BB",
+          "tipo": "Fish",
+          "hizo": "por actuar"
+        }
+      ]
+    }
   },
   "stacks": [
     {
