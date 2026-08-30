@@ -6,6 +6,7 @@ import {
   agregarDicho, obtenerVocabulario, quitarDicho,
   type ResultadoDeCaptura,
 } from '../../core/services/tablasApi'
+import { useCatalogo } from '../../core/hooks/useCatalogo'
 
 /**
  * Las palabras de stack son una lista suelta, sin clave propia: el editor las
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export function PaginaDeVocabulario({ onCapturar }: Props) {
+  const { catalogo } = useCatalogo()
   const [vocabulario, setVocabulario] = useState<Vocabulario | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [escuchando, setEscuchando] = useState<string | null>(null)
@@ -55,6 +57,13 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
   }, [])
 
   useEffect(cargar, [cargar])
+
+  // Las claves del vocabulario son las del JSON —HU_BB_VS_LIMP_FISH— y ahi
+  // adentro un heads-up y un 3-max se ven igual. El catalogo ya sabe de que
+  // formato es cada situacion y como se llama en castellano, asi que la clave
+  // se acompana en vez de reemplazarse: la cruda sigue siendo la que hay que
+  // buscar en el archivo.
+  const situaciones = new Map((catalogo?.situaciones ?? []).map((s) => [s.clave, s]))
 
   const grabar = async (clave: string) => {
     setEscuchando(clave)
@@ -175,7 +184,19 @@ export function PaginaDeVocabulario({ onCapturar }: Props) {
             {grupo.entradas.map((entrada) => (
               <li key={entrada.clave}>
                 <div className="entrada-cabecera">
-                  <strong className="entrada-clave">{entrada.clave}</strong>
+                  <span className="entrada-nombre">
+                    {situaciones.has(entrada.clave) && (
+                      <span className="glosario-formato">
+                        {situaciones.get(entrada.clave)!.formato}
+                      </span>
+                    )}
+                    <strong className="entrada-clave">{entrada.clave}</strong>
+                    {situaciones.has(entrada.clave) && (
+                      <em className="entrada-etiqueta">
+                        {situaciones.get(entrada.clave)!.etiqueta}
+                      </em>
+                    )}
+                  </span>
                   <button
                     type="button"
                     className="boton-grabar"

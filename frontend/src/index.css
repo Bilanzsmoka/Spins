@@ -382,6 +382,10 @@ body {
   text-transform: uppercase; letter-spacing: .06em; text-align: center;
 }
 
+/* La clave cruda, su formato y su nombre en castellano, en un renglon. */
+.entrada-nombre { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.entrada-etiqueta { color: var(--apagado); font-size: 12px; font-style: normal; }
+
 /* ---------- Tipos de jugador ---------- */
 
 /*
