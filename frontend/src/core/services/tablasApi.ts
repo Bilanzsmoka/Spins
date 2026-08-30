@@ -1,7 +1,7 @@
 import type {
   Catalogo, DiaDeDiario, EntradaDeDiario, EntradaEnviada,
   CategoriaDeVocabulario, FichaDeMemoria, HabitoDefinido, ParteDeMix, ProgresoDeHabitos,
-  SpotCompleto, Vocabulario, GrupoDelGlosario,
+  SpotCompleto, Vocabulario, GrupoDelGlosario, RespuestaDelPlan,
 } from '../models/catalogo.model'
 
 async function pedir<T>(url: string): Promise<T> {
@@ -11,6 +11,9 @@ async function pedir<T>(url: string): Promise<T> {
 }
 
 export const obtenerCatalogo = () => pedir<Catalogo>('/api/tablas')
+
+/** Cómo venís hoy. `hayPlan: false` es que todavía no escribiste uno. */
+export const obtenerPlanDeHoy = () => pedir<RespuestaDelPlan>('/api/plan/hoy')
 
 export const obtenerSpot = (situacion: string, stack: string, spot: string) =>
   pedir<SpotCompleto>(`/api/tablas/${situacion}/${stack}/${spot}`)

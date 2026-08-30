@@ -327,6 +327,46 @@ export interface GrupoDelGlosario {
   ejes?: EjeDelGlosario[]
 }
 
+/* ---------- El plan ---------- */
+
+export interface EstadoDeHito {
+  clave: string
+  titulo: string
+  tipo: string
+  /** El número crudo, que es lo que impide leer el porcentaje como algo que no es. */
+  hecho: number
+  total: number
+  porcentaje: number
+  objetivo: number
+  cumplido: boolean
+  esElActivo: boolean
+  situacion: string | null
+  /** Por qué no se pudo medir. Un hito roto se muestra con su causa. */
+  problema: string | null
+}
+
+export interface DiaDelPlan {
+  fecha: string
+  volumen: number
+  alcanzo: boolean
+  esHoy: boolean
+}
+
+export interface EstadoDelDia {
+  metaDeVolumen: number
+  volumenDeHoy: number
+  estudioHecho: boolean
+  hitos: EstadoDeHito[]
+  semana: DiaDelPlan[]
+  sinDosSeguidos: boolean
+  situacionQueToca: string | null
+}
+
+export interface RespuestaDelPlan {
+  hayPlan: boolean
+  estado?: EstadoDelDia
+}
+
 /* ---------- Entrenador ---------- */
 
 export interface PreguntaDeTanda {

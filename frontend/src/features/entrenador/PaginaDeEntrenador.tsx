@@ -22,6 +22,9 @@ interface Props {
    * encima del entrenador.
    */
   onCapturar: () => Promise<ResultadoDeCaptura>
+
+  /** La tabla del hito activo, cuando se llega desde el panel del día. */
+  situacionInicial?: string | null
 }
 
 const PEDIDA_INICIAL: TandaPedida = {
@@ -50,10 +53,14 @@ const claveDeCasilla = (p: PreguntaDeTanda) =>
  * el error se muestra en pantalla en lugar de tragarse, que es lo que hacen la
  * bitácora y el diario.
  */
-export function PaginaDeEntrenador({ onCapturar }: Props) {
+export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   const { catalogo, error: errorDeCatalogo } = useCatalogo()
 
-  const [pedida, setPedida] = useState<TandaPedida>(PEDIDA_INICIAL)
+  // Si venís del panel del día, la tanda arranca ya filtrada en la tabla del
+  // hito activo: el módulo se monta de nuevo al cambiar, así que alcanza con
+  // el valor inicial.
+  const [pedida, setPedida] = useState<TandaPedida>(
+    { ...PEDIDA_INICIAL, situacion: situacionInicial ?? null })
   const [tanda, setTanda] = useState<PreguntaDeTanda[] | null>(null)
   const [indice, setIndice] = useState(0)
   const [acciones, setAcciones] = useState<AccionDefinida[]>([])

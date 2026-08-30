@@ -3,6 +3,7 @@ import type { HabitoDefinido, ProgresoDeHabitos } from '../../core/models/catalo
 import { obtenerHabitos, obtenerProgreso } from '../../core/services/tablasApi'
 import { CruceDeHabitos } from './CruceDeHabitos'
 import { GrillaDeHabitos } from './GrillaDeHabitos'
+import { PanelDeHoy } from '../plan/PanelDeHoy'
 
 const PERIODOS = [
   { dias: 14, etiqueta: '2 semanas' },
@@ -10,7 +11,12 @@ const PERIODOS = [
   { dias: 90, etiqueta: '3 meses' },
 ]
 
-export function PaginaDeHabitos() {
+interface Props {
+  /** Deja anotada la tabla que toca, para que el entrenador arranque en ella. */
+  onElegirTabla: (situacion: string) => void
+}
+
+export function PaginaDeHabitos({ onElegirTabla }: Props) {
   const [dias, setDias] = useState(30)
   const [progreso, setProgreso] = useState<ProgresoDeHabitos | null>(null)
   const [habitos, setHabitos] = useState<HabitoDefinido[]>([])
@@ -46,6 +52,8 @@ export function PaginaDeHabitos() {
           ))}
         </div>
       </header>
+
+      <PanelDeHoy onElegirTabla={onElegirTabla} />
 
       {error && <p className="error">{error}</p>}
 

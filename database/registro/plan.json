@@ -1,0 +1,151 @@
+{
+  "metaDeVolumen": 140,
+  "habitoDeVolumen": "VOLUMEN",
+  "habitoDeEstudio": "ESTUDIO",
+  "hitos": [
+    {
+      "clave": "VOLUMEN_SOSTENIDO",
+      "titulo": "140 torneos por día, dos semanas",
+      "tipo": "jugar",
+      "habito": "VOLUMEN",
+      "objetivo": 140,
+      "dias": 14
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_LIMP_FISH_FISH",
+      "titulo": "3-max · BB vs BTN limp",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_BTN_LIMP_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_3WAY_LIMP_FISH_FISH",
+      "titulo": "3-max · BB vs 3-way limp",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_3WAY_LIMP_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_MR_FISH_FISH",
+      "titulo": "3-max · SB vs BTN min-raise",
+      "tipo": "saber",
+      "situacion": "3MAX_SB_VS_BTN_MR_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_3WAY_MR_FISH_FISH",
+      "titulo": "3-max · BB vs 3-way min-raise",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_3WAY_MR_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_OS_FISH_FISH",
+      "titulo": "3-max · BB vs SB open shove",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_SB_OS_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_OS_REG_REG",
+      "titulo": "3-max · SB vs BTN open shove",
+      "tipo": "saber",
+      "situacion": "3MAX_SB_VS_BTN_OS_REG_REG",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_MR_FISH_FISH",
+      "titulo": "3-max · BB vs SB min-raise",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_SB_MR_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_SB_VS_BTN_LIMP_FISH_FISH",
+      "titulo": "3-max · SB vs BTN limp",
+      "tipo": "saber",
+      "situacion": "3MAX_SB_VS_BTN_LIMP_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_OS_REG_REG",
+      "titulo": "3-max · BB vs BTN open shove",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_BTN_OS_REG_REG",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_BTN_MR_FISH_FISH",
+      "titulo": "3-max · BB vs BTN min-raise",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_BTN_MR_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BB_VS_SB_LIMP_FISH_FISH",
+      "titulo": "3-max · BB vs SB limp",
+      "tipo": "saber",
+      "situacion": "3MAX_BB_VS_SB_LIMP_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_BTN_OR_FISH_FISH",
+      "titulo": "3-max · BTN OR",
+      "tipo": "saber",
+      "situacion": "3MAX_BTN_OR_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "3MAX_SB_VS_BB_FISH_FISH",
+      "titulo": "3-max · SB vs BB",
+      "tipo": "saber",
+      "situacion": "3MAX_SB_VS_BB_FISH_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "HU_BB_VS_MR_FISH",
+      "titulo": "HU · BB vs min-raise",
+      "tipo": "saber",
+      "situacion": "HU_BB_VS_MR_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "HU_BB_VS_OS_FISH",
+      "titulo": "HU · BB vs open shove",
+      "tipo": "saber",
+      "situacion": "HU_BB_VS_OS_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "HU_BB_VS_LIMP_FISH",
+      "titulo": "HU · BB vs limp",
+      "tipo": "saber",
+      "situacion": "HU_BB_VS_LIMP_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    },
+    {
+      "clave": "HU_SB_OR_FISH",
+      "titulo": "HU · SB OR",
+      "tipo": "saber",
+      "situacion": "HU_SB_OR_FISH",
+      "escalonMinimo": 16,
+      "objetivo": 90
+    }
+  ]
+}

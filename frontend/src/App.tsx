@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useEventosDeVoz } from './core/hooks/useEventosDeVoz'
 import { useVozDelNavegador } from './core/hooks/useVozDelNavegador'
 import { PaginaDeDiario } from './features/diario/PaginaDeDiario'
@@ -20,6 +21,10 @@ export default function App() {
   const {
     disponible, activo, escuchando, ultimoEvento, falla, fallaAlHablar, alternar, capturar,
   } = useVozDelNavegador(ultimo ?? null)
+
+  // La tabla del hito activo, anotada en Habitos y leida por el Entrenador.
+  // Vive aca porque es lo unico que los dos modulos comparten.
+  const [tablaDelPlan, setTablaDelPlan] = useState<string | null>(null)
 
   const grupos: GrupoDeModulos[] = [
     {
@@ -63,7 +68,7 @@ export default function App() {
           // el entrenador abriera el suyo, el copiloto —que sigue vivo al
           // cambiar de módulo— oiría la respuesta hablada y la mandaría como
           // consulta.
-          contenido: <PaginaDeEntrenador onCapturar={capturar} />,
+          contenido: <PaginaDeEntrenador onCapturar={capturar} situacionInicial={tablaDelPlan} />,
         },
         {
           clave: 'diario',
@@ -77,7 +82,7 @@ export default function App() {
           etiqueta: 'Hábitos',
           descripcion: 'Cumplimiento y efecto',
           disponible: true,
-          contenido: <PaginaDeHabitos />,
+          contenido: <PaginaDeHabitos onElegirTabla={setTablaDelPlan} />,
         },
         {
           clave: 'sesiones',

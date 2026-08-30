@@ -239,6 +239,40 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+### El plan de estudio
+
+La app medía todo y no comparaba nada: el hábito `VOLUMEN` guardaba cuántos
+torneos jugaste y ningún lado decía que la meta eran 140. El plan
+(`database/registro/plan.json`) pone los objetivos, y `MedidorDeHitos` contesta
+la única pregunta diaria: **¿hoy voy bien?**
+
+Un **hito** es un objetivo con nombre, un número y una barra; uno activo a la
+vez. Hay dos tipos: `saber` apunta a una situación del catálogo y lo mide el
+entrenador —el porcentaje de sus **casillas de borde** que llegaron a un
+descanso de `escalonMinimo` días o más—, y `jugar` apunta a un hábito numérico
+y se cumple si en la ventana **nunca hubo dos días seguidos** por debajo del
+objetivo.
+
+Dos decisiones que se midieron antes de tomarlas, y sin las cuales el módulo no
+sirve:
+
+- **El denominador son los bordes, no las 169 casillas.** Las tablas tienen
+  57.291 casillas y 13.210 bordes. Un hito por formato serían más de 7.000
+  casillas —un año a 20 por día—; **por situación** son 357 a 2.741, o sea 2 a
+  10 semanas. Por eso los hitos son 17, uno por tabla, del más chico al más
+  grande. El borde es donde se corta el bloque; el interior se sabe sabiendo
+  dónde termina.
+- **No se muestran rachas.** Medir días seguidos hace que la gente abandone el
+  hábito entero después del primer fallo; la regla que se sostiene es no fallar
+  dos veces seguidas, y es la que usa el panel.
+
+`MedidorDeHitos` es puro —recibe catálogo, progreso y marcas ya cargados, y el
+día entra como parámetro—, así que se prueba entero sin base. El panel vive
+arriba de **Hábitos**, y su botón *Entrenar* abre el entrenador ya filtrado en
+la tabla del hito: es lo que convierte el plan en algo que se hace y no que se
+mira. Como el entrenador, **no anda sin SQL Server**: sin base no hay progreso
+que medir, y eso se dice en pantalla en vez de mostrar un 0% que sería mentira.
+
 ## Agregar una tabla nueva
 
 1. Dejar el archivo JSON en `database/seed-data/`.

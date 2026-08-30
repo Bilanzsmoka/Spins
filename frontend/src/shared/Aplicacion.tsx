@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { IrAlModulo } from './IrAlModulo'
 
 export interface Modulo {
   clave: string
@@ -31,6 +32,7 @@ export function Aplicacion({ grupos }: Props) {
   const moduloActivo = todos.find((m) => m.clave === activo)
 
   return (
+    <IrAlModulo.Provider value={setActivo}>
     <div className="aplicacion">
       <aside className="barra-lateral">
         <div className="marca">
@@ -64,5 +66,6 @@ export function Aplicacion({ grupos }: Props) {
 
       <main className="contenido">{moduloActivo?.contenido}</main>
     </div>
+    </IrAlModulo.Provider>
   )
 }

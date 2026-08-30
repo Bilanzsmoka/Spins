@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PokerProOS.Api.Voz;
 using PokerProOS.Application.Glosario;
 using PokerProOS.Infrastructure.Glosario;
+using PokerProOS.Infrastructure.Plan;
 using PokerProOS.Application.Bitacora;
 using PokerProOS.Application.Diario;
 using PokerProOS.Application.Entrenador;
@@ -84,6 +85,10 @@ builder.Services.AddSingleton<IRegistroDeVocabulario>(vocabularioVivo);
 // una app que no abre por un diccionario seria peor que una sin diccionario.
 builder.Services.AddSingleton(RegistroDeGlosarioJson.Cargar(
     Path.Combine(carpetaDatos, "registro", "glosario.json")));
+// El plan tampoco tumba el arranque: sin el archivo no hay panel del día, y
+// las tablas y la voz siguen sirviéndose igual.
+builder.Services.AddSingleton(RegistroDelPlanJson.Cargar(
+    Path.Combine(carpetaDatos, "registro", "plan.json")));
 builder.Services.AddSingleton(habitos);
 builder.Services.AddSingleton<ICatalogoDeTablas>(catalogo);
 builder.Services.AddSingleton<IEditorDeTablas>(
