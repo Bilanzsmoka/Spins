@@ -5,7 +5,9 @@
     "blinds",
     "ciegas",
     "bebes",
-    "beb\u00E9s"
+    "beb\u00E9s",
+    "bebe",
+    "blins"
   ],
   "rangos": [
     {
@@ -326,7 +328,8 @@
         "contra fish",
         "fish",
         "s b o r",
-        "sbo r"
+        "sbo r",
+        "vpn"
       ]
     },
     {
@@ -346,7 +349,8 @@
       "dichos": [
         "be be contra min raise",
         "defendiendo min raise",
-        "beb\u00E9 versus minrise"
+        "beb\u00E9 versus minrise",
+        "bebe versus mr"
       ]
     },
     {
@@ -356,35 +360,49 @@
         "defendiendo open shove",
         "dd versus openshot",
         "beb\u00E9 versus openshop",
-        "bebe versus os"
+        "bebe versus os",
+        "bebe versus open shop"
       ]
     },
     {
       "clave": "3MAX_BTN_OR_FISH_FISH",
       "dichos": [
         "tres max fish fish",
-        "tres max contra dos fish"
+        "tres max contra dos fish",
+        "boton",
+        "boton versus fish",
+        "snow blind",
+        "small blind"
       ]
     },
     {
       "clave": "3MAX_SB_VS_BTN_LIMP_FISH_FISH",
       "dichos": [
         "tres max ese be contra limp",
-        "ese be defendiendo limp"
+        "ese be defendiendo limp",
+        "tres max small bline versus boton link",
+        "tres max small blind versus boton link",
+        "small blind versus btn link"
       ]
     },
     {
       "clave": "3MAX_SB_VS_BTN_MR_FISH_FISH",
       "dichos": [
         "tres max ese be contra min raise",
-        "ese be defendiendo min raise"
+        "ese be defendiendo min raise",
+        "small bline versus boton mil race"
       ]
     },
     {
       "clave": "3MAX_SB_VS_BB_FISH_FISH",
       "dichos": [
         "tres max ese be be be",
-        "tres max sin boton"
+        "tres max sin boton",
+        "versus big line",
+        "small bline versus big bang",
+        "small blind versus big line",
+        "small blind versus big bline",
+        "sb versus bebe"
       ]
     },
     {
@@ -408,7 +426,10 @@
       "clave": "3MAX_BB_VS_SB_MR_FISH_FISH",
       "dichos": [
         "tres max be be contra ese be",
-        "tres max be be contra min raise del ese be"
+        "tres max be be contra min raise del ese be",
+        "debe versus sb mr",
+        "bebe versus sb mmr",
+        "bebe versus sb mr"
       ]
     },
     {
@@ -451,7 +472,9 @@
       "clave": "3MAX_BB_VS_BTN_OS_REG_REG",
       "dichos": [
         "tres max be be contra open shove del boton",
-        "tres max be be shove boton"
+        "tres max be be shove boton",
+        "boton open shop reck",
+        "bebe versus btn os rec"
       ]
     }
   ],
@@ -480,7 +503,8 @@
         "tres max",
         "trimax",
         "tres manos",
-        "3 max"
+        "3 max",
+        "tres mas"
       ]
     }
   ],
@@ -774,6 +798,103 @@
       "clave": "K6o",
       "dichos": [
         "k6"
+      ]
+    },
+    {
+      "clave": "Q2o",
+      "dichos": [
+        "cudos"
+      ]
+    },
+    {
+      "clave": "Q3o",
+      "dichos": [
+        "cutres"
+      ]
+    },
+    {
+      "clave": "Q4o",
+      "dichos": [
+        "q4"
+      ]
+    },
+    {
+      "clave": "Q5o",
+      "dichos": [
+        "q5"
+      ]
+    },
+    {
+      "clave": "Q6o",
+      "dichos": [
+        "q6"
+      ]
+    },
+    {
+      "clave": "Q7o",
+      "dichos": [
+        "q7"
+      ]
+    },
+    {
+      "clave": "Q8o",
+      "dichos": [
+        "q8"
+      ]
+    },
+    {
+      "clave": "Q9o",
+      "dichos": [
+        "q9"
+      ]
+    },
+    {
+      "clave": "QTo",
+      "dichos": [
+        "q10"
+      ]
+    },
+    {
+      "clave": "QJo",
+      "dichos": [
+        "cujota"
+      ]
+    },
+    {
+      "clave": "96o",
+      "dichos": [
+        "96"
+      ]
+    },
+    {
+      "clave": "93s",
+      "dichos": [
+        "93 suited"
+      ]
+    },
+    {
+      "clave": "72s",
+      "dichos": [
+        "72 suited"
+      ]
+    },
+    {
+      "clave": "87o",
+      "dichos": [
+        "87 off",
+        "87"
+      ]
+    },
+    {
+      "clave": "K8o",
+      "dichos": [
+        "caucho"
+      ]
+    },
+    {
+      "clave": "84o",
+      "dichos": [
+        "84"
       ]
     }
   ]
