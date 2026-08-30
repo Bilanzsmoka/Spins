@@ -28,7 +28,7 @@ interface Props {
 }
 
 const PEDIDA_INICIAL: TandaPedida = {
-  formato: null, situacion: null, minBB: null, maxBB: null, spot: null, tamano: 20,
+  formato: null, situacion: null, minBB: null, maxBB: null, spot: null, tamano: 10,
 }
 
 /**

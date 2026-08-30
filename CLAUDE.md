@@ -239,6 +239,18 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+La tanda además **se intercala**: ninguna página —situación + stack + spot—
+aporta más de la mitad, el material entra de a uno por página por vuelta, y un
+reparto final evita que dos seguidas compartan página. Practicar agrupado hace
+rendir mejor durante la tanda y peor a la semana siguiente: con el bloque
+delante, la respuesta sale de la pregunta anterior y no de la memoria. Medido
+sobre las tablas reales, una tanda de diez pasó de **9 de 9 seguidas de la
+misma página a 0**. Lo que el tope deja afuera no se pierde: sigue vencido y
+entra en la próxima. Y por debajo de `RachaTolerable` (3) no se aprieta nada —
+en una tanda chica, desplazar algo vencido para meter material nuevo es peor
+negocio que la racha. El tamaño por defecto bajó de 20 a **10**: las ráfagas
+cortas y frecuentes rinden más, y además se hacen.
+
 Cada respuesta, además, queda registrada en `RespuestaRegistrada`: qué casilla
 era, qué contestaste, qué decía la tabla y **cuánto tardaste**. Va aparte de
 `ProgresoDeCasilla` a propósito — aquél guarda el estado y se pisa en cada

@@ -16,6 +16,16 @@ namespace PokerProOS.Application.Entrenador;
 /// </summary>
 public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
 {
+    /// <summary>
+    /// Cuántas de la misma página se toleran aunque la tanda sea chica.
+    ///
+    /// Lo que hace daño no es que dos o tres seguidas compartan tabla: es la
+    /// racha larga, donde la respuesta empieza a salir de la pregunta anterior.
+    /// Y en una tanda de tres, apretar el tope obligaría a meter material nuevo
+    /// desplazando algo que ya venció — que es peor negocio que la racha.
+    /// </summary>
+    private const int RachaTolerable = 3;
+
     public IReadOnlyList<PreguntaDeTanda> Planificar(
         IReadOnlyList<ProgresoDeCasilla> vencidas,
         IReadOnlyCollection<string> yaConocidas,
@@ -24,15 +34,25 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
     {
         if (tamano <= 0) return [];
 
-        var elegidas = new List<PreguntaDeTanda>();
+        // Lo vencido, en orden de urgencia, y repartido entre páginas: si una
+        // tabla se estudió entera hace una semana, TODAS sus casillas vencen
+        // juntas y la tanda salía siendo diez casillas del mismo spot. La
+        // urgencia sigue mandando —las páginas entran en el orden de su casilla
+        // más vencida—, pero se toma de a una por página, por vuelta.
+        var porUrgencia = vencidas
+            .OrderBy(v => v.Vence).ThenBy(v => v.Mano)
+            .Select(v => Pregunta(v, filtro))
+            .OfType<PreguntaDeTanda>()
+            .ToList();
 
-        foreach (var vencida in vencidas.OrderBy(v => v.Vence).ThenBy(v => v.Mano))
-        {
-            if (elegidas.Count == tamano) break;
-            if (Pregunta(vencida, filtro) is { } pregunta) elegidas.Add(pregunta);
-        }
+        // Ninguna página se lleva más de la mitad de la tanda. Estudiar una
+        // tabla entera un día hace que TODAS sus casillas venzan el mismo día,
+        // y sin este tope la tanda de mañana son diez seguidas de ese spot —
+        // que es exactamente la práctica agrupada que no queremos. Lo que no
+        // entra no se pierde: sigue vencido y entra en la próxima.
+        var elegidas = DeAUnaPorPagina(porUrgencia, tamano, Math.Max(RachaTolerable, tamano / 2));
 
-        if (elegidas.Count == tamano) return elegidas;
+        if (elegidas.Count == tamano) return Repartir(elegidas);
 
         // El relleno no puede repetir ni lo ya estudiado ni lo que acaba de
         // entrar por vencido.
@@ -46,8 +66,108 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
             elegidas.Add(nueva);
         }
 
+        // Si ni con material nuevo se llena, entra lo vencido que el tope había
+        // dejado afuera: repartir nunca puede devolver una tanda más corta que
+        // el material disponible.
+        foreach (var vencida in porUrgencia)
+        {
+            if (elegidas.Count == tamano) break;
+            if (!elegidas.Contains(vencida)) elegidas.Add(vencida);
+        }
+
+        return Repartir(elegidas);
+    }
+
+    /// <summary>
+    /// Toma hasta <paramref name="tamano"/> preguntas rotando entre páginas: la
+    /// primera de cada página, después la segunda de cada una, y así.
+    ///
+    /// El orden en que aparecen las páginas es el de prioridad —la primera
+    /// página es la de la pregunta más urgente—, así que rotar no le saca
+    /// urgencia a nada: sólo evita que una sola página se lleve la tanda
+    /// entera. Y si hay una sola página, salen todas de ahí: no poder repartir
+    /// nunca puede devolver menos preguntas de las que había.
+    /// </summary>
+    /// <param name="topePorPagina">Cuántas puede aportar una misma página.</param>
+    private static List<PreguntaDeTanda> DeAUnaPorPagina(
+        IEnumerable<PreguntaDeTanda> porPrioridad, int tamano, int topePorPagina)
+    {
+        var paginas = new List<Queue<PreguntaDeTanda>>();
+        var porClave = new Dictionary<string, Queue<PreguntaDeTanda>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var pregunta in porPrioridad)
+        {
+            if (!porClave.TryGetValue(Pagina(pregunta), out var cola))
+            {
+                cola = new Queue<PreguntaDeTanda>();
+                porClave[Pagina(pregunta)] = cola;
+                paginas.Add(cola);
+            }
+            cola.Enqueue(pregunta);
+        }
+
+        var elegidas = new List<PreguntaDeTanda>(tamano);
+        for (var vuelta = 0; vuelta < topePorPagina && elegidas.Count < tamano; vuelta++)
+            foreach (var pagina in paginas)
+            {
+                if (elegidas.Count == tamano) break;
+                if (pagina.Count > 0) elegidas.Add(pagina.Dequeue());
+            }
+
         return elegidas;
     }
+
+    /// <summary>
+    /// Las mismas preguntas, repartidas para que dos seguidas casi nunca sean
+    /// de la misma página de la tabla.
+    ///
+    /// Practicar agrupado —diez seguidas del mismo spot— <b>hace rendir mejor
+    /// durante la tanda y peor a la semana siguiente</b>. Con el bloque
+    /// delante, la respuesta sale de la pregunta anterior y no de la memoria,
+    /// que es justo lo que no se quiere entrenar: en la mesa las manos no
+    /// vienen ordenadas por tabla.
+    ///
+    /// Reparte, no baraja. La prioridad decide <b>quién entra</b> a la tanda y
+    /// eso no se toca: lo más vencido sigue primero. Esto decide sólo
+    /// <b>en qué orden se pregunta</b>, y es determinista —el de más prioridad
+    /// que no repita página— para que la tanda sea reproducible y las pruebas
+    /// puedan fijarla.
+    /// </summary>
+    private static IReadOnlyList<PreguntaDeTanda> Repartir(List<PreguntaDeTanda> elegidas)
+    {
+        if (elegidas.Count < 3) return elegidas;
+
+        var restantes = new LinkedList<PreguntaDeTanda>(elegidas);
+        var repartidas = new List<PreguntaDeTanda>(elegidas.Count);
+        string? anterior = null;
+
+        while (restantes.First is not null)
+        {
+            // Si todas las que quedan repiten página, va la de más prioridad:
+            // no poder repartir no puede achicar la tanda ni cambiar qué entra.
+            var elegido = restantes.First;
+            for (var nodo = restantes.First; nodo is not null; nodo = nodo.Next)
+                if (Pagina(nodo.Value) != anterior)
+                {
+                    elegido = nodo;
+                    break;
+                }
+
+            repartidas.Add(elegido.Value);
+            anterior = Pagina(elegido.Value);
+            restantes.Remove(elegido);
+        }
+
+        return repartidas;
+    }
+
+    /// <summary>
+    /// La página que estarías mirando: una situación, un stack y un spot. Es
+    /// el bloque que hay que romper — no la situación sola, porque dos stacks
+    /// de la misma tabla ya son dos decisiones distintas.
+    /// </summary>
+    private static string Pagina(PreguntaDeTanda p)
+        => $"{p.Situacion}|{p.ClaveDeStack}|{p.Spot}";
 
     /// <summary>
     /// La vencida convertida en pregunta, o null si el filtro la deja afuera o
@@ -115,7 +235,18 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
             }
         }
 
-        return candidatas.OrderByDescending(c => c.Borde).Select(c => c.Pregunta);
+        // Bordes primero, y rotando entre páginas. Ordenar sólo por borde
+        // agotaba una tabla entera antes de pasar a la siguiente: una tanda de
+        // diez salía siendo diez casillas del mismo spot, y repartir el orden
+        // después no puede arreglar una selección que ya es toda de la misma
+        // página. El índice es la posición dentro de su propia página, así que
+        // ordenar por él reparte de a una por página, por vuelta.
+        return candidatas
+            .GroupBy(c => Pagina(c.Pregunta))
+            .SelectMany(pagina => pagina.Select((c, indice) => (c.Borde, Indice: indice, c.Pregunta)))
+            .OrderByDescending(c => c.Borde)
+            .ThenBy(c => c.Indice)
+            .Select(c => c.Pregunta);
     }
 
     private static bool PasaSituacion(SituacionDeTabla situacion, FiltroDeTanda filtro)

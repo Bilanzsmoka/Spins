@@ -177,4 +177,75 @@ public class PlanificadorDeTandaTests
 
         Assert.Equal(4, preguntas.Count);
     }
+
+    /* ---------- El reparto ---------- */
+
+    /// <summary>
+    /// Diez preguntas seguidas del mismo spot hacen que la respuesta salga de
+    /// la pregunta anterior y no de la memoria. En la mesa las manos no vienen
+    /// ordenadas por tabla, así que practicarlas ordenadas rinde mejor durante
+    /// la tanda y peor a la semana siguiente.
+    /// </summary>
+    [Fact]
+    public void Dos_preguntas_seguidas_no_son_de_la_misma_pagina()
+    {
+        var preguntas = new PlanificadorDeTanda(Catalogo()).Planificar(
+            [],
+            yaConocidas: [],
+            SinFiltro,
+            tamano: 6);
+
+        var paginas = preguntas
+            .Select(p => $"{p.Situacion}|{p.ClaveDeStack}|{p.Spot}")
+            .ToList();
+
+        Assert.Equal(6, paginas.Count);
+        for (var i = 1; i < paginas.Count; i++)
+            Assert.NotEqual(paginas[i - 1], paginas[i]);
+    }
+
+    /// <summary>
+    /// Repartir no puede cambiar QUÉ entra: la prioridad decide quién estudia
+    /// hoy, el reparto sólo en qué orden se pregunta. Si el reparto sacara
+    /// casillas, una tanda intercalada enseñaría menos que una agrupada.
+    /// </summary>
+    [Fact]
+    public void Repartir_no_cambia_que_casillas_entran()
+    {
+        var preguntas = new PlanificadorDeTanda(Catalogo()).Planificar(
+            [
+                Vencida("KK", new DateOnly(2026, 8, 27)),
+                Vencida("QQ", new DateOnly(2026, 8, 20), stack: "6-9bb"),
+            ],
+            yaConocidas: [],
+            SinFiltro,
+            tamano: 5);
+
+        Assert.Equal(5, preguntas.Count);
+        Assert.Equal(5, preguntas.Select(p =>
+            ProgresoDeCasilla.Clave(p.Situacion, p.ClaveDeStack, p.Spot, p.Mano)).Distinct().Count());
+        Assert.Contains(preguntas, p => p.Mano == "KK" && !p.EsNueva);
+        Assert.Contains(preguntas, p => p.Mano == "QQ" && !p.EsNueva);
+    }
+
+    /// <summary>
+    /// Cuando todo lo que queda es de la misma página no hay nada que repartir,
+    /// y la tanda tiene que salir igual: no poder intercalar no puede
+    /// convertirse en devolver menos preguntas.
+    /// </summary>
+    [Fact]
+    public void Si_todo_es_de_la_misma_pagina_la_tanda_sale_igual()
+    {
+        var preguntas = new PlanificadorDeTanda(Catalogo()).Planificar(
+            [
+                Vencida("KK", new DateOnly(2026, 8, 27)),
+                Vencida("QQ", new DateOnly(2026, 8, 20)),
+                Vencida("JJ", new DateOnly(2026, 8, 25)),
+            ],
+            yaConocidas: [],
+            SinFiltro,
+            tamano: 3);
+
+        Assert.Equal(["QQ", "JJ", "KK"], preguntas.Select(p => p.Mano));
+    }
 }

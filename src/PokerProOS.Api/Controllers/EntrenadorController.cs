@@ -7,9 +7,14 @@ using PokerProOS.Application.Tablas;
 namespace PokerProOS.Api.Controllers;
 
 /// <summary>Lo que la pantalla pide para arrancar una tanda.</summary>
+/// <param name="Tamano">
+/// Diez y no veinte. Las ráfagas cortas y frecuentes rinden más que las tandas
+/// largas y espaciadas, y además se hacen: la tanda que no arrancás porque da
+/// pereza no enseña nada.
+/// </param>
 public record TandaPedida(
     string? Formato, string? Situacion, decimal? MinBB, decimal? MaxBB, string? Spot,
-    int Tamano = 20);
+    int Tamano = 10);
 
 /// <summary>Lo que se dijo, sin interpretar, más qué casilla se estaba contestando.</summary>
 public record RespuestaHablada(

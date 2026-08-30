@@ -9,7 +9,12 @@ interface Props {
 }
 
 /** Los tamaños de tanda que se ofrecen. El del spec, 20, va primero. */
-const TAMANOS = [20, 10, 40, 60]
+/*
+ * Diez primero: es el que conviene. Cinco existe para las ráfagas de dos
+ * minutos —las que se hacen igual estando cansado— y los grandes quedan para
+ * cuando querés sentarte a hacer volumen.
+ */
+const TAMANOS = [10, 5, 20, 40]
 
 /**
  * Sobre qué entrenar. Todo sale del catálogo: los formatos son los que los
