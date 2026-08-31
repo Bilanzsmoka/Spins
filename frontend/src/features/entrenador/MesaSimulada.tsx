@@ -24,7 +24,18 @@ const PALOS = { s: '♠', o: '♦' } as const
 const PENSANDO_DEMASIADO_MS = 5000
 const MUY_LENTO_MS = 10000
 
+/**
+ * Dónde se sienta cada uno. Vos siempre abajo; un rival solo va arriba al
+ * medio y dos se reparten a los costados, que es como se ve un heads-up y un
+ * 3-max de verdad.
+ *
+ * Las clases llevan la geometría; acá sólo se decide qué silla le toca a quién,
+ * por el orden en que el archivo los declara.
+ */
+const SILLAS = { uno: ['centro'], dos: ['izquierda', 'derecha'] } as const
+
 const seFue = (hizo: string) => hizo.toLowerCase() === 'fold'
+const esAllIn = (hizo: string) => hizo.toLowerCase() === 'all-in'
 
 /** "0,5" y no "0.5": es como se escribe acá y como se lee de un vistazo. */
 const bb = (n: number) => String(n).replace('.', ',')
@@ -41,71 +52,97 @@ function Reloj({ milisegundos }: { milisegundos: number }) {
   )
 }
 
-/** Las fichas que alguien tiene puestas delante, camino al pozo. */
-function Apuesta({ puso, hizo }: { puso: number | null; hizo: string }) {
-  if (hizo.toLowerCase() === 'all-in') return <span className="mesa-apuesta mesa-apuesta-todo">ALL-IN</span>
-  if (!puso) return null
-  return <span className="mesa-apuesta">{bb(puso)}</span>
-}
-
-function Silla({
-  rival, boton, perfil,
-}: { rival: RivalEnLaMesa; boton: string; perfil?: TerminoDelGlosario }) {
-  const fuera = seFue(rival.hizo)
-
+/** Una carta, con el palo en la esquina y grande en el medio. */
+function Carta({ rango, palo }: { rango: string; palo: string }) {
   return (
-    <div className={`mesa-silla${fuera ? ' mesa-silla-fuera' : ''}`}>
-      <div className="mesa-jugador">
-        <span
-          className="mesa-ficha"
-          style={perfil?.color && !fuera
-            ? { background: perfil.color, color: perfil.colorTexto }
-            : undefined}
-          title={rival.tipo}
-        >
-          {perfil?.icono ?? rival.posicion.slice(0, 1)}
-        </span>
-        {rival.posicion === boton && <span className="mesa-boton" title="Botón">D</span>}
+    <div className={`card${palo === PALOS.o ? ' card-roja' : ''}`}>
+      <div className="corner">
+        <div className="rank">{rango}</div>
+        <div className="suit">{palo}</div>
       </div>
-      <strong>{rival.posicion}</strong>
-      <span className="mesa-hizo">{rival.hizo}</span>
-      <Apuesta puso={rival.puso} hizo={rival.hizo} />
+      <div className="big-suit">{palo}</div>
     </div>
   )
 }
 
 /**
- * La mesa como la ves cuando te toca decidir: quién está sentado dónde, quién
- * tiene el botón, qué puso cada uno y tus dos cartas.
+ * Las fichas que alguien tiene puestas, sobre el paño y del lado de su silla.
+ * El botón viaja con ellas: es la marca de esa misma silla.
+ */
+function Fichas({
+  puso, hizo, silla, conBoton,
+}: { puso: number | null; hizo: string; silla: string; conBoton: boolean }) {
+  const todo = esAllIn(hizo)
+  if (!todo && !puso && !conBoton) return null
+
+  return (
+    <div className={`blind blind-${silla}`}>
+      {(todo || puso) && <span className="chip" />}
+      {todo
+        ? <span className="blind-label blind-todo">ALL-IN</span>
+        : puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
+      {conBoton && <span className="dealer">D</span>}
+    </div>
+  )
+}
+
+function Jugador({
+  rival, silla, banda, perfil,
+}: {
+  rival: RivalEnLaMesa
+  silla: string
+  banda: string
+  perfil?: TerminoDelGlosario
+}) {
+  const fuera = seFue(rival.hizo)
+
+  return (
+    <div className={`player player-${silla}${fuera ? ' player-fuera' : ''}`}>
+      <div className="pos">{rival.posicion}</div>
+      {/*
+        La silueta es la del diseño; el color del borde es el del tipo de
+        jugador, que es la señal que ya usás en el resto de la app. Un rival
+        que se fue va apagado y sin color: ya no hay a quién leerle nada.
+      */}
+      <div
+        className="avatar"
+        style={perfil?.color && !fuera ? { borderColor: perfil.color } : undefined}
+        title={rival.tipo}
+      />
+      <div className="player-info">
+        <div className="action">{rival.hizo.toUpperCase()}</div>
+        <div className="stack">{banda}</div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * La mesa como la ves cuando te toca decidir.
  *
- * Tres decisiones que la hacen servir para lo que existe:
+ * El diseño es el que pidió el usuario, con sus medidas y sus colores; lo que
+ * agrega el código es que se maneje sola con los datos: quién se sienta dónde,
+ * quién tiene el botón, qué puso cada uno y de qué tipo es, todo del bloque
+ * `mesa` de cada tabla.
  *
  * **No dice la mano.** En una mesa nunca ves «AKo»: ves dos cartas y las tenés
- * que leer. Mostrar la etiqueta convertía el ejercicio en reconocer un código.
- *
- * **Vos abajo y los rivales enfrente**, como en cualquier sala. El orden de las
- * sillas es el del archivo, no uno que deduzca el código de los nombres de las
- * posiciones.
- *
- * **Todo está declarado**: sillas, botón, tipos y fichas salen del bloque
- * `mesa` de cada tabla. Una mesa mal dibujada no rompe nada y enseña una mano
- * equivocada.
+ * que leer. Mostrar la etiqueta convertía el ejercicio en reconocer un código,
+ * y eso no se transfiere al juego.
  */
 export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Props) {
   const mesa: MesaDeSituacion | null = situacion?.mesa ?? null
-  const banda = situacion?.stacks.find((s) => s.clave === pregunta.claveDeStack) ?? null
+  const stack = situacion?.stacks.find((s) => s.clave === pregunta.claveDeStack) ?? null
+  const banda = stack
+    ? (stack.minBB === stack.maxBB ? `${stack.minBB} BB` : `${stack.minBB}-${stack.maxBB} BB`)
+    : ''
 
   const [alto, bajo] = [pregunta.mano[0], pregunta.mano[1]]
   const palo = pregunta.mano.length > 2 ? pregunta.mano[2] : null
   const perfil = (tipo: string) =>
     perfiles.find((p) => p.termino.toLowerCase() === tipo.toLowerCase())
 
-  // El pozo sólo si se sabe entero: con alguien all-in falta su stack, e
-  // inventar un número sería peor que no mostrarlo.
-  const alguienAllIn = mesa?.rivales.some((r) => r.hizo.toLowerCase() === 'all-in') ?? false
-  const pozo = mesa && !alguienAllIn
-    ? mesa.rivales.reduce((suma, r) => suma + (r.puso ?? 0), 0) + mesa.pusoElHeroe
-    : null
+  const rivales = mesa?.rivales ?? []
+  const sillas = rivales.length === 1 ? SILLAS.uno : SILLAS.dos
 
   return (
     <section className="mesa">
@@ -115,53 +152,50 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
         {milisegundos > 0 && <Reloj milisegundos={milisegundos} />}
       </p>
 
-      <div className="mesa-panio">
-        {mesa && (
-          <div className="mesa-rivales">
-            {mesa.rivales.map((rival) => (
-              <Silla
-                key={rival.posicion}
-                rival={rival}
-                boton={mesa.boton}
-                perfil={perfil(rival.tipo)}
-              />
-            ))}
-          </div>
-        )}
+      <div className="table-area">
+        <div className="table">
+          <div className="logo">{situacion?.formato ?? ''}</div>
 
-        <div className="mesa-centro">
-          {pozo !== null && <span className="mesa-pozo">pozo {bb(pozo)} BB</span>}
+          {rivales.map((rival, i) => (
+            <Fichas
+              key={rival.posicion}
+              puso={rival.puso}
+              hizo={rival.hizo}
+              silla={sillas[i] ?? 'centro'}
+              conBoton={rival.posicion === mesa?.boton}
+            />
+          ))}
+
           {mesa && (
-            <span className="mesa-ciegas">
-              ciegas {bb(mesa.ciegaChica)} / {bb(mesa.ciegaGrande)}
-            </span>
+            <Fichas
+              puso={mesa.pusoElHeroe}
+              hizo=""
+              silla="abajo"
+              conBoton={mesa.heroe === mesa.boton}
+            />
           )}
         </div>
 
-        <div className="mesa-heroe">
-          <div className="mesa-cartas">
-            <span className="carta carta-negra">
-              <strong>{alto}</strong><em>{PALOS.s}</em>
-            </span>
-            <span className={`carta ${palo === 's' ? 'carta-negra' : 'carta-roja'}`}>
-              <strong>{bajo}</strong><em>{palo === 's' ? PALOS.s : PALOS.o}</em>
-            </span>
+        {rivales.map((rival, i) => (
+          <Jugador
+            key={rival.posicion}
+            rival={rival}
+            silla={sillas[i] ?? 'centro'}
+            banda={banda}
+            perfil={perfil(rival.tipo)}
+          />
+        ))}
+
+        <div className="player player-heroe">
+          {mesa && <div className="pos">{mesa.heroe}</div>}
+
+          <div className="cards">
+            <Carta rango={alto} palo={PALOS.s} />
+            <Carta rango={bajo} palo={palo === 's' ? PALOS.s : PALOS.o} />
           </div>
 
-          <div className="mesa-yo">
-            {mesa && <strong className="mesa-posicion">{mesa.heroe}</strong>}
-            {mesa && mesa.heroe === mesa.boton && <span className="mesa-boton" title="Botón">D</span>}
-            {banda && (
-              <span className="mesa-stack">
-                {banda.minBB === banda.maxBB
-                  ? `${banda.minBB} BB`
-                  : `${banda.minBB}-${banda.maxBB} BB`}
-              </span>
-            )}
-            {mesa && mesa.pusoElHeroe > 0 && (
-              <span className="mesa-apuesta">{bb(mesa.pusoElHeroe)}</span>
-            )}
-          </div>
+          <div className="avatar hero-avatar" />
+          <div className="hero-stack">{banda}</div>
         </div>
       </div>
     </section>
