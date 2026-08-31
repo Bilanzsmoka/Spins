@@ -496,7 +496,12 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
 
       {error && <p className="sin-entender-error">{error}</p>}
 
-      {catalogo && (
+      {/*
+        Mientras hay una mano abierta el filtro se guarda: son cinco selectores
+        que ya usaste y que empujan la mesa media pantalla hacia abajo. Queda
+        una línea con lo elegido y un botón para volver a él.
+      */}
+      {catalogo && (!pregunta || terminada) && (
         <FiltroDeTanda
           situaciones={catalogo.situaciones}
           pedida={pedida}
@@ -504,6 +509,21 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
           onArrancar={() => void arrancar()}
           cargando={cargando || contestando}
         />
+      )}
+
+      {catalogo && pregunta && !terminada && (
+        <div className="entrenador-filtro-guardado">
+          <span>
+            {catalogo.situaciones.find((s) => s.clave === pedida.situacion)?.etiqueta
+              ?? pedida.formato
+              ?? 'Todas las tablas'}
+            {pedida.spot && ` · ${pedida.spot}`}
+            {sinLimite ? ' · sin límite' : ` · ${pedida.tamano} manos`}
+          </span>
+          <button type="button" className="boton-tenue" onClick={() => setTanda(null)}>
+            Cambiar
+          </button>
+        </div>
       )}
 
       {/*
@@ -525,32 +545,46 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         </p>
       )}
 
+      {/*
+        Dos columnas: la mesa y los botones de un lado, la explicación y el
+        historial del otro. Apilado hacia abajo, fallar mandaba la tabla y la
+        ficha fuera de la pantalla y había que scrollear para leer justo lo que
+        importa — con media pantalla vacía a los costados.
+      */}
       {pregunta && (
-        <>
-          <MesaSimulada
-            pregunta={pregunta}
-            situacion={catalogo?.situaciones.find((s) => s.clave === pregunta.situacion) ?? null}
-            perfiles={perfiles}
-            milisegundos={conReloj ? transcurrido : 0}
-          />
-          <BotonesDeAccion
-            acciones={acciones}
-            deshabilitado={veredicto !== null || contestando}
-            onElegir={(clave) => void elegir(clave)}
-          />
-          {veredicto && (
-            <Veredicto
-              veredicto={veredicto}
-              acciones={acciones}
-              milisegundos={tardo}
+        <div className="entrenador-tablero">
+          <div className="entrenador-mesa">
+            <MesaSimulada
               pregunta={pregunta}
-              onSeguir={seguir}
+              situacion={catalogo?.situaciones.find((s) => s.clave === pregunta.situacion) ?? null}
+              perfiles={perfiles}
+              milisegundos={conReloj ? transcurrido : 0}
             />
-          )}
-        </>
+            <BotonesDeAccion
+              acciones={acciones}
+              deshabilitado={veredicto !== null || contestando}
+              onElegir={(clave) => void elegir(clave)}
+            />
+          </div>
+
+          <aside className="entrenador-costado">
+            {veredicto && (
+              <Veredicto
+                veredicto={veredicto}
+                acciones={acciones}
+                milisegundos={tardo}
+                pregunta={pregunta}
+                onSeguir={seguir}
+              />
+            )}
+            {catalogo && <HistorialDeTanda manos={historial} acciones={catalogo.acciones} />}
+          </aside>
+        </div>
       )}
 
-      {catalogo && <HistorialDeTanda manos={historial} acciones={catalogo.acciones} />}
+      {!pregunta && catalogo && (
+        <HistorialDeTanda manos={historial} acciones={catalogo.acciones} />
+      )}
     </div>
   )
 }

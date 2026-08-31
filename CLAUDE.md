@@ -239,6 +239,16 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+**El entrenador entra en una pantalla y no se scrollea.** Dos columnas: la mesa
+y los botones fijos a la izquierda, y a la derecha lo que aparece al contestar
+—veredicto, tabla, ficha, historial— con su propio scroll, para que leer una
+explicación larga no mueva la mesa de lugar. El filtro se colapsa a una línea
+mientras hay una mano abierta, y el paño se achica con `transform: scale()`
+—conservando las proporciones del diseño en vez de reacomodar sus piezas—.
+Apilado hacia abajo, fallar mandaba la tabla y la explicación fuera de la
+pantalla teniendo media pantalla vacía a los costados: lo que hay que leer
+rápido no puede estar a un scroll de distancia.
+
 **Al fallar se ve la tabla.** El veredicto muestra la grilla del spot con la
 mano resaltada y la ficha **en línea** —no como popup: en la grilla la pedís
 vos tocando una celda, acá aparece porque erraste, y taparte la mesa con un

@@ -165,6 +165,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
         {milisegundos > 0 && <Reloj milisegundos={milisegundos} />}
       </p>
 
+      <div className="mesa-encuadre">
       <div className="table-area">
         <div className="table">
           <div className="logo">{situacion?.formato ?? ''}</div>
@@ -210,6 +211,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
           <div className="avatar hero-avatar" />
           <div className="hero-stack">{banda}</div>
         </div>
+      </div>
       </div>
     </section>
   )
