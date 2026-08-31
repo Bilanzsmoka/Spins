@@ -352,6 +352,20 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
 }
 .action { font-size: 13px; font-weight: 800; }
+/*
+ * Cada cosa que pudo hacer el rival se ve distinta. Con todo en blanco habia
+ * que LEER la mesa para saber si alguien subio o empujo, y en una mesa eso se
+ * ve de un vistazo o no se ve.
+ */
+.accion-all-in {
+  color: #ff6b6b;
+  text-shadow: 0 0 12px rgba(239, 68, 68, .55);
+  letter-spacing: .06em;
+}
+.accion-min-raise, .accion-raise { color: #ffa94d; }
+.accion-limp, .accion-call { color: #ffd43b; }
+.accion-fold { color: #8a949f; text-decoration: line-through; }
+.accion-por-actuar { color: #74b3ff; font-weight: 700; letter-spacing: .04em; }
 .stack { font-size: 13px; font-weight: 800; color: #6eb6ff; margin-top: 3px; }
 
 /* Las fichas de cada silla, sobre el pano. El boton viaja con ellas. */
@@ -592,6 +606,22 @@ body {
   font-variant-numeric: tabular-nums;
   padding: 2px 8px; border-radius: 999px;
   border: 1px solid var(--borde); background: var(--panel-2);
+}
+
+/* La tabla del spot al fallar: chica, para que entre con la explicacion. */
+.veredicto-tabla {
+  margin-top: 12px;
+  overflow-x: auto;
+  display: flex; justify-content: center;
+}
+.veredicto-tabla .grilla-fila { grid-template-columns: 22px repeat(13, 30px); }
+.veredicto-tabla .celda { height: 30px; font-size: 9px; }
+
+/* La ficha dentro del veredicto: sin fondo ni sombra de popup. */
+.ficha-en-linea {
+  display: grid; gap: 14px;
+  margin-top: 12px; padding: 14px 16px;
+  border: 1px solid var(--borde); border-radius: 10px; background: var(--panel-2);
 }
 
 /* ---------- Lo que va de la tanda ---------- */

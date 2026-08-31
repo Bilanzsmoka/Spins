@@ -6,6 +6,14 @@ interface Props {
   acciones: AccionDefinida[]
   onCerrar: () => void
   /**
+   * Sin fondo ni botón de cerrar, en el flujo de la página.
+   *
+   * En la grilla la ficha es un popup: la pediste vos tocando una celda. En el
+   * entrenador aparece porque fallaste, y taparte la mesa con un cartel que
+   * hay que cerrar convierte la explicación en un estorbo.
+   */
+  enLinea?: boolean
+  /**
    * Cómo se guarda el tip. Sin esto la ficha muestra el tip si lo hay, pero
    * no ofrece editarlo: un botón que abre un editor cuyo Guardar no hace
    * nada es peor que no tener el botón. Entrenando se lee la explicación, no
@@ -24,7 +32,8 @@ interface Props {
  * Reemplaza el "en el borde, N manos" que se hablaba y no decía contra qué.
  */
 export function FichaDeMemoria({
-  ficha, acciones, guardandoTip, errorAlGuardarTip, onGuardarTip, onCerrar, children,
+  ficha, acciones, guardandoTip, errorAlGuardarTip, onGuardarTip, onCerrar, enLinea,
+  children,
 }: Props) {
   const porClave = new Map(acciones.map((a) => [a.clave, a]))
   const etiqueta = (clave: string) => porClave.get(clave)?.etiqueta ?? clave
@@ -44,23 +53,24 @@ export function FichaDeMemoria({
     setBorrador(ficha.tip ?? '')
   }, [ficha.mano, ficha.claveDeStack, ficha.tip])
 
+  // Escape cierra sólo el popup: en línea no hay nada que cerrar, y robarle la
+  // tecla a la pantalla que la contiene sería una sorpresa.
   useEffect(() => {
+    if (enLinea) return
     const alTeclear = (e: KeyboardEvent) => { if (e.key === 'Escape') onCerrar() }
     window.addEventListener('keydown', alTeclear)
     return () => window.removeEventListener('keydown', alTeclear)
-  }, [onCerrar])
+  }, [onCerrar, enLinea])
 
   const miPeso = ficha.pesos.find((p) => p.accion === ficha.accion)
 
-  return (
-    // El click del fondo cierra; adentro se frena, o cerraría al tocar cualquier cosa.
-    <div className="ficha-fondo" onClick={onCerrar} role="presentation">
-      <div
-        className="ficha-popup"
-        role="dialog"
-        aria-label={`Ficha de ${ficha.mano}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+  const cuerpo = (
+    <div
+      className={enLinea ? 'ficha-en-linea' : 'ficha-popup'}
+      role={enLinea ? undefined : 'dialog'}
+      aria-label={`Ficha de ${ficha.mano}`}
+      onClick={(e) => e.stopPropagation()}
+    >
         <header className="ficha-cabecera">
           <span className="ficha-casilla" style={pintar(ficha.accion)}>{ficha.mano}</span>
           <div className="ficha-titulo">
@@ -72,7 +82,9 @@ export function FichaDeMemoria({
               {miPeso.porcentajeDeBaraja.toFixed(1)}% de la baraja
             </span>
           )}
-          <button type="button" className="boton-tenue" onClick={onCerrar}>Cerrar</button>
+          {!enLinea && (
+            <button type="button" className="boton-tenue" onClick={onCerrar}>Cerrar</button>
+          )}
         </header>
 
         {ficha.ancla && (
@@ -219,8 +231,16 @@ export function FichaDeMemoria({
           )}
         </section>
 
-        {children}
-      </div>
+      {children}
+    </div>
+  )
+
+  if (enLinea) return cuerpo
+
+  // El click del fondo cierra; adentro se frena, o cerraría al tocar cualquier cosa.
+  return (
+    <div className="ficha-fondo" onClick={onCerrar} role="presentation">
+      {cuerpo}
     </div>
   )
 }

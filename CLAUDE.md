@@ -239,6 +239,20 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+**Al fallar se ve la tabla.** El veredicto muestra la grilla del spot con la
+mano resaltada y la ficha **en línea** —no como popup: en la grilla la pedís
+vos tocando una celda, acá aparece porque erraste, y taparte la mesa con un
+cartel que hay que cerrar convierte la explicación en un estorbo. Y con la voz
+encendida dice qué era y **la regla del grupo** cuando la hay: acordarse de
+«los Ax offsuit hasta A5o» arregla trece manos, acordarse de una casilla
+arregla una.
+
+Cada cosa que pudo hacer un rival se ve **distinta en la mesa** —all-in rojo
+con brillo, subida naranja, limp y call amarillos, fold gris tachado, «por
+actuar» azul—. La clase sale del dato (`accion-${hizo}`), no de una lista en
+código: un estado nuevo en el JSON estrena color agregando una regla de CSS, y
+sin ella cae al estilo neutro en vez de romperse.
+
 **Se entrena con el teclado.** Las teclas 1..9 son las acciones del spot —en
 el orden del registro, así que la 1 es la primera acción *de ese spot*— y con
 la explicación en pantalla, Enter o espacio siguen. **Al acertar no hay botón:

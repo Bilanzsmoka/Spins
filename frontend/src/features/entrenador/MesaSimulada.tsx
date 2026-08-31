@@ -115,7 +115,15 @@ function Jugador({
         {perfil?.icono}
       </div>
       <div className="player-info">
-        <div className="action">{rival.hizo.toUpperCase()}</div>
+        {/*
+          La clase sale del dato, no de una lista en código: un estado nuevo en
+          el JSON estrena su color agregando una regla de CSS, y si no la tiene
+          cae al estilo neutro en vez de romperse. Que all-in, subida y fold se
+          vean distinto es lo que hace leer la mesa sin leer el texto.
+        */}
+        <div className={`action accion-${rival.hizo.toLowerCase().replace(/\s+/g, '-')}`}>
+          {rival.hizo.toUpperCase()}
+        </div>
         <div className="stack">{banda}</div>
       </div>
     </div>

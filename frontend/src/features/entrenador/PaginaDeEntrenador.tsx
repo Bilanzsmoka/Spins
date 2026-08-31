@@ -13,6 +13,7 @@ import { FiltroDeTanda } from './FiltroDeTanda'
 import { HistorialDeTanda, type ManoContestada } from './HistorialDeTanda'
 import { MapaDeErrores } from './MapaDeErrores'
 import { MesaSimulada } from './MesaSimulada'
+import { useCantarElFallo } from './useCantarElFallo'
 import { useCantarPregunta } from './useCantarPregunta'
 import { Veredicto } from './Veredicto'
 
@@ -396,8 +397,11 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
     // oxlint-disable-next-line exhaustive-deps
   }, [pregunta, veredicto, conVoz, onCapturar])
 
-  // Mientras hay veredicto no se canta: se está leyendo la explicación.
+  // Mientras hay veredicto no se canta la pregunta: se está leyendo la
+  // explicación. Y al fallar la voz dice qué era y la regla del grupo, que es
+  // justo el momento en que antes se quedaba callada.
   useCantarPregunta(veredicto ? null : pregunta, conVoz)
+  useCantarElFallo(veredicto, acciones, conVoz)
 
   const seguir = () => {
     setVeredicto(null)
@@ -539,6 +543,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
               veredicto={veredicto}
               acciones={acciones}
               milisegundos={tardo}
+              pregunta={pregunta}
               onSeguir={seguir}
             />
           )}

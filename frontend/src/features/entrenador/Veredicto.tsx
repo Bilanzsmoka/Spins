@@ -1,11 +1,49 @@
-import type { AccionDefinida, VeredictoDeRespuesta } from '../../core/models/catalogo.model'
+import { useEffect, useState } from 'react'
+import type {
+  AccionDefinida, PreguntaDeTanda, SpotCompleto, VeredictoDeRespuesta,
+} from '../../core/models/catalogo.model'
+import { obtenerSpot } from '../../core/services/tablasApi'
 import { FichaDeMemoria } from '../tablas/FichaDeMemoria'
+import { Grilla } from '../tablas/Grilla'
+
+/**
+ * La tabla del spot, con la mano fallada resaltada.
+ *
+ * Se pide sólo al fallar y sólo entonces: ver la grilla es lo que convierte un
+ * "no" en algo que se entiende —dónde estaba el corte, de qué bloque era esa
+ * mano—, y mostrarla al acertar sería regalarle la respuesta a la siguiente.
+ */
+function TablaDelSpot({ pregunta, acciones }: { pregunta: PreguntaDeTanda; acciones: AccionDefinida[] }) {
+  const [spot, setSpot] = useState<SpotCompleto | null>(null)
+
+  useEffect(() => {
+    let cancelado = false
+    // En cero al cambiar de mano: sin esto se ve un instante la tabla del spot
+    // anterior con la mano nueva resaltada, que es peor que no ver nada.
+    // oxlint-disable-next-line set-state-in-effect
+    setSpot(null)
+    obtenerSpot(pregunta.situacion, pregunta.claveDeStack, pregunta.spot)
+      .then((s) => { if (!cancelado) setSpot(s) })
+      .catch(() => { if (!cancelado) setSpot(null) })
+    return () => { cancelado = true }
+  }, [pregunta])
+
+  if (!spot) return null
+
+  return (
+    <div className="veredicto-tabla">
+      <Grilla spot={spot} acciones={acciones} manoResaltada={pregunta.mano} />
+    </div>
+  )
+}
 
 interface Props {
   veredicto: VeredictoDeRespuesta
   acciones: AccionDefinida[]
   /** Cuánto tardaste. Cero cuando no se pudo medir, y entonces no se muestra. */
   milisegundos: number
+  /** La casilla que se contestó, para poder mostrar su tabla al fallar. */
+  pregunta: PreguntaDeTanda
   onSeguir: () => void
 }
 
@@ -26,7 +64,7 @@ function tiempo(ms: number) {
  * El tip no se edita desde acá: entrenando no se corrigen tablas, y abrir esa
  * puerta en medio de una tanda invita a "arreglar" la tabla en vez de aprenderla.
  */
-export function Veredicto({ veredicto, acciones, milisegundos, onSeguir }: Props) {
+export function Veredicto({ veredicto, acciones, milisegundos, pregunta, onSeguir }: Props) {
   const correcta = acciones.find((a) => a.clave === veredicto.accionCorrecta)
 
   return (
@@ -70,10 +108,13 @@ export function Veredicto({ veredicto, acciones, milisegundos, onSeguir }: Props
         )}
       </header>
 
+      {!veredicto.acerto && <TablaDelSpot pregunta={pregunta} acciones={acciones} />}
+
       {veredicto.ficha && (
         <FichaDeMemoria
           ficha={veredicto.ficha}
           acciones={acciones}
+          enLinea
           onCerrar={onSeguir}
         />
       )}
