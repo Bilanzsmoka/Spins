@@ -256,10 +256,17 @@ Nota para quien lo toque: el proveedor en memoria de las pruebas no traduce a
 SQL, así que un LINQ que SQL Server no sepa ejecutar pasa verde y revienta en
 runtime. Pasó con esta consulta; se verifica pegándole al endpoint.
 
-El entrenador dibuja **la mesa**, no una ficha de estudio: quién está sentado
-dónde, de qué tipo es cada rival —con el color y la figura del glosario— y qué
-hizo antes de tu turno, más tu stack en BB, las ciegas y un reloj que cuenta
-hacia arriba y avisa con color sin reprobar nada. Y **no dice la mano**: en una
+El entrenador dibuja **la mesa**, no una ficha de estudio: paño ovalado, vos
+abajo y los rivales enfrente, cada uno con su posición, el color y la figura de
+su tipo —del glosario—, qué hizo antes de tu turno y **las fichas que puso**; el
+**botón** en su silla, el **pozo** en el medio, tu stack en BB, las ciegas y un
+reloj que cuenta hacia arriba y avisa con color sin reprobar nada.
+
+El pozo sólo se muestra cuando se sabe entero: con alguien all-in falta su
+stack, e inventar un número sería peor que no mostrarlo. En heads-up el botón lo
+tiene la ciega chica —ahí el botón y la SB son el mismo jugador—, y va declarado
+en `mesa.boton`, no deducido. Cuidado con `TryGetDecimal`: **tira** con un `null`
+de JSON en vez de devolver `false`, y los all-in traen `"puso": null`. Y **no dice la mano**: en una
 mesa nunca ves «AKo», ves dos cartas y las tenés que leer; mostrar la etiqueta
 convertía el ejercicio en reconocer un código, que es lo que no se transfiere
 al juego.
