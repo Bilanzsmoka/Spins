@@ -19,7 +19,7 @@ public class CalendarioDeRepeticionTests
     [InlineData(5, 6, 90)]
     public void Acertar_sube_un_escalon(int previos, int esperadosAciertos, int esperadoIntervalo)
     {
-        var p = CalendarioDeRepeticion.Siguiente(previos, acerto: true, Hoy);
+        var p = CalendarioDeRepeticion.Siguiente(previos, ResultadoDeRespuesta.Acierto, Hoy);
 
         Assert.Equal(esperadosAciertos, p.AciertosSeguidos);
         Assert.Equal(esperadoIntervalo, p.IntervaloEnDias);
@@ -33,7 +33,7 @@ public class CalendarioDeRepeticionTests
     [Fact]
     public void Sobre_el_ultimo_escalon_el_intervalo_no_crece_mas()
     {
-        var p = CalendarioDeRepeticion.Siguiente(12, acerto: true, Hoy);
+        var p = CalendarioDeRepeticion.Siguiente(12, ResultadoDeRespuesta.Acierto, Hoy);
 
         Assert.Equal(13, p.AciertosSeguidos);
         Assert.Equal(90, p.IntervaloEnDias);
@@ -47,7 +47,7 @@ public class CalendarioDeRepeticionTests
     [Fact]
     public void Fallar_resetea_y_vence_hoy()
     {
-        var p = CalendarioDeRepeticion.Siguiente(5, acerto: false, Hoy);
+        var p = CalendarioDeRepeticion.Siguiente(5, ResultadoDeRespuesta.Error, Hoy);
 
         Assert.Equal(0, p.AciertosSeguidos);
         Assert.Equal(1, p.IntervaloEnDias);

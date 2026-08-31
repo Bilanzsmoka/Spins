@@ -29,6 +29,7 @@ public sealed class EntrenadorController(
     ICatalogoDeTablas catalogo,
     IRegistroDeAcciones acciones,
     InterpretadorDeRespuesta interprete,
+    IBitacoraDeRespuestas bitacora,
     ILogger<EntrenadorController> registro) : ControllerBase
 {
     /// <summary>
@@ -68,6 +69,25 @@ public sealed class EntrenadorController(
         catch (Exception ex) when (EsFalloDeBase(ex))
         {
             return BaseCaida(ex, "no se pudo armar la tanda");
+        }
+    }
+
+    /// <summary>
+    /// Lo que más veces erraste igual. Es el material más valioso que tiene el
+    /// entrenador: no lo que no sabés, sino lo que sabés mal.
+    /// </summary>
+    [HttpGet("errores")]
+    public async Task<IActionResult> Errores(
+        [FromQuery] int cuantos = 10, CancellationToken ct = default)
+    {
+        try
+        {
+            return Ok(await bitacora.ErroresRepetidosAsync(
+                UsuarioActual, Math.Clamp(cuantos, 1, 50), ct));
+        }
+        catch (Exception ex) when (EsFalloDeBase(ex))
+        {
+            return BaseCaida(ex, "no se pudieron leer tus errores");
         }
     }
 

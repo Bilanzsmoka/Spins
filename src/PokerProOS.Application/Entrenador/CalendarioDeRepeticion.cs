@@ -4,6 +4,23 @@ namespace PokerProOS.Application.Entrenador;
 public record ProgresoCalculado(int AciertosSeguidos, int IntervaloEnDias, DateOnly Vence);
 
 /// <summary>
+/// Qué tan lejos quedó la respuesta de la correcta.
+///
+/// Existe porque no todos los errores enseñan lo mismo. Contestar RAISE X3
+/// donde iba RAISE X2.5 es un desliz de tamaño: la casilla se entendió.
+/// Contestar FOLD donde iba ALL-IN es no haber entendido el spot. Tratarlos
+/// igual hace repetir de más lo que casi sabías y de menos lo que no
+/// entendiste — que es al revés de lo que conviene.
+/// </summary>
+public enum ResultadoDeRespuesta
+{
+    Acierto,
+    /// <summary>Erró, pero por una acción vecina en la escala de agresión.</summary>
+    Cerca,
+    Error,
+}
+
+/// <summary>
 /// Cuándo vuelve a preguntarse una casilla.
 ///
 /// Puro a propósito: sin base, sin catálogo y sin reloj propio —la fecha entra
@@ -19,12 +36,24 @@ public static class CalendarioDeRepeticion
     /// </summary>
     public static IReadOnlyList<int> Escalera { get; } = [1, 3, 7, 16, 35, 90];
 
-    public static ProgresoCalculado Siguiente(int aciertosSeguidos, bool acerto, DateOnly hoy)
+    public static ProgresoCalculado Siguiente(
+        int aciertosSeguidos, ResultadoDeRespuesta resultado, DateOnly hoy)
     {
-        // Fallar no baja un escalón: vuelve a cero. Y vence HOY, no mañana,
-        // porque el spec pide que la casilla reentre en la tanda actual — es
-        // el momento en que más sirve volver a verla.
-        if (!acerto) return new ProgresoCalculado(0, Escalera[0], hoy);
+        // Cualquier error devuelve la casilla a HOY: reentra en la tanda
+        // actual, que es el momento en que más sirve volver a verla. Lo que
+        // cambia es cuánto progreso se pierde.
+        //
+        // El error grosero vuelve a cero. El de una acción vecina baja un solo
+        // escalón: la casilla se entendió y sólo se erró el tamaño, y hacerla
+        // empezar de nuevo la haría aparecer tanto como una que nunca se supo.
+        if (resultado == ResultadoDeRespuesta.Error)
+            return new ProgresoCalculado(0, Escalera[0], hoy);
+
+        if (resultado == ResultadoDeRespuesta.Cerca)
+        {
+            var quedan = Math.Max(0, aciertosSeguidos - 1);
+            return new ProgresoCalculado(quedan, Escalera[0], hoy);
+        }
 
         var nuevos = aciertosSeguidos + 1;
         var intervalo = Escalera[Math.Min(nuevos - 1, Escalera.Count - 1)];

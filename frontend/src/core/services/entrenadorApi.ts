@@ -1,5 +1,6 @@
 import type {
-  AccionDefinida, PreguntaDeTanda, RespuestaEnviada, TandaPedida, VeredictoDeRespuesta,
+  AccionDefinida, ErrorRepetido, PreguntaDeTanda, RespuestaEnviada, TandaPedida,
+  VeredictoDeRespuesta,
 } from '../models/catalogo.model'
 
 /**
@@ -45,6 +46,10 @@ export const pedirTanda = (pedida: TandaPedida) =>
 
 export const responder = (respuesta: RespuestaEnviada) =>
   pedir<VeredictoDeRespuesta>('/api/entrenador/respuesta', 'POST', respuesta)
+
+/** Lo que más veces erraste igual. Vacío mientras no se repita nada. */
+export const erroresRepetidos = () =>
+  pedir<ErrorRepetido[]>('/api/entrenador/errores', 'GET')
 
 export const accionesDelSpot = (situacion: string, stack: string, spot: string) =>
   pedir<AccionDefinida[]>(

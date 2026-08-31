@@ -74,6 +74,10 @@ public class EntrenadorControllerTests
     {
         public Task RegistrarAsync(RespuestaRegistrada respuesta, CancellationToken ct)
             => Task.CompletedTask;
+
+        public Task<IReadOnlyList<ErrorRepetido>> ErroresRepetidosAsync(
+            int usuarioId, int cuantos, CancellationToken ct)
+            => Task.FromResult<IReadOnlyList<ErrorRepetido>>([]);
     }
 
     private static EntrenadorController Armar()
@@ -92,10 +96,12 @@ public class EntrenadorControllerTests
                 new AnalizadorDeMemoria(catalogo),
                 catalogo,
                 progreso,
-                new BitacoraNula()),
+                new BitacoraNula(),
+                acciones),
             catalogo,
             acciones,
             new InterpretadorDeRespuesta(acciones),
+            new BitacoraNula(),
             NullLogger<EntrenadorController>.Instance);
     }
 

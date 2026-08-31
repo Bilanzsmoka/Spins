@@ -30,9 +30,15 @@ export function Veredicto({ veredicto, acciones, milisegundos, onSeguir }: Props
   const correcta = acciones.find((a) => a.clave === veredicto.accionCorrecta)
 
   return (
-    <section className={`veredicto ${veredicto.acerto ? 'veredicto-bien' : 'veredicto-mal'}`}>
+    <section className={`veredicto ${
+      veredicto.acerto ? 'veredicto-bien' : veredicto.cerca ? 'veredicto-cerca' : 'veredicto-mal'
+    }`}>
       <header className="veredicto-cabecera">
-        <strong>{veredicto.acerto ? 'Bien' : 'No'}</strong>
+        {/*
+          "Cerca" no es un consuelo: dice qué corregir. Erraste el tamaño, no
+          el spot, y el calendario lo trata distinto por eso mismo.
+        */}
+        <strong>{veredicto.acerto ? 'Bien' : veredicto.cerca ? 'Cerca' : 'No'}</strong>
         <span
           className="veredicto-accion"
           style={correcta ? { background: correcta.color, color: correcta.colorTexto } : undefined}

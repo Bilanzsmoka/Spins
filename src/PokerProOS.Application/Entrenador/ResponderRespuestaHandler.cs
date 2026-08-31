@@ -19,7 +19,8 @@ public sealed class ResponderRespuestaHandler(
     AnalizadorDeMemoria analizador,
     ICatalogoDeTablas catalogo,
     IProgresoDeEntrenamiento progreso,
-    IBitacoraDeRespuestas bitacora)
+    IBitacoraDeRespuestas bitacora,
+    IRegistroDeAcciones acciones)
 {
     /// <summary>
     /// Null si esa casilla no existe en el catálogo. Pasa cuando una tabla se
@@ -37,7 +38,8 @@ public sealed class ResponderRespuestaHandler(
             respuesta.Situacion, tabla.Stack.MinBB, respuesta.Spot, alto, bajo, palo));
         if (resultado.Respuesta is not { } correcta) return null;
 
-        var acerto = Acierta(correcta, respuesta.Accion);
+        var calificacion = Calificar(correcta, respuesta.Accion);
+        var acerto = calificacion == ResultadoDeRespuesta.Acierto;
 
         var fila = await progreso.BuscarAsync(
             usuarioId, respuesta.Situacion, respuesta.ClaveDeStack,
@@ -51,7 +53,7 @@ public sealed class ResponderRespuestaHandler(
                 Mano = respuesta.Mano,
             };
 
-        var calculado = CalendarioDeRepeticion.Siguiente(fila.AciertosSeguidos, acerto, hoy);
+        var calculado = CalendarioDeRepeticion.Siguiente(fila.AciertosSeguidos, calificacion, hoy);
         fila.AciertosSeguidos = calculado.AciertosSeguidos;
         fila.IntervaloEnDias = calculado.IntervaloEnDias;
         fila.Vence = calculado.Vence;
@@ -82,19 +84,50 @@ public sealed class ResponderRespuestaHandler(
                 respuesta.Situacion, respuesta.ClaveDeStack, respuesta.Spot, respuesta.Mano);
 
         return new VeredictoDeRespuesta(
-            acerto, correcta.Accion, correcta.Mix, ficha, calculado.Vence);
+            acerto, correcta.Accion, correcta.Mix, ficha, calculado.Vence,
+            Cerca: calificacion == ResultadoDeRespuesta.Cerca);
     }
 
     /// <summary>
-    /// Una mano mixta cuenta por cualquiera de sus partes: elegir una como "la
-    /// correcta" sería inventar una estrategia que la tabla no declara.
+    /// Acierto, cerca o error. "Cerca" es una acción vecina en la escala de
+    /// agresión del registro: erraste el tamaño, no el spot.
+    ///
+    /// La distancia se mide contra la acción correcta más parecida a la que
+    /// elegiste, no contra la primera: en una mano mixta cualquiera de sus
+    /// partes cuenta como acierto, así que la que está más cerca es la que
+    /// define cuánto erraste.
     /// </summary>
-    private static bool Acierta(RespuestaDeMano correcta, string elegida)
+    private ResultadoDeRespuesta Calificar(RespuestaDeMano correcta, string elegida)
     {
-        if (correcta.Mix is { Count: > 1 } partes)
-            return partes.Any(p =>
-                string.Equals(p.Accion, elegida, StringComparison.OrdinalIgnoreCase));
+        var correctas = correcta.Mix is { Count: > 1 } partes
+            ? partes.Select(p => p.Accion).ToList()
+            : [correcta.Accion];
 
-        return string.Equals(correcta.Accion, elegida, StringComparison.OrdinalIgnoreCase);
+        if (correctas.Any(a => string.Equals(a, elegida, StringComparison.OrdinalIgnoreCase)))
+            return ResultadoDeRespuesta.Acierto;
+
+        var elegidaAgresion = Agresion(elegida);
+        if (elegidaAgresion is null) return ResultadoDeRespuesta.Error;
+
+        var distancia = correctas
+            .Select(Agresion)
+            .OfType<int>()
+            .Select(a => Math.Abs(a - elegidaAgresion.Value))
+            .DefaultIfEmpty(int.MaxValue)
+            .Min();
+
+        return distancia <= 1 ? ResultadoDeRespuesta.Cerca : ResultadoDeRespuesta.Error;
+    }
+
+    /// <summary>
+    /// Null cuando la acción no está en el registro o no declara agresión. Sin
+    /// escala no se puede decir que un error estuvo cerca, y ante la duda el
+    /// error es error: sería peor perdonar de más.
+    /// </summary>
+    private int? Agresion(string clave)
+    {
+        if (!acciones.Existe(clave)) return null;
+        var accion = acciones.Obtener(clave);
+        return accion.Agresion > 0 ? accion.Agresion : null;
     }
 }

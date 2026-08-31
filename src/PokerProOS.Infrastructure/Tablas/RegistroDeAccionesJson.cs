@@ -35,7 +35,10 @@ public sealed class RegistroDeAccionesJson : IRegistroDeAcciones
                     e.GetProperty("color").GetString()!,
                     e.GetProperty("colorTexto").GetString()!,
                     e.GetProperty("orden").GetInt32(),
-                    e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList()))
+                    e.GetProperty("dichos").EnumerateArray().Select(d => d.GetString()!).ToList(),
+                    // Opcional: sin ella la acción sirve igual, sólo que
+                    // ningún error suyo puede contarse como "cerca".
+                    e.TryGetProperty("agresion", out var agresion) ? agresion.GetInt32() : 0))
                 .OrderBy(a => a.Orden)
                 .ToList();
             return new RegistroDeAccionesJson(acciones);

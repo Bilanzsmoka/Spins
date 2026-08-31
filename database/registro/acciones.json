@@ -6,6 +6,7 @@
       "color": "#4CAF50",
       "colorTexto": "#06180a",
       "orden": 1,
+      "agresion": 15,
       "dichos": [
         "all in",
         "allin",
@@ -22,6 +23,7 @@
       "color": "#FFB74D",
       "colorTexto": "#1a1204",
       "orden": 2,
+      "agresion": 3,
       "dichos": [
         "call",
         "pagar",
@@ -34,6 +36,7 @@
       "color": "#7986CB",
       "colorTexto": "#0a1024",
       "orden": 3,
+      "agresion": 4,
       "dichos": [
         "raise",
         "raise por dos",
@@ -47,6 +50,7 @@
       "color": "#E0E0E0",
       "colorTexto": "#111820",
       "orden": 4,
+      "agresion": 0,
       "dichos": [
         "fold",
         "foldear",
@@ -60,6 +64,7 @@
       "color": "#FFB74D",
       "colorTexto": "#1a1204",
       "orden": 5,
+      "agresion": 2,
       "dichos": [
         "check",
         "chequear",
@@ -72,6 +77,7 @@
       "color": "#7986CB",
       "colorTexto": "#0a1024",
       "orden": 6,
+      "agresion": 6,
       "dichos": [
         "raise dos y medio",
         "subir dos y medio"
@@ -83,6 +89,7 @@
       "color": "#8D6E63",
       "colorTexto": "#f7f1ec",
       "orden": 7,
+      "agresion": 7,
       "dichos": [
         "raise tres",
         "subir tres"
@@ -94,6 +101,7 @@
       "color": "#8D6E63",
       "colorTexto": "#f7f1ec",
       "orden": 8,
+      "agresion": 8,
       "dichos": [
         "raise tres y medio",
         "subir tres y medio"
@@ -105,6 +113,7 @@
       "color": "#8D6E63",
       "colorTexto": "#f7f1ec",
       "orden": 9,
+      "agresion": 9,
       "dichos": [
         "raise cuatro",
         "subir cuatro"
@@ -116,6 +125,7 @@
       "color": "#8D6E63",
       "colorTexto": "#f7f1ec",
       "orden": 10,
+      "agresion": 10,
       "dichos": [
         "raise cuatro y medio",
         "subir cuatro y medio"
@@ -127,6 +137,7 @@
       "color": "#6A1B9A",
       "colorTexto": "#f4ecf7",
       "orden": 11,
+      "agresion": 12,
       "dichos": [
         "raise seis",
         "subir seis"
@@ -138,6 +149,7 @@
       "color": "#6A1B9A",
       "colorTexto": "#f4ecf7",
       "orden": 12,
+      "agresion": 13,
       "dichos": [
         "raise ocho",
         "subir ocho"
@@ -149,6 +161,7 @@
       "color": "#6A1B9A",
       "colorTexto": "#f4ecf7",
       "orden": 13,
+      "agresion": 14,
       "dichos": [
         "raise diez",
         "subir diez"
@@ -160,6 +173,7 @@
       "color": "#6A1B9A",
       "colorTexto": "#f4ecf7",
       "orden": 14,
+      "agresion": 11,
       "dichos": [
         "raise cinco",
         "subir cinco"
@@ -171,6 +185,7 @@
       "color": "#7986CB",
       "colorTexto": "#0a1024",
       "orden": 15,
+      "agresion": 5,
       "dichos": [
         "raise dos coma dos",
         "subir dos coma dos"

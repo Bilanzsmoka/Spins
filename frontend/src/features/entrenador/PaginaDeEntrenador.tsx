@@ -10,6 +10,7 @@ import {
 import { obtenerGlosario } from '../../core/services/tablasApi'
 import { BotonesDeAccion } from './BotonesDeAccion'
 import { FiltroDeTanda } from './FiltroDeTanda'
+import { MapaDeErrores } from './MapaDeErrores'
 import { MesaSimulada } from './MesaSimulada'
 import { useCantarPregunta } from './useCantarPregunta'
 import { Veredicto } from './Veredicto'
@@ -386,6 +387,19 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
           onCambiar={setPedida}
           onArrancar={() => void arrancar()}
           cargando={cargando || contestando}
+        />
+      )}
+
+      {/*
+        Antes de arrancar y al terminar: los dos momentos en que se puede mirar
+        sin interrumpir nada. Las acciones salen del catálogo y no del spot
+        —que todavía no existe— para que cada error salga con su color.
+      */}
+      {(!tanda || terminada) && catalogo && (
+        <MapaDeErrores
+          situaciones={catalogo.situaciones}
+          acciones={catalogo.acciones}
+          refrescar={terminada ? 1 : 0}
         />
       )}
 

@@ -239,6 +239,23 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+**Los errores pesan distinto.** `acciones.json` declara una `agresion` por
+acción —FOLD 0, CHECK 2, CALL 3, las subidas de 4 a 14, ALL-IN 15— y con eso
+`ResponderRespuestaHandler` mide qué tan lejos quedó la respuesta. Una acción
+vecina es un desliz de tamaño: la casilla baja **un** escalón. Cualquier otra
+cosa vuelve a cero. Las dos reentran hoy. FOLD queda separado de CHECK a
+propósito: confundir dos tamaños de subida es un desliz, tirar donde se podía
+pasar gratis no. La escala es dato, no código — deducir que RAISE_X4 pesa más
+que RAISE_X3 leyendo el número de la clave es lo que este proyecto no hace.
+
+Y la bitácora ya se lee: **el mapa de errores** (`GET /api/entrenador/errores`)
+agrupa por casilla *y acción elegida*, y muestra sólo lo que se repitió más de
+una vez. No es la lista de lo que no sabés —eso ya aparece solo en la tanda—:
+es la de lo que sabés **al revés**, que es lo único que repetir no arregla.
+Nota para quien lo toque: el proveedor en memoria de las pruebas no traduce a
+SQL, así que un LINQ que SQL Server no sepa ejecutar pasa verde y revienta en
+runtime. Pasó con esta consulta; se verifica pegándole al endpoint.
+
 El entrenador dibuja **la mesa**, no una ficha de estudio: quién está sentado
 dónde, de qué tipo es cada rival —con el color y la figura del glosario— y qué
 hizo antes de tu turno, más tu stack en BB, las ciegas y un reloj que cuenta

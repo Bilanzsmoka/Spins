@@ -73,6 +73,10 @@ public class ResponderRespuestaHandlerTests
             Filas.Add(respuesta);
             return Task.CompletedTask;
         }
+
+        public Task<IReadOnlyList<ErrorRepetido>> ErroresRepetidosAsync(
+            int usuarioId, int cuantos, CancellationToken ct)
+            => Task.FromResult<IReadOnlyList<ErrorRepetido>>([]);
     }
 
     private static (ResponderRespuestaHandler Handler, ProgresoEnMemoria Progreso) Armar()
@@ -88,7 +92,8 @@ public class ResponderRespuestaHandlerTests
             new AnalizadorDeMemoria(catalogo),
             catalogo,
             progreso,
-            bitacora), progreso);
+            bitacora,
+            RegistroDeAccionesJson.Cargar(Rutas.Registro("acciones.json"))), progreso);
     }
 
     private static RespuestaEnviada Enviada(string mano, string accion, int ms = 0)
@@ -254,5 +259,72 @@ public class ResponderRespuestaHandlerTests
             1, new RespuestaEnviada("NO_EXISTE", "9-11bb", "SB_OR", "KK", "FOLD"), Hoy, default);
 
         Assert.Null(v);
+    }
+
+    /* ---------- Errores graduados ---------- */
+
+    /// <summary>
+    /// KK es ALL-IN (agresión 15) y RAISE_X10 es 14: son vecinas. Erraste el
+    /// tamaño, no el spot, así que se baja un escalón en vez de volver a cero
+    /// — si volviera a cero, una casilla que casi sabías reaparecería tanto
+    /// como una que nunca supiste.
+    /// </summary>
+    [Fact]
+    public async Task Errar_por_una_accion_vecina_baja_un_escalon_y_no_vuelve_a_cero()
+    {
+        var (handler, progreso) = Armar();
+        progreso.Filas.Add(new ProgresoDeCasilla
+        {
+            UsuarioId = 1, Situacion = "HU_X", ClaveDeStack = "9-11bb", Spot = "SB_OR",
+            Mano = "KK", AciertosSeguidos = 3, IntervaloEnDias = 7, Vence = Hoy,
+        });
+
+        var v = await handler.ResponderAsync(1, Enviada("KK", "RAISE_X10"), Hoy, default);
+
+        Assert.False(v!.Acerto);
+        Assert.Equal(2, progreso.Filas.Single().AciertosSeguidos);
+        // Igual reentra hoy: erraste, y este es el momento en que más sirve verla.
+        Assert.Equal(Hoy, v.Vence);
+    }
+
+    /// <summary>
+    /// FOLD (0) contra ALL-IN (15) no es un desliz de tamaño: es no haber
+    /// entendido el spot. Ese vuelve a cero.
+    /// </summary>
+    [Fact]
+    public async Task Un_error_grosero_si_vuelve_a_cero()
+    {
+        var (handler, progreso) = Armar();
+        progreso.Filas.Add(new ProgresoDeCasilla
+        {
+            UsuarioId = 1, Situacion = "HU_X", ClaveDeStack = "9-11bb", Spot = "SB_OR",
+            Mano = "KK", AciertosSeguidos = 3, IntervaloEnDias = 7, Vence = Hoy,
+        });
+
+        await handler.ResponderAsync(1, Enviada("KK", "FOLD"), Hoy, default);
+
+        Assert.Equal(0, progreso.Filas.Single().AciertosSeguidos);
+    }
+
+    /// <summary>
+    /// Tirar donde se podía pasar gratis no es "casi". Por eso FOLD queda
+    /// separado de CHECK en la escala del registro, y no pegado como estarían
+    /// dos tamaños de subida.
+    /// </summary>
+    [Fact]
+    public async Task Tirar_donde_iba_check_no_cuenta_como_cerca()
+    {
+        var (handler, progreso) = Armar();
+        progreso.Filas.Add(new ProgresoDeCasilla
+        {
+            UsuarioId = 1, Situacion = "HU_X", ClaveDeStack = "9-11bb", Spot = "SB_OR",
+            Mano = "72o", AciertosSeguidos = 4, IntervaloEnDias = 16, Vence = Hoy,
+        });
+
+        // En el catálogo de prueba todo lo que no es AA ni KK es FOLD, así que
+        // se invierte: la correcta es FOLD y se contesta CHECK.
+        await handler.ResponderAsync(1, Enviada("72o", "CHECK"), Hoy, default);
+
+        Assert.Equal(0, progreso.Filas.Single().AciertosSeguidos);
     }
 }

@@ -41,9 +41,15 @@ public record RespuestaEnviada(
 /// Qué pasó con la respuesta. La ficha viene solo al fallar: acertar sigue de
 /// largo, y es al errar cuando una explicación entra de verdad.
 /// </summary>
+/// <param name="Cerca">
+/// Erró, pero por una acción vecina en la escala de agresión. Se dice en
+/// pantalla porque no da lo mismo: saber que erraste el tamaño y no el spot es
+/// la mitad de la corrección.
+/// </param>
 public record VeredictoDeRespuesta(
     bool Acerto,
     string AccionCorrecta,
     IReadOnlyList<ParteDeMix>? Mix,
     FichaDeMemoria? Ficha,
-    DateOnly Vence);
+    DateOnly Vence,
+    bool Cerca = false);

@@ -344,6 +344,17 @@ export interface GrupoDelGlosario {
   ejes?: EjeDelGlosario[]
 }
 
+export interface ErrorRepetido {
+  situacion: string
+  claveDeStack: string
+  spot: string
+  mano: string
+  accionElegida: string
+  accionCorrecta: string
+  veces: number
+  ultima: string
+}
+
 /* ---------- El plan ---------- */
 
 export interface EstadoDeHito {
@@ -424,4 +435,6 @@ export interface VeredictoDeRespuesta {
   ficha: FichaDeMemoria | null
   /** Cuándo vuelve a preguntarse esta casilla. */
   vence: string
+  /** Erró por una acción vecina: erraste el tamaño, no el spot. */
+  cerca: boolean
 }
