@@ -10,6 +10,7 @@ import {
 import { obtenerGlosario } from '../../core/services/tablasApi'
 import { BotonesDeAccion } from './BotonesDeAccion'
 import { FiltroDeTanda } from './FiltroDeTanda'
+import { HistorialDeTanda, type ManoContestada } from './HistorialDeTanda'
 import { MapaDeErrores } from './MapaDeErrores'
 import { MesaSimulada } from './MesaSimulada'
 import { useCantarPregunta } from './useCantarPregunta'
@@ -28,6 +29,25 @@ interface Props {
   /** La tabla del hito activo, cuando se llega desde el panel del día. */
   situacionInicial?: string | null
 }
+
+/**
+ * Cuánto se muestra el "Bien" antes de pasar sola a la mano siguiente.
+ *
+ * Al acertar no hay nada que leer: el botón de seguir era un click de más cada
+ * vez, y en una tanda de diez son diez. Al fallar NO se avanza solo — ahí sí
+ * hay una explicación que leer, y apurarla sería perder justo el momento en
+ * que más entra.
+ */
+const PAUSA_AL_ACERTAR_MS = 650
+
+/** Cuántas manos se guardan a la vista. Más no se miran. */
+const MAXIMO_HISTORIAL = 40
+
+/** Sin límite: la tanda se renueva sola cuando se termina. */
+const SIN_LIMITE = 0
+
+/** Lo que se le pide al servidor cuando no hay límite: su techo. */
+const TANDA_LARGA = 100
 
 const PEDIDA_INICIAL: TandaPedida = {
   formato: null, situacion: null, minBB: null, maxBB: null, spot: null, tamano: 10,
@@ -71,6 +91,12 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   // que hace que empieces a contestar más rápido; guardarlo en silencio no
   // cambia nada hoy.
   const [tardo, setTardo] = useState(0)
+  // Lo contestado en esta tanda. Existe porque al acertar la mesa pasa sola:
+  // sin esto, la mano que acabás de resolver desaparece sin dejar dónde mirarla.
+  const [historial, setHistorial] = useState<ManoContestada[]>([])
+  // Cuántas llevás contestadas en total. En modo sin límite la tanda se
+  // renueva, así que el índice vuelve a cero y solo este número sigue subiendo.
+  const [respondidas, setRespondidas] = useState(0)
   const [aciertos, setAciertos] = useState(0)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -169,17 +195,32 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
     return () => { cancelado = true }
   }, [pregunta])
 
-  const arrancar = async () => {
+  const sinLimite = pedida.tamano === SIN_LIMITE
+
+  /**
+   * Trae una tanda. `sigue` es el modo sin límite renovándose: ahí no se
+   * reinician ni los aciertos ni el historial, porque para el que entrena es
+   * la misma sesión — lo único que pasó es que se acabó el lote.
+   */
+  const arrancar = async (sigue = false) => {
     setCargando(true)
     setError(null)
     try {
-      const preguntas = await pedirTanda(pedida)
+      const preguntas = await pedirTanda(
+        sinLimite ? { ...pedida, tamano: TANDA_LARGA } : pedida)
       setTanda(preguntas)
       setIndice(0)
-      setAciertos(0)
       setVeredicto(null)
       reingresadas.current = new Set()
-      if (preguntas.length === 0) setError('No hay nada para entrenar con ese filtro.')
+      if (!sigue) {
+        setAciertos(0)
+        setRespondidas(0)
+        setHistorial([])
+      }
+      if (preguntas.length === 0)
+        setError(sigue
+          ? 'No queda nada más para entrenar con ese filtro.'
+          : 'No hay nada para entrenar con ese filtro.')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo armar la tanda.')
     } finally {
@@ -222,6 +263,26 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
     else setError(e instanceof Error ? e.message : porDefecto)
   }
 
+  /**
+   * Deja la mano en el historial. La respuesta hablada no sabe qué clave se
+   * dijo —la interpreta el servidor—, así que ahí se anota la correcta: en un
+   * acierto es la misma, y en un fallo la corrección igual queda visible.
+   */
+  const anotar = (
+    p: PreguntaDeTanda, elegida: string, v: VeredictoDeRespuesta, ms: number,
+  ) => {
+    setRespondidas((previo) => previo + 1)
+    setHistorial((previo) => [{
+      mano: p.mano,
+      elegida,
+      correcta: v.accionCorrecta,
+      acerto: v.acerto,
+      cerca: v.cerca,
+      milisegundos: ms,
+      etiquetaDeSpot: p.etiquetaDeSpot,
+    }, ...previo].slice(0, MAXIMO_HISTORIAL))
+  }
+
   const elegir = async (accion: string) => {
     // El chequeo y el cierre de la puerta van juntos y sin ningún `await` en
     // el medio: si el otro camino (voz o teclado) corre entre el chequeo y el
@@ -242,6 +303,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         milisegundos: ms,
       })
       setVeredicto(v)
+      anotar(pregunta, accion, v, ms)
       if (v.acerto) setAciertos((previo) => previo + 1)
       else reinyectar(pregunta)
     } catch (e) {
@@ -275,6 +337,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         pregunta.situacion, pregunta.claveDeStack, pregunta.spot, pregunta.mano, texto, ms)
       if (!v) return false
       setVeredicto(v)
+      anotar(pregunta, v.accionCorrecta, v, ms)
       if (v.acerto) setAciertos((previo) => previo + 1)
       else reinyectar(pregunta)
       return true
@@ -344,6 +407,53 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
 
   const terminada = tanda !== null && indice >= tanda.length
 
+  /*
+   * Al acertar no hay nada que leer, así que pasa sola. Los setters van
+   * directo y no por `seguir` porque `seguir` se recrea en cada render: con él
+   * en las dependencias, el plazo se reiniciaría cada vez y no llegaría a
+   * dispararse nunca.
+   */
+  useEffect(() => {
+    if (!veredicto?.acerto) return
+    const plazo = setTimeout(() => {
+      setVeredicto(null)
+      setContestando(false)
+      setIndice((previo) => previo + 1)
+    }, PAUSA_AL_ACERTAR_MS)
+    return () => clearTimeout(plazo)
+  }, [veredicto])
+
+  // Con la explicación en pantalla, Enter o espacio siguen. Es lo que hace
+  // cualquier entrenador y evita ir al mouse por una tecla que ya tenés debajo
+  // de los dedos. Los botones de acción no escuchan mientras hay veredicto,
+  // así que no hay dos cosas peleando por la misma tecla.
+  useEffect(() => {
+    if (!veredicto || veredicto.acerto) return
+    const alTeclear = (evento: KeyboardEvent) => {
+      const donde = evento.target as HTMLElement | null
+      const editando = donde !== null
+        && ['input', 'textarea', 'select'].includes(donde.tagName.toLowerCase())
+      if (editando || evento.ctrlKey || evento.altKey || evento.metaKey) return
+      if (evento.key !== 'Enter' && evento.key !== ' ') return
+      evento.preventDefault()
+      setVeredicto(null)
+      setContestando(false)
+      setIndice((previo) => previo + 1)
+    }
+    window.addEventListener('keydown', alTeclear)
+    return () => window.removeEventListener('keydown', alTeclear)
+  }, [veredicto])
+
+  // Sin límite: cuando el lote se acaba, entra el siguiente sin preguntar. Es
+  // sincronizar con algo de afuera —el servidor tiene más material— y no un
+  // estado que se pueda derivar durante el render.
+  useEffect(() => {
+    if (!sinLimite || !terminada || cargando || tanda?.length === 0) return
+    // oxlint-disable-next-line set-state-in-effect, exhaustive-deps
+    void arrancar(true)
+    // oxlint-disable-next-line exhaustive-deps
+  }, [sinLimite, terminada])
+
   // De acá salen los filtros y la tanda: sin catálogo no hay nada que ofrecer.
   // Tragarse el error dejaba el encabezado solo —sin mensaje y sin botón—,
   // como si la app se hubiera colgado.
@@ -373,7 +483,9 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
         </button>
         {tanda && !terminada && (
           <p className="entrenador-marcador">
-            {indice + 1} / {tanda.length} · {aciertos} bien
+            {sinLimite
+              ? `${respondidas + 1} · ${aciertos} bien`
+              : `${indice + 1} / ${tanda.length} · ${aciertos} bien`}
           </p>
         )}
       </header>
@@ -432,6 +544,8 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
           )}
         </>
       )}
+
+      {catalogo && <HistorialDeTanda manos={historial} acciones={catalogo.acciones} />}
     </div>
   )
 }

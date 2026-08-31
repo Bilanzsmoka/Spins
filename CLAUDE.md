@@ -239,6 +239,20 @@ cambiar de dónde sale ese número y nada más. Y es lo único de la app que
 que a diferencia de las tablas y la voz, un error de base acá se muestra en
 pantalla en vez de tragarse.
 
+**Se entrena con el teclado.** Las teclas 1..9 son las acciones del spot —en
+el orden del registro, así que la 1 es la primera acción *de ese spot*— y con
+la explicación en pantalla, Enter o espacio siguen. **Al acertar no hay botón:
+la mano siguiente entra sola** después de 650 ms, los que se tarda en ver el
+«Bien» y el tiempo. Al fallar no avanza solo: ahí sí hay algo que leer, y
+apurarlo sería perder el momento en que más entra.
+
+La tanda acepta **sin límite**: cuando el lote se acaba entra el siguiente sin
+preguntar, conservando aciertos e historial, porque para el que entrena es la
+misma sesión. Y debajo queda **lo que va de la tanda** —mano, qué contestaste,
+qué decía la tabla y cuánto tardaste—, que existe justamente porque al acertar
+la mesa pasa sola: sin eso, la mano recién resuelta desaparece sin dejar dónde
+mirarla.
+
 **Los errores pesan distinto.** `acciones.json` declara una `agresion` por
 acción —FOLD 0, CHECK 2, CALL 3, las subidas de 4 a 14, ALL-IN 15— y con eso
 `ResponderRespuestaHandler` mide qué tan lejos quedó la respuesta. Una acción

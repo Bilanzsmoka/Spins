@@ -14,7 +14,14 @@ interface Props {
  * minutos —las que se hacen igual estando cansado— y los grandes quedan para
  * cuando querés sentarte a hacer volumen.
  */
-const TAMANOS = [10, 5, 20, 40]
+/*
+ * Diez primero: es el que conviene. Cinco existe para las ráfagas de dos
+ * minutos —las que se hacen igual estando cansado—, los grandes para sentarse
+ * a hacer volumen, y el 0 es "sin límite": la tanda se renueva sola y seguís
+ * hasta que quieras parar.
+ */
+const TAMANOS = [10, 5, 20, 40, 0]
+const SIN_LIMITE = 0
 
 /**
  * Sobre qué entrenar. Todo sale del catálogo: los formatos son los que los
@@ -116,7 +123,9 @@ export function FiltroDeTanda({
           value={pedida.tamano}
           onChange={(e) => onCambiar({ ...pedida, tamano: Number(e.target.value) })}
         >
-          {TAMANOS.map((t) => <option key={t} value={t}>{t}</option>)}
+          {TAMANOS.map((t) => (
+            <option key={t} value={t}>{t === SIN_LIMITE ? 'Sin límite' : t}</option>
+          ))}
         </select>
       </label>
 

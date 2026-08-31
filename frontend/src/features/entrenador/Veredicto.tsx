@@ -58,9 +58,16 @@ export function Veredicto({ veredicto, acciones, milisegundos, onSeguir }: Props
             mix · {veredicto.mix.map((p) => `${p.frecuencia}% ${p.accion}`).join(' / ')}
           </span>
         )}
-        <button type="button" className="boton-principal" onClick={onSeguir}>
-          Seguir
-        </button>
+        {/*
+          Al acertar no hay botón: la mano siguiente entra sola, porque no hay
+          nada que leer. El "Bien" y el tiempo se ven igual ese instante — que
+          es justamente lo que hace que empieces a contestar más rápido.
+        */}
+        {!veredicto.acerto && (
+          <button type="button" className="boton-principal" onClick={onSeguir}>
+            Seguir <span className="boton-tecla">Enter</span>
+          </button>
+        )}
       </header>
 
       {veredicto.ficha && (

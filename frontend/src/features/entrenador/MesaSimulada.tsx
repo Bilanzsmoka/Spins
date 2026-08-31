@@ -100,15 +100,20 @@ function Jugador({
     <div className={`player player-${silla}${fuera ? ' player-fuera' : ''}`}>
       <div className="pos">{rival.posicion}</div>
       {/*
-        La silueta es la del diseño; el color del borde es el del tipo de
-        jugador, que es la señal que ya usás en el resto de la app. Un rival
-        que se fue va apagado y sin color: ya no hay a quién leerle nada.
+        La figura del tipo de jugador va DENTRO de la carátula, no al lado: es
+        lo que mirás para decidir, y a un costado se pierde. La silueta gris
+        queda para el rival del que no sabemos el tipo. El que se fue va
+        apagado y sin color: ya no hay a quién leerle nada.
       */}
       <div
-        className="avatar"
-        style={perfil?.color && !fuera ? { borderColor: perfil.color } : undefined}
+        className={`avatar${perfil?.icono ? ' avatar-con-figura' : ''}`}
+        style={perfil?.color && !fuera
+          ? { borderColor: perfil.color, background: perfil.color, color: perfil.colorTexto }
+          : undefined}
         title={rival.tipo}
-      />
+      >
+        {perfil?.icono}
+      </div>
       <div className="player-info">
         <div className="action">{rival.hizo.toUpperCase()}</div>
         <div className="stack">{banda}</div>

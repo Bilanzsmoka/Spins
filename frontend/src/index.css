@@ -322,6 +322,10 @@ body {
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
 }
+/* Con figura no hay silueta: la figura ES el jugador. */
+.avatar-con-figura { display: grid; place-items: center; font-size: 26px; line-height: 1; }
+.avatar-con-figura::before, .avatar-con-figura::after { display: none; }
+
 .avatar::before {
   content: "";
   position: absolute; left: 50%; top: 10px;
@@ -588,6 +592,55 @@ body {
   font-variant-numeric: tabular-nums;
   padding: 2px 8px; border-radius: 999px;
   border: 1px solid var(--borde); background: var(--panel-2);
+}
+
+/* ---------- Lo que va de la tanda ---------- */
+
+/*
+ * Existe porque al acertar la mesa pasa sola: sin esto, la mano recien
+ * resuelta desaparece y no queda donde mirarla. Es material de estudio, no un
+ * marcador.
+ */
+.historial { display: grid; gap: 8px; margin-top: 18px; }
+.historial h2 {
+  margin: 0; font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .09em; color: var(--apagado);
+}
+.historial ul {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 4px;
+  max-height: 260px; overflow-y: auto;
+}
+.historial li {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 6px 11px; border-radius: 7px;
+  background: var(--panel); border-left: 3px solid var(--borde);
+  font-size: 12px;
+}
+.historial-bien { border-left-color: #22c55e; }
+.historial-cerca { border-left-color: #f59e0b; }
+.historial-mal { border-left-color: #ef4444; }
+.historial-mano {
+  min-width: 42px; font-size: 13px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.historial-spot { flex: 1; color: var(--apagado); min-width: 150px; }
+.historial-cambio { display: inline-flex; align-items: center; gap: 6px; }
+.historial-cambio i { color: var(--apagado); font-style: normal; }
+.historial-accion {
+  padding: 2px 8px; border-radius: 5px;
+  background: var(--desconocido); color: var(--texto);
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
+}
+.historial-tiempo {
+  color: var(--apagado); font-variant-numeric: tabular-nums; font-weight: 700;
+}
+
+/* La tecla que hace lo mismo que el boton, dicha en el boton. */
+.boton-tecla {
+  margin-left: 7px; padding: 1px 6px; border-radius: 4px;
+  background: rgba(0, 0, 0, .28);
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
 }
 
 /* ---------- Lo que mas te cuesta ---------- */
