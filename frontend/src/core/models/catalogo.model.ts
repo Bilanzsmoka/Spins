@@ -25,6 +25,8 @@ export interface RivalEnLaMesa {
   tipo: string
   /** "limp", "min-raise", "all-in", "call", "fold", "por actuar". */
   hizo: string
+  /** Ciegas grandes puestas delante. Nulo si fue all-in: puso su stack. */
+  puso: number | null
 }
 
 export interface MesaDeSituacion {
@@ -32,6 +34,10 @@ export interface MesaDeSituacion {
   ciegaChica: number
   ciegaGrande: number
   rivales: RivalEnLaMesa[]
+  /** Qué silla tiene el botón. En heads-up lo tiene la ciega chica. */
+  boton: string
+  /** Tu ciega, ya en el pozo antes de decidir. */
+  pusoElHeroe: number
 }
 
 export interface SituacionResumen {

@@ -12,14 +12,18 @@
         {
           "posicion": "BTN",
           "tipo": "Reg",
-          "hizo": "all-in"
+          "hizo": "all-in",
+          "puso": null
         },
         {
           "posicion": "SB",
           "tipo": "Reg",
-          "hizo": "fold"
+          "hizo": "fold",
+          "puso": 0.5
         }
-      ]
+      ],
+      "boton": "BTN",
+      "pusoElHeroe": 1
     }
   },
   "stacks": [

@@ -253,46 +253,79 @@ body {
   font-size: 10px; text-transform: uppercase; letter-spacing: .09em;
 }
 /*
- * El pano: rivales arriba, el centro con stack y ciegas, y vos abajo. Es la
- * unica pantalla del proyecto que imita algo fisico, y es a proposito — lo que
- * se entrena se parece a lo que se practica.
+ * El pano. Vos abajo, los rivales enfrente y el pozo en el medio, como en
+ * cualquier sala: lo que se entrena se parece a lo que se practica.
  */
 .mesa-panio {
-  width: 100%; max-width: 520px;
-  display: grid; gap: 16px; justify-items: center;
-  padding: 20px 18px;
-  border-radius: 120px / 46px;
-  border: 1px solid var(--borde);
-  background: radial-gradient(ellipse at 50% 40%, var(--panel-2) 0%, var(--fondo) 100%);
+  width: 100%; max-width: 560px;
+  display: grid; gap: 18px; justify-items: center;
+  padding: 26px 22px 22px;
+  border-radius: 46% / 30%;
+  border: 1px solid #2b4a3a;
+  background:
+    radial-gradient(ellipse at 50% 42%, #17342a 0%, #102019 62%, #0c1713 100%);
+  box-shadow: inset 0 0 0 6px rgba(0, 0, 0, .25);
 }
-.mesa-rivales { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; }
+/* Repartidos a lo ancho: dos rivales quedan uno a cada lado, uno solo al medio. */
+.mesa-rivales {
+  width: 100%;
+  display: flex; gap: 20px; flex-wrap: wrap;
+  justify-content: space-evenly; align-items: flex-start;
+}
 .mesa-silla { display: grid; justify-items: center; gap: 3px; }
 .mesa-silla strong { font-size: 13px; letter-spacing: .04em; }
 /* Quien ya solto la mano se apaga, no se esconde: seguir viendo la silla
    vacia es parte de leer la mesa. */
-.mesa-silla-fuera { opacity: .42; }
+.mesa-silla-fuera { opacity: .38; }
 .mesa-silla-fuera strong { text-decoration: line-through; }
+.mesa-jugador { position: relative; }
 .mesa-ficha {
-  width: 38px; height: 38px; display: grid; place-items: center;
-  border-radius: 50%; font-size: 19px; line-height: 1;
+  width: 42px; height: 42px; display: grid; place-items: center;
+  border-radius: 50%; font-size: 21px; line-height: 1;
   background: var(--desconocido); color: var(--texto);
-  border: 1px solid var(--borde);
+  border: 2px solid rgba(0, 0, 0, .35);
+}
+/* El boton del dealer, pegado a la silla que lo tiene. */
+.mesa-boton {
+  position: absolute; right: -9px; bottom: -3px;
+  width: 19px; height: 19px; display: grid; place-items: center;
+  border-radius: 50%; background: #f3f5f8; color: #14181f;
+  font-size: 11px; font-weight: 800; line-height: 1;
+  border: 1px solid #b9c2cd;
 }
 .mesa-hizo {
-  font-size: 11px; font-weight: 700; color: var(--apagado);
+  font-size: 10px; font-weight: 700; color: var(--apagado);
   text-transform: uppercase; letter-spacing: .06em;
 }
-.mesa-centro { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
-.mesa-stack {
-  padding: 4px 12px; border-radius: 999px;
-  background: var(--panel); border: 1px solid var(--borde);
-  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+/* Las fichas puestas: chicas, delante del jugador, camino al pozo. */
+.mesa-apuesta {
+  padding: 1px 8px; border-radius: 999px;
+  background: rgba(0, 0, 0, .35); border: 1px solid #3d6b55;
+  color: #cfe8dc; font-size: 11px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
-.mesa-ciegas { color: var(--tenue, var(--apagado)); font-size: 11px; }
-.mesa-heroe { display: grid; justify-items: center; gap: 7px; }
+.mesa-apuesta-todo { border-color: #ef4444; color: #ffb4b4; }
+
+.mesa-centro { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.mesa-pozo {
+  padding: 4px 14px; border-radius: 999px;
+  background: rgba(0, 0, 0, .38); border: 1px solid #3d6b55;
+  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+}
+.mesa-ciegas { color: #86a396; font-size: 11px; }
+
+.mesa-heroe { display: grid; justify-items: center; gap: 8px; }
+.mesa-yo { display: flex; align-items: center; gap: 8px; position: relative; }
 .mesa-posicion {
   font-size: 12px; font-weight: 800; letter-spacing: .1em;
   color: var(--acento); text-transform: uppercase;
+}
+.mesa-yo .mesa-boton { position: static; }
+.mesa-stack {
+  padding: 3px 11px; border-radius: 999px;
+  background: rgba(0, 0, 0, .35); border: 1px solid #3d6b55;
+  font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
 }
 
 /* El reloj cuenta hacia arriba y avisa con color. No reprueba nada. */

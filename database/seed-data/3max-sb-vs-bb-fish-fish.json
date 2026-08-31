@@ -12,14 +12,18 @@
         {
           "posicion": "BTN",
           "tipo": "Fish",
-          "hizo": "fold"
+          "hizo": "fold",
+          "puso": 0
         },
         {
           "posicion": "BB",
           "tipo": "Fish",
-          "hizo": "por actuar"
+          "hizo": "por actuar",
+          "puso": 1
         }
-      ]
+      ],
+      "boton": "BTN",
+      "pusoElHeroe": 0.5
     }
   },
   "stacks": [

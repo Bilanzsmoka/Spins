@@ -225,18 +225,29 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                 rivales.Add(new RivalEnLaMesa(
                     posicion,
                     (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
-                    (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? ""));
+                    (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? "",
+                    // El ValueKind se mira antes: TryGetDecimal TIRA con un
+                    // null de JSON en vez de devolver false, y "puso": null es
+                    // justo lo que traen los all-in.
+                    rival.TryGetProperty("puso", out var pu)
+                        && pu.ValueKind == JsonValueKind.Number
+                        && pu.TryGetDecimal(out var fichas)
+                            ? fichas
+                            : null));
             }
 
         return new MesaDeSituacion(
             heroe,
             Ciega(mesa, "ciegaChica", 0.5m),
             Ciega(mesa, "ciegaGrande", 1m),
-            rivales);
+            rivales,
+            (mesa.TryGetProperty("boton", out var boton) ? boton.GetString() : null) ?? "",
+            Ciega(mesa, "pusoElHeroe", 0m));
     }
 
     private static decimal Ciega(JsonElement mesa, string propiedad, decimal porDefecto)
         => mesa.TryGetProperty(propiedad, out var valor)
+           && valor.ValueKind == JsonValueKind.Number
            && valor.TryGetDecimal(out var numero)
             ? numero
             : porDefecto;

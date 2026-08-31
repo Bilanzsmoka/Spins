@@ -64,7 +64,13 @@ public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)
 /// Es lo que hace que el rival se reconozca sin leer.
 /// </param>
 /// <param name="Hizo">"limp", "min-raise", "all-in", "call", "fold", "por actuar".</param>
-public record RivalEnLaMesa(string Posicion, string Tipo, string Hizo);
+/// <param name="Puso">
+/// Cuántas ciegas grandes tiene puestas delante. Nulo cuando fue all-in: ahí
+/// puso su stack, que no es un número fijo. Va declarado y no calculado del
+/// <paramref name="Hizo"/> porque un limp vale una ciega por definición del
+/// juego, no por una regla que convenga tener escondida en el código.
+/// </param>
+public record RivalEnLaMesa(string Posicion, string Tipo, string Hizo, decimal? Puso = null);
 
 /// <summary>
 /// Cómo se ve la mesa cuando te toca decidir: dónde estás sentado, quién más
@@ -75,11 +81,18 @@ public record RivalEnLaMesa(string Posicion, string Tipo, string Hizo);
 /// proyecto no hace, y acá importa más que en ningún lado: una mesa mal
 /// dibujada enseña una mano equivocada.
 /// </summary>
+/// <param name="Boton">
+/// Qué silla tiene el botón. En 3-max es el BTN; en heads-up lo tiene la ciega
+/// chica, porque ahí el botón y la SB son el mismo jugador.
+/// </param>
+/// <param name="PusoElHeroe">Tu ciega, ya en el pozo antes de decidir.</param>
 public record MesaDeSituacion(
     string Heroe,
     decimal CiegaChica,
     decimal CiegaGrande,
-    IReadOnlyList<RivalEnLaMesa> Rivales);
+    IReadOnlyList<RivalEnLaMesa> Rivales,
+    string Boton = "",
+    decimal PusoElHeroe = 0);
 
 /// <summary>
 /// El formato de mesa al que pertenece la situación ("HU", "3-max"). Lo

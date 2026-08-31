@@ -12,9 +12,12 @@
         {
           "posicion": "SB",
           "tipo": "Fish",
-          "hizo": "limp"
+          "hizo": "limp",
+          "puso": 1
         }
-      ]
+      ],
+      "boton": "SB",
+      "pusoElHeroe": 1
     }
   },
   "stacks": [

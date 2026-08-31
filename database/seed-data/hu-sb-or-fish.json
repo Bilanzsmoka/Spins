@@ -12,9 +12,12 @@
         {
           "posicion": "BB",
           "tipo": "Fish",
-          "hizo": "por actuar"
+          "hizo": "por actuar",
+          "puso": 1
         }
-      ]
+      ],
+      "boton": "SB",
+      "pusoElHeroe": 0.5
     }
   },
   "stacks": [
