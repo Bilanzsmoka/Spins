@@ -56,7 +56,10 @@ public sealed class TablasController(
                 t.Stack.Clave,
                 t.Stack.MinBB,
                 t.Stack.MaxBB,
-                spots = t.Spots.Select(p => new { p.Clave, p.Etiqueta })
+                // La mesa del spot viaja con el catálogo: la pantalla ya lo
+                // tiene, y es lo que le dice al entrenador que en un 3-bet vos
+                // ya subiste antes.
+                spots = t.Spots.Select(p => new { p.Clave, p.Etiqueta, p.Mesa })
             })
         }),
         problemas = catalogo.Problemas

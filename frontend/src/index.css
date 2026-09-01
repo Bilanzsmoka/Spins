@@ -295,15 +295,27 @@ body {
  * quede aire debajo.
  */
 .mesa { --escala-mesa: .74; }
+@media (max-width: 1400px) { .mesa { --escala-mesa: .62; } }
 .table-area {
   height: 555px;
   position: relative;
   width: 920px;
-  margin: 0 auto;
   transform: scale(var(--escala-mesa));
-  transform-origin: top center;
+  /* Desde la esquina: asi el hueco de abajo mide exactamente lo mismo que la
+     mesa escalada, y no sobra ni falta espacio a los costados. */
+  transform-origin: top left;
 }
-.mesa-encuadre { height: calc(555px * var(--escala-mesa)); overflow: hidden; }
+/*
+ * El hueco toma el tamano YA escalado. Con transform solo, la caja seguia
+ * midiendo 920px aunque se viera mas chica, y en una ventana angosta la mesa
+ * se salia por la derecha: se veia cortada.
+ */
+.mesa-encuadre {
+  width: calc(920px * var(--escala-mesa));
+  height: calc(555px * var(--escala-mesa));
+  margin: 0 auto;
+  overflow: hidden;
+}
 
 @media (min-width: 1600px) { .mesa { --escala-mesa: .82; } }
 @media (max-width: 1180px) { .mesa { --escala-mesa: .66; } }
@@ -415,6 +427,10 @@ body {
 .accion-limp, .accion-call { color: #ffd43b; }
 .accion-fold { color: #8a949f; text-decoration: line-through; }
 .accion-por-actuar { color: #74b3ff; font-weight: 700; letter-spacing: .04em; }
+/* Lo que YA hiciste vos, debajo de tus cartas. */
+.player-heroe .action { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.accion-3-bet { color: #ff8f5c; }
+.accion-limp { color: #ffd43b; }
 .stack { font-size: 13px; font-weight: 800; color: #6eb6ff; margin-top: 3px; }
 
 /* Las fichas de cada silla, sobre el pano. El boton viaja con ellas. */
@@ -445,6 +461,8 @@ body {
   color: #b8c6bf;
   white-space: nowrap;
 }
+/* Una subida sin monto: se ve que hay fichas, sin inventar cuantas. */
+.blind-subio { color: #ffc078; border: 1px solid rgba(255, 169, 77, .45); }
 /* El all-in si se marca: es lo unico de la mesa que cambia la decision entera. */
 .blind-todo { color: #ff8f8f; border: 1px solid rgba(239, 68, 68, .5); }
 

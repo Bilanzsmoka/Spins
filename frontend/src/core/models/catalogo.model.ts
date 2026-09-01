@@ -10,6 +10,8 @@ export interface AccionDefinida {
 export interface SpotResumen {
   clave: string
   etiqueta: string
+  /** Qué ya pasó en este spot. Nula en el primero. */
+  mesa: MesaDelSpot | null
 }
 
 export interface StackResumen {
@@ -27,6 +29,14 @@ export interface RivalEnLaMesa {
   hizo: string
   /** Ciegas grandes puestas delante. Nulo si fue all-in: puso su stack. */
   puso: number | null
+}
+
+/** Qué ya pasó cuando este spot te toca. Nula donde decidís primero. */
+export interface MesaDelSpot {
+  heroeHizo: string
+  /** Nulo cuando fue una subida: el monto depende de la mano. */
+  heroePuso: number | null
+  rivales: RivalEnLaMesa[]
 }
 
 export interface MesaDeSituacion {

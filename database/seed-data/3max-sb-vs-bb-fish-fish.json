@@ -1138,6 +1138,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -1316,6 +1327,17 @@
               "42o",
               "32o",
               "22"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
             ]
           }
         }
@@ -1686,6 +1708,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -1865,6 +1898,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -2043,6 +2087,17 @@
               "42o",
               "32o",
               "22"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }
@@ -2413,6 +2468,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -2594,6 +2660,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -2772,6 +2849,17 @@
               "42o",
               "32o",
               "22"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }
@@ -3142,6 +3230,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -3323,6 +3422,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -3499,6 +3609,17 @@
               "42o",
               "32o",
               "22"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }
@@ -3869,6 +3990,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -4050,6 +4182,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -4228,6 +4371,17 @@
               "T7s",
               "98s",
               "97s"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }
@@ -4600,6 +4754,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -4781,6 +4946,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -4959,6 +5135,17 @@
               "65s",
               "64s",
               "54s"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }
@@ -5331,6 +5518,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "all-in",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -5512,6 +5710,17 @@
               "32o",
               "22"
             ]
+          },
+          "mesa": {
+            "heroeHizo": "raise",
+            "heroePuso": null,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "3-bet",
+                "puso": null
+              }
+            ]
           }
         },
         {
@@ -5692,6 +5901,17 @@
               "44",
               "33",
               "22"
+            ]
+          },
+          "mesa": {
+            "heroeHizo": "limp",
+            "heroePuso": 1,
+            "rivales": [
+              {
+                "posicion": "BB",
+                "hizo": "raise",
+                "puso": 3
+              }
             ]
           }
         }

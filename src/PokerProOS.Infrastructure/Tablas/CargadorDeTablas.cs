@@ -198,8 +198,48 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
             celdas,
             spot.TryGetProperty("tip", out var tip) && tip.ValueKind == JsonValueKind.String
                 ? tip.GetString()
-                : null);
+                : null,
+            LeerMesaDelSpot(spot));
     }
+
+    /// <summary>
+    /// Qué ya pasó en este spot, o null si es aquel donde decidís primero.
+    /// </summary>
+    private static MesaDelSpot? LeerMesaDelSpot(JsonElement spot)
+    {
+        if (!spot.TryGetProperty("mesa", out var mesa)
+            || mesa.ValueKind != JsonValueKind.Object) return null;
+
+        var rivales = new List<RivalEnLaMesa>();
+        if (mesa.TryGetProperty("rivales", out var lista)
+            && lista.ValueKind == JsonValueKind.Array)
+            foreach (var rival in lista.EnumerateArray())
+            {
+                var posicion = rival.TryGetProperty("posicion", out var p) ? p.GetString() : null;
+                if (string.IsNullOrWhiteSpace(posicion)) continue;
+                rivales.Add(new RivalEnLaMesa(
+                    posicion,
+                    (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
+                    (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? "",
+                    Numero(rival, "puso")));
+            }
+
+        return new MesaDelSpot(
+            (mesa.TryGetProperty("heroeHizo", out var hh) ? hh.GetString() : null) ?? "",
+            Numero(mesa, "heroePuso"),
+            rivales);
+    }
+
+    /// <summary>
+    /// Un número opcional. El ValueKind se mira antes porque TryGetDecimal
+    /// TIRA con un null de JSON en vez de devolver false.
+    /// </summary>
+    private static decimal? Numero(JsonElement elemento, string propiedad)
+        => elemento.TryGetProperty(propiedad, out var valor)
+           && valor.ValueKind == JsonValueKind.Number
+           && valor.TryGetDecimal(out var numero)
+            ? numero
+            : null;
 
     /// <summary>
     /// La mesa declarada, o null si el archivo no la trae. Es opcional a
@@ -226,14 +266,7 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                     posicion,
                     (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
                     (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? "",
-                    // El ValueKind se mira antes: TryGetDecimal TIRA con un
-                    // null de JSON en vez de devolver false, y "puso": null es
-                    // justo lo que traen los all-in.
-                    rival.TryGetProperty("puso", out var pu)
-                        && pu.ValueKind == JsonValueKind.Number
-                        && pu.TryGetDecimal(out var fichas)
-                            ? fichas
-                            : null));
+                    Numero(rival, "puso")));
             }
 
         return new MesaDeSituacion(

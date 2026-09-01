@@ -3,6 +3,22 @@ using PokerProOS.Domain.Tablas;
 
 namespace PokerProOS.Application.Tablas;
 
+/// <summary>
+/// Qué ya pasó cuando este spot te toca.
+///
+/// Los spots de una tabla son una secuencia: primero decidís vos, y después
+/// vienen los spots de "y si te resuben". Sin esto, la mesa de un 3-bet se
+/// dibujaba igual que la de una primera decisión —sin tu subida delante— y se
+/// leía como si nunca hubieras actuado.
+///
+/// Los montos de una subida van nulos porque dependen de la mano: se muestra
+/// <b>que</b> subiste, no cuánto. Inventar un número sería peor.
+/// </summary>
+public record MesaDelSpot(
+    string HeroeHizo,
+    decimal? HeroePuso,
+    IReadOnlyList<RivalEnLaMesa> Rivales);
+
 public record SpotDeTabla(
     string Clave,
     string Etiqueta,
@@ -11,7 +27,9 @@ public record SpotDeTabla(
     /// El porqué escrito a mano: lo único de la ficha que ningún cálculo puede
     /// deducir de la tabla. Nulo si el spot no lo declara.
     /// </summary>
-    string? Tip = null)
+    string? Tip = null,
+    /// <summary>Qué ya pasó. Nula en el spot donde decidís primero.</summary>
+    MesaDelSpot? Mesa = null)
 {
     private readonly Dictionary<string, string> _porMano =
         Celdas.ToDictionary(c => c.Mano, c => c.Accion, StringComparer.OrdinalIgnoreCase);

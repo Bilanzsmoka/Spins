@@ -73,16 +73,22 @@ function Fichas({
   puso, hizo, silla, conBoton,
 }: { puso: number | null; hizo: string; silla: string; conBoton: boolean }) {
   const todo = esAllIn(hizo)
-  if (!todo && !puso && !conBoton) return null
+  // Una subida sin monto —el monto depende de la mano— igual pone fichas en el
+  // medio: verlas es lo que dice que ya jugaste.
+  const subio = ['raise', '3-bet', 'min-raise'].includes(hizo.toLowerCase())
+  if (!todo && !subio && !puso && !conBoton) return null
 
   // En un all-in se ve igual la ciega que ya tenía puesta: esconderla dejaba la
   // mesa sin decir de cuánto eran las ciegas justo en el spot donde más
   // importa. El ALL-IN va aparte, no en lugar del número.
   return (
     <div className={`blind blind-${silla}`}>
-      {(todo || puso) && <span className="chip" />}
+      {(todo || subio || puso) && <span className="chip" />}
       {puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
       {todo && <span className="blind-label blind-todo">ALL-IN</span>}
+      {subio && !puso && (
+        <span className="blind-label blind-subio">{hizo.toUpperCase()}</span>
+      )}
       {conBoton && <span className="dealer">D</span>}
     </div>
   )
@@ -145,8 +151,27 @@ function Jugador({
  * y eso no se transfiere al juego.
  */
 export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Props) {
-  const mesa: MesaDeSituacion | null = situacion?.mesa ?? null
+  const base: MesaDeSituacion | null = situacion?.mesa ?? null
   const stack = situacion?.stacks.find((s) => s.clave === pregunta.claveDeStack) ?? null
+
+  /*
+   * Un spot puede ser el segundo de su tabla: ahí vos ya subiste y el rival te
+   * resubió, y dibujar la mesa como al principio la hacía leer como una
+   * primera decisión. Lo que el spot declara pisa lo de la situación, y sólo
+   * para los que nombra: del que no dice nada no se sabe qué hizo después, e
+   * inventarlo sería peor que dejarlo como estaba.
+   */
+  const delSpot = stack?.spots.find((s) => s.clave === pregunta.spot)?.mesa ?? null
+  const mesa: MesaDeSituacion | null = base && delSpot
+    ? {
+      ...base,
+      pusoElHeroe: delSpot.heroePuso ?? 0,
+      rivales: base.rivales.map((r) => {
+        const pisa = delSpot.rivales.find((x) => x.posicion === r.posicion)
+        return pisa ? { ...r, hizo: pisa.hizo, puso: pisa.puso } : r
+      }),
+    }
+    : base
   const banda = stack
     ? (stack.minBB === stack.maxBB ? `${stack.minBB} BB` : `${stack.minBB}-${stack.maxBB} BB`)
     : ''
@@ -185,7 +210,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
           {mesa && (
             <Fichas
               puso={mesa.pusoElHeroe}
-              hizo=""
+              hizo={delSpot?.heroeHizo ?? ''}
               silla="abajo"
               conBoton={mesa.heroe === mesa.boton}
             />
@@ -204,6 +229,12 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
 
         <div className="player player-heroe">
           {mesa && <div className="pos">{mesa.heroe}</div>}
+          {/* Lo que YA hiciste, cuando este spot viene después de tu jugada. */}
+          {delSpot?.heroeHizo && (
+            <div className={`action accion-${delSpot.heroeHizo.toLowerCase().replace(/\s+/g, '-')}`}>
+              ya {delSpot.heroeHizo === 'raise' ? 'subiste' : delSpot.heroeHizo}
+            </div>
+          )}
 
           <div className="cards">
             <Carta rango={alto} palo={PALOS.s} />

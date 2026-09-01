@@ -310,6 +310,18 @@ su tipo —del glosario—, qué hizo antes de tu turno y **las fichas que puso*
 **botón** en su silla, el **pozo** en el medio, tu stack en BB, las ciegas y un
 reloj que cuenta hacia arriba y avisa con color sin reprobar nada.
 
+**Los spots de una tabla son una secuencia**, y la mesa lo dice. El primero es
+tu decisión; los que siguen —`VS_BTN_3BET`, `VS_SB_ALL_IN`— ocurren *después de
+que jugaste*, así que cada uno declara su propio bloque `mesa` con `heroeHizo`
+y qué hizo el rival, y eso pisa lo de la situación. Sin esto un 3-bet se
+dibujaba igual que una primera decisión —sin tus fichas delante— y se leía como
+si nunca hubieras actuado.
+
+Los montos de una subida van **nulos** porque dependen de la mano: se muestra
+*que* subiste, no cuánto. Y sólo se pisa a los rivales que el spot nombra: del
+que no dice nada no se sabe qué hizo después, e inventarlo sería peor que
+dejarlo como estaba.
+
 El pozo sólo se muestra cuando se sabe entero: con alguien all-in falta su
 stack, e inventar un número sería peor que no mostrarlo. En heads-up el botón lo
 tiene la ciega chica —ahí el botón y la SB son el mismo jugador—, y va declarado
