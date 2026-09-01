@@ -17,4 +17,13 @@ public record AccionDefinida(
     /// proyecto no hace. Cero cuando el registro no la declara — y entonces
     /// ningún error es "cerca", que es el lado seguro.
     /// </summary>
-    int Agresion = 0);
+    int Agresion = 0,
+    /// <summary>
+    /// Cuántas ciegas pone esta acción. Sólo las subidas: FOLD y CHECK no
+    /// ponen nada, CALL pone lo que haya delante y un all-in pone el stack.
+    ///
+    /// Está declarado y no deducido del nombre: leer el "3" de RAISE_X3 sería
+    /// sacar un dato del identificador, que es lo que este proyecto no hace.
+    /// Nulo cuando la acción no tiene un tamaño fijo.
+    /// </summary>
+    decimal? Tamano = null);

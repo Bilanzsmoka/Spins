@@ -46,7 +46,31 @@ const seFue = (hizo: string) => hizo.toLowerCase() === 'fold'
 const esAllIn = (hizo: string) => hizo.toLowerCase() === 'all-in'
 
 /** "0,5" y no "0.5": es como se escribe acá y como se lee de un vistazo. */
-const bb = (n: number) => String(n).replace('.', ',')
+const bb = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',')
+
+/**
+ * Un stack concreto dentro de la banda de la tabla.
+ *
+ * En una mesa nadie tiene "quince a diecinueve ciegas": tiene diecisiete. La
+ * banda es cómo está escrita la tabla, no cómo se ve el juego, y leer un rango
+ * donde debería haber un número obliga a traducir justo cuando hay que decidir.
+ *
+ * Todos muestran el MISMO número, y no es una simplificación: la tabla está
+ * construida para un stack efectivo, así que darle a cada uno el suyo
+ * cambiaría el spot que se está preguntando.
+ *
+ * Sale de la casilla y no de un azar: si cambiara en cada redibujado, el stack
+ * bailaría mientras pensás.
+ */
+function stackConcreto(min: number, max: number, semilla: string) {
+  if (max <= min) return min
+  let h = 2166136261
+  for (let i = 0; i < semilla.length; i++) {
+    h ^= semilla.charCodeAt(i)
+    h = Math.imul(h, 16777619) >>> 0
+  }
+  return min + (h % (max - min + 1))
+}
 
 function Reloj({ milisegundos }: { milisegundos: number }) {
   const estado = milisegundos >= MUY_LENTO_MS
@@ -198,15 +222,24 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos, acer
   const mesa: MesaDeSituacion | null = base && delSpot
     ? {
       ...base,
-      pusoElHeroe: delSpot.heroePuso ?? 0,
+      // Lo que dice la tabla que subiste con ESTA mano; si no se puede saber,
+      // lo que declare el spot.
+      pusoElHeroe: pregunta.heroePuso ?? delSpot.heroePuso ?? 0,
       rivales: base.rivales.map((r) => {
         const pisa = delSpot.rivales.find((x) => x.posicion === r.posicion)
-        return pisa ? { ...r, hizo: pisa.hizo, puso: pisa.puso } : r
+        if (!pisa) return r
+        // Un 3-bet se declara en subidas tuyas —2,5 veces— porque el monto
+        // depende de cuánto subiste vos, y eso cambia con cada mano.
+        const porSubida = pisa.vecesLaSubida !== null && pregunta.heroePuso !== null
+          ? pisa.vecesLaSubida * pregunta.heroePuso
+          : null
+        return { ...r, hizo: pisa.hizo, puso: porSubida ?? pisa.puso }
       }),
     }
     : base
   const banda = stack
-    ? (stack.minBB === stack.maxBB ? `${stack.minBB} BB` : `${stack.minBB}-${stack.maxBB} BB`)
+    ? `${stackConcreto(stack.minBB, stack.maxBB,
+        `${pregunta.situacion}|${pregunta.claveDeStack}|${pregunta.spot}|${pregunta.mano}`)} BB`
     : ''
 
   const [alto, bajo] = [pregunta.mano[0], pregunta.mano[1]]

@@ -336,10 +336,20 @@ all-in muestra **el stack** —que es lo que empuja—, no la ciega que ya tení
 puesta. La palabra queda sólo donde no hay número: una resubida, cuyo tamaño
 depende de la mano.
 
-Los montos de una subida van **nulos** porque dependen de la mano: se muestra
-*que* subiste, no cuánto. Y sólo se pisa a los rivales que el spot nombra: del
-que no dice nada no se sabe qué hizo después, e inventarlo sería peor que
-dejarlo como estaba.
+**Las fichas dicen cuánto, no qué.** En póker lo que se mira son las fichas, así
+que cada monto sale de algún lado real:
+
+- **Tu subida** sale de la tabla: si el primer spot de ese stack manda
+  `RAISE_X3` para esa mano, subiste a 3 BB. Cada subida declara su `tamano` en
+  `acciones.json` — leer el «3» de `RAISE_X3` sería sacar un dato del
+  identificador.
+- **El 3-bet** son **2,5 veces tu subida**, declarado como `vecesLaSubida` y no
+  como monto fijo, porque depende de cuánto subiste vos: con 3 BB da 7,5.
+- **Un all-in** pone el stack.
+
+Queda sin número un solo caso: las manos que el primer spot manda al all-in. Ahí
+no hubo subida de la que sacar el tamaño, y la ficha dice la palabra en vez de
+un número inventado.
 
 El pozo sólo se muestra cuando se sabe entero: con alguien all-in falta su
 stack, e inventar un número sería peor que no mostrarlo. En heads-up el botón lo

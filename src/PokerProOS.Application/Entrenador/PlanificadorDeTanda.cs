@@ -14,7 +14,7 @@ namespace PokerProOS.Application.Entrenador;
 /// casillas y al azar no se cubren nunca; además, una vez contestada, una
 /// casilla deja de ser nueva, así que el recorrido avanza solo.
 /// </summary>
-public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
+public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo, IRegistroDeAcciones acciones)
 {
     /// <summary>
     /// Cuántas de la misma página se toleran aunque la tanda sea chica.
@@ -79,6 +79,32 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
         }
 
         return Repartir(elegidas);
+    }
+
+    /// <summary>
+    /// Cuántas ciegas puso el héroe antes, en un spot posterior a su jugada.
+    ///
+    /// Sale de la tabla: se mira qué manda el PRIMER spot de ese stack para
+    /// esta misma mano, y de ahí el tamaño declarado de esa acción. Si la tabla
+    /// dice RAISE_X3 para JTo, en el spot del 3-bet ya hay tres ciegas tuyas en
+    /// el medio, y eso es justamente lo que hay que ver para decidir.
+    ///
+    /// Nulo cuando el spot es el primero —todavía no jugaste—, cuando el spot
+    /// no declara que hayas subido, o cuando lo que manda la tabla no tiene un
+    /// tamaño fijo. Ahí la pantalla dice la palabra y no un número inventado.
+    /// </summary>
+    private decimal? LoQuePusoElHeroe(TablaDeStack tabla, SpotDeTabla spot, string mano)
+    {
+        if (spot.Mesa is not { } previa) return null;
+        if (previa.HeroePuso is { } declarado) return declarado;
+
+        var primero = tabla.Spots.FirstOrDefault();
+        if (primero is null || primero.Clave == spot.Clave) return null;
+
+        var loQueHizo = primero.AccionDe(mano);
+        if (loQueHizo is null || !acciones.Existe(loQueHizo)) return null;
+
+        return acciones.Obtener(loQueHizo).Tamano;
     }
 
     /// <summary>
@@ -194,7 +220,8 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
             tabla.Stack.Clave,
             spot.Clave, spot.Etiqueta,
             vencida.Mano,
-            EsNueva: false);
+            EsNueva: false,
+            HeroePuso: LoQuePusoElHeroe(tabla, spot, vencida.Mano));
     }
 
     /// <summary>
@@ -232,7 +259,8 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
                                 tabla.Stack.Clave,
                                 spot.Clave, spot.Etiqueta,
                                 celda.Mano,
-                                EsNueva: true)));
+                                EsNueva: true,
+                                HeroePuso: LoQuePusoElHeroe(tabla, spot, celda.Mano))));
                     }
                 }
             }

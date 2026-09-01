@@ -37,6 +37,7 @@
       "colorTexto": "#0a1024",
       "orden": 3,
       "agresion": 4,
+      "tamano": 2,
       "dichos": [
         "raise",
         "raise por dos",
@@ -78,6 +79,7 @@
       "colorTexto": "#0a1024",
       "orden": 6,
       "agresion": 6,
+      "tamano": 2.5,
       "dichos": [
         "raise dos y medio",
         "subir dos y medio"
@@ -90,6 +92,7 @@
       "colorTexto": "#f7f1ec",
       "orden": 7,
       "agresion": 7,
+      "tamano": 3,
       "dichos": [
         "raise tres",
         "subir tres"
@@ -102,6 +105,7 @@
       "colorTexto": "#f7f1ec",
       "orden": 8,
       "agresion": 8,
+      "tamano": 3.5,
       "dichos": [
         "raise tres y medio",
         "subir tres y medio"
@@ -114,6 +118,7 @@
       "colorTexto": "#f7f1ec",
       "orden": 9,
       "agresion": 9,
+      "tamano": 4,
       "dichos": [
         "raise cuatro",
         "subir cuatro"
@@ -126,6 +131,7 @@
       "colorTexto": "#f7f1ec",
       "orden": 10,
       "agresion": 10,
+      "tamano": 4.5,
       "dichos": [
         "raise cuatro y medio",
         "subir cuatro y medio"
@@ -138,6 +144,7 @@
       "colorTexto": "#f4ecf7",
       "orden": 11,
       "agresion": 12,
+      "tamano": 6,
       "dichos": [
         "raise seis",
         "subir seis"
@@ -150,6 +157,7 @@
       "colorTexto": "#f4ecf7",
       "orden": 12,
       "agresion": 13,
+      "tamano": 8,
       "dichos": [
         "raise ocho",
         "subir ocho"
@@ -162,6 +170,7 @@
       "colorTexto": "#f4ecf7",
       "orden": 13,
       "agresion": 14,
+      "tamano": 10,
       "dichos": [
         "raise diez",
         "subir diez"
@@ -174,6 +183,7 @@
       "colorTexto": "#f4ecf7",
       "orden": 14,
       "agresion": 11,
+      "tamano": 5,
       "dichos": [
         "raise cinco",
         "subir cinco"
@@ -186,6 +196,7 @@
       "colorTexto": "#0a1024",
       "orden": 15,
       "agresion": 5,
+      "tamano": 2.2,
       "dichos": [
         "raise dos coma dos",
         "subir dos coma dos"

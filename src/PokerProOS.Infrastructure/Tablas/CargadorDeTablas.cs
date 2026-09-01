@@ -221,7 +221,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                     posicion,
                     (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
                     (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? "",
-                    Numero(rival, "puso")));
+                    Numero(rival, "puso"),
+                    Numero(rival, "vecesLaSubida")));
             }
 
         return new MesaDelSpot(
@@ -266,7 +267,8 @@ public sealed class CargadorDeTablas(ValidadorDeTabla validador, IRegistroDeAcci
                     posicion,
                     (rival.TryGetProperty("tipo", out var ti) ? ti.GetString() : null) ?? "",
                     (rival.TryGetProperty("hizo", out var hi) ? hi.GetString() : null) ?? "",
-                    Numero(rival, "puso")));
+                    Numero(rival, "puso"),
+                    Numero(rival, "vecesLaSubida")));
             }
 
         return new MesaDeSituacion(

@@ -29,6 +29,11 @@ export interface RivalEnLaMesa {
   hizo: string
   /** Ciegas grandes puestas delante. Nulo si fue all-in: puso su stack. */
   puso: number | null
+  /**
+   * Cuánto puso, medido en subidas tuyas: un 3-bet son 2,5 veces lo que
+   * subiste. Va como múltiplo porque el monto depende de tu mano.
+   */
+  vecesLaSubida: number | null
 }
 
 /** Qué ya pasó cuando este spot te toca. Nula donde decidís primero. */
@@ -440,6 +445,12 @@ export interface PreguntaDeTanda {
   mano: string
   /** Material nuevo, sin progreso previo. */
   esNueva: boolean
+  /**
+   * Cuántas ciegas pusiste vos antes, sacadas de la tabla: si el primer
+   * spot manda RAISE_X3 para esta mano, subiste a tres. Nulo en el primer
+   * spot y cuando lo que manda no tiene un tamaño fijo.
+   */
+  heroePuso: number | null
 }
 
 export interface TandaPedida {

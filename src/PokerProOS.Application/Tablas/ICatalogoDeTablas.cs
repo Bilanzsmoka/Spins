@@ -88,7 +88,16 @@ public record TablaDeStack(RangoDeStack Stack, IReadOnlyList<SpotDeTabla> Spots)
 /// <paramref name="Hizo"/> porque un limp vale una ciega por definición del
 /// juego, no por una regla que convenga tener escondida en el código.
 /// </param>
-public record RivalEnLaMesa(string Posicion, string Tipo, string Hizo, decimal? Puso = null);
+/// <param name="VecesLaSubida">
+/// Cuánto puso, medido en subidas tuyas: un 3-bet son 2,5 veces lo que subiste.
+///
+/// Va como múltiplo y no como monto porque el monto depende de cuánto subiste
+/// vos, y eso cambia con cada mano. Nulo cuando lo que puso es un número fijo
+/// o cuando no se sabe.
+/// </param>
+public record RivalEnLaMesa(
+    string Posicion, string Tipo, string Hizo,
+    decimal? Puso = null, decimal? VecesLaSubida = null);
 
 /// <summary>
 /// Cómo se ve la mesa cuando te toca decidir: dónde estás sentado, quién más

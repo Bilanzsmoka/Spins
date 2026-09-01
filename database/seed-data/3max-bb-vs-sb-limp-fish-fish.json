@@ -586,7 +586,8 @@
               {
                 "posicion": "SB",
                 "hizo": "3-bet",
-                "puso": null
+                "puso": null,
+                "vecesLaSubida": 2.5
               }
             ]
           }
@@ -1154,7 +1155,8 @@
               {
                 "posicion": "SB",
                 "hizo": "3-bet",
-                "puso": null
+                "puso": null,
+                "vecesLaSubida": 2.5
               }
             ]
           }
@@ -1722,7 +1724,8 @@
               {
                 "posicion": "SB",
                 "hizo": "3-bet",
-                "puso": null
+                "puso": null,
+                "vecesLaSubida": 2.5
               }
             ]
           }
@@ -2294,7 +2297,8 @@
               {
                 "posicion": "SB",
                 "hizo": "3-bet",
-                "puso": null
+                "puso": null,
+                "vecesLaSubida": 2.5
               }
             ]
           }
@@ -2862,7 +2866,8 @@
               {
                 "posicion": "SB",
                 "hizo": "3-bet",
-                "puso": null
+                "puso": null,
+                "vecesLaSubida": 2.5
               }
             ]
           }

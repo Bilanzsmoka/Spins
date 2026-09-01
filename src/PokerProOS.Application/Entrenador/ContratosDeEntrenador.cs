@@ -24,7 +24,20 @@ public record PreguntaDeTanda(
     string EtiquetaDeSpot,
     string Mano,
     /// <summary>Material nuevo, sin progreso previo. La pantalla lo distingue.</summary>
-    bool EsNueva);
+    bool EsNueva,
+    /// <summary>
+    /// Cuántas ciegas pusiste vos antes, en los spots que vienen después de tu
+    /// jugada.
+    ///
+    /// Sale de la tabla, no de una suposición: si en el primer spot de ese
+    /// stack la tabla dice RAISE_X3 para esta mano, subiste a tres ciegas.
+    /// Mostrar "RAISE" sin el número no deja calcular nada, y en póker lo que
+    /// se mira son las fichas.
+    ///
+    /// Nulo en el primer spot —todavía no jugaste— y también cuando lo que la
+    /// tabla manda ahí no tiene un tamaño fijo.
+    /// </summary>
+    decimal? HeroePuso = null);
 
 /// <summary>Lo que la pantalla manda al contestar.</summary>
 /// <param name="Milisegundos">
