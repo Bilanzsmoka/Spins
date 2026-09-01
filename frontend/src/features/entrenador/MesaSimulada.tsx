@@ -76,10 +76,25 @@ function Carta({ rango, palo }: { rango: string; palo: string }) {
 /**
  * Las fichas que alguien tiene puestas, sobre el paño y del lado de su silla.
  * El botón viaja con ellas: es la marca de esa misma silla.
+ *
+ * **Manda el monto, no la palabra.** En una mesa no ves "MIN-RAISE": ves dos
+ * ciegas delante de alguien y de ahí sacás que subió. Sólo cuando no hay
+ * número —una resubida, cuyo tamaño depende de la mano— se pone la palabra,
+ * porque inventar la cifra sería peor.
+ *
+ * Un all-in empuja su stack: ese es el número que va, y no la ciega que ya
+ * tenía puesta. Decir "ALL-IN" sin cuánto es justo lo que no deja calcular.
  */
 function Fichas({
-  puso, hizo, silla, conBoton,
-}: { puso: number | null; hizo: string; silla: string; conBoton: boolean }) {
+  puso, hizo, silla, conBoton, stack,
+}: {
+  puso: number | null
+  hizo: string
+  silla: string
+  conBoton: boolean
+  /** Lo que hay detrás, para poder decir cuánto empuja un all-in. */
+  stack: string
+}) {
   const todo = esAllIn(hizo)
   // Una subida sin monto —el monto depende de la mano— igual pone fichas en el
   // medio: verlas es lo que dice que ya jugaste.
@@ -91,12 +106,22 @@ function Fichas({
   // importa. El ALL-IN va aparte, no en lugar del número.
   return (
     <div className={`blind blind-${silla}`}>
-      {(todo || subio || puso) && <span className="chip" />}
-      {puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
-      {todo && <span className="blind-label blind-todo">ALL-IN</span>}
-      {subio && !puso && (
+      {/*
+        Boolean() y no `puso` a secas: con puso en 0 —el BTN que ya tiró— el
+        `&&` devuelve 0, y React imprime un "0" suelto al lado del botón.
+      */}
+      {(todo || subio || Boolean(puso)) && <span className="chip" />}
+
+      {/* El all-in empuja el stack: ese es el monto, no la ciega. */}
+      {todo
+        ? <span className="blind-label blind-todo">{stack || 'ALL-IN'}</span>
+        : puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
+
+      {/* Sin número no queda otra que la palabra. */}
+      {subio && !puso && !todo && (
         <span className="blind-label blind-subio">{hizo.toUpperCase()}</span>
       )}
+
       {conBoton && <span className="dealer">D</span>}
     </div>
   )
@@ -212,6 +237,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos, acer
               hizo={rival.hizo}
               silla={sillas[i] ?? 'centro'}
               conBoton={rival.posicion === mesa?.boton}
+              stack={banda}
             />
           ))}
 
@@ -221,6 +247,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos, acer
               hizo={delSpot?.heroeHizo ?? ''}
               silla="abajo"
               conBoton={mesa.heroe === mesa.boton}
+              stack={banda}
             />
           )}
         </div>

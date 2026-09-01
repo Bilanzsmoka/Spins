@@ -317,6 +317,12 @@ y qué hizo el rival, y eso pisa lo de la situación. Sin esto un 3-bet se
 dibujaba igual que una primera decisión —sin tus fichas delante— y se leía como
 si nunca hubieras actuado.
 
+En la mesa **manda el monto, no la palabra**: en una mesa de verdad no ves
+"MIN-RAISE", ves dos ciegas delante de alguien y de ahí sacás que subió. Un
+all-in muestra **el stack** —que es lo que empuja—, no la ciega que ya tenía
+puesta. La palabra queda sólo donde no hay número: una resubida, cuyo tamaño
+depende de la mano.
+
 Los montos de una subida van **nulos** porque dependen de la mano: se muestra
 *que* subiste, no cuánto. Y sólo se pisa a los rivales que el spot nombra: del
 que no dice nada no se sabe qué hizo después, e inventarlo sería peor que

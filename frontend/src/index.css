@@ -422,7 +422,7 @@ body {
   margin-top: -2px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
 }
-.action { font-size: 13px; font-weight: 800; }
+.action { font-size: 11px; font-weight: 800; letter-spacing: .05em; }
 /*
  * Cada cosa que pudo hacer el rival se ve distinta. Con todo en blanco habia
  * que LEER la mesa para saber si alguien subio o empujo, y en una mesa eso se
@@ -462,13 +462,15 @@ body {
   border: 2px solid rgba(255, 255, 255, .14);
   box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
 }
+/* El monto es lo que se lee primero: en una mesa se cuentan fichas. */
 .blind-label {
-  background: rgba(8, 18, 15, .7);
+  background: rgba(8, 18, 15, .72);
   border-radius: 999px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #b8c6bf;
+  padding: 2px 9px;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #dbe7e0;
   white-space: nowrap;
 }
 /* Una subida sin monto: se ve que hay fichas, sin inventar cuantas. */
