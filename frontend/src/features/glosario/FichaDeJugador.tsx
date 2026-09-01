@@ -21,8 +21,11 @@ export function FichaDeJugador({ jugador }: Props) {
     [termino, perfil, explicacion].filter(Boolean).join('. '),
   )
 
+  // El borde va neutro: el círculo y la pastilla ya llevan el color, y
+  // repetirlo en el marco hacía que nueve fichas de colores distintos
+  // compitieran entre sí en vez de leerse como una escala.
   return (
-    <li className="jugador-ficha" style={color ? { borderColor: color } : undefined}>
+    <li className="jugador-ficha">
       <div
         className="jugador-circulo"
         style={{ background: color ?? 'var(--desconocido)', color: colorTexto ?? 'var(--texto)' }}

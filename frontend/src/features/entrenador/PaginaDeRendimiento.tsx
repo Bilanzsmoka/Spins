@@ -121,9 +121,14 @@ export function PaginaDeRendimiento({ onEntrenar }: Props) {
                       {s.aciertos} de {s.respondidas}
                       {s.milisegundosPromedio > 0 && ` · ${tiempo(s.milisegundosPromedio)}`}
                     </span>
+                    {/*
+                      Secundario, no primario: diez botones rellenos en fila
+                      dejan de destacar y sólo hacen ruido. El relleno se
+                      reserva para la acción principal de una pantalla.
+                    */}
                     <button
                       type="button"
-                      className="boton-principal"
+                      className="boton-repaso"
                       onClick={() => entrenar(s.situacion, s.spot)}
                     >
                       Entrenar

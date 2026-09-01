@@ -1,12 +1,38 @@
+/*
+ * El color de esta app ya esta gastado, y no en la interfaz: las 169 casillas
+ * de la grilla se pintan con los colores de acciones.json —verde el ALL-IN,
+ * ambar el CALL, indigo las subidas— y esa es la memoria visual que se esta
+ * entrenando. Todo lo demas va en gris a proposito: si el armazon tambien
+ * grita, la grilla deja de ser lo unico con color y se pierde la senal.
+ *
+ * Por eso el acento NO es un tono: es un gris casi blanco. Lo que resalta,
+ * resalta por contraste y por peso, no por color. Los unicos tres colores que
+ * quedan fuera de la grilla son de estado —bien, cuidado, mal— y son los mismos
+ * del semaforo de los perfiles de jugador.
+ */
 :root {
-  --fondo: #0d1117;
-  --panel: #151a21;
-  --panel-2: #1b222b;
-  --borde: #3a4350;
-  --texto: #edf3fb;
-  --apagado: #b0bac7;
-  --acento: #8bb8e8;
-  --desconocido: #374151;
+  --fondo: #0b0e13;
+  --panel: #12161d;
+  --panel-2: #181d26;
+  /* Dos pesos de linea: la fina divide, la fuerte encierra. */
+  --borde: #222833;
+  --borde-fuerte: #2e3644;
+  --texto: #e9eef5;
+  /* Gris con una pizca de azul, no un gris de fabrica. */
+  --apagado: #8b95a5;
+  --tenue: #616c7d;
+  --acento: #dfe6f0;
+  --desconocido: #2a313d;
+
+  --bien: #22c55e;
+  --medio: #f59e0b;
+  --mal: #ef4444;
+
+  --sans: Archivo, "Segoe UI", system-ui, sans-serif;
+  /* Todo numero y toda mano van en mono: stacks, ciegas, porcentajes,
+     segundos y las 169 casillas. Es lo que hace que se lea como un
+     instrumento y no como una pagina. */
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -15,7 +41,25 @@ body {
   margin: 0;
   background: var(--fondo);
   color: var(--texto);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-family: var(--sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Los numeros, alineados y en mono. Es la unica regla tipografica de la app. */
+.celda, .grilla-encabezado, .respuesta-mano, .mesa-reloj, .blind-label,
+.stack, .hero-stack, .entrenador-marcador, .historial-mano, .historial-tiempo,
+.error-mano, .error-veces, .peor-porcentaje, .peor-cuentas, .cifra b,
+.hoy-cifra, .mesa-stack, .ficha-casilla, .ficha-banda-stack {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco visible en todo lo que se puede pulsar: se entrena con el teclado. */
+:where(button, select, input, textarea, a):focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 
@@ -26,12 +70,13 @@ body {
   text-transform: uppercase; letter-spacing: .06em;
 }
 .selectores select {
-  background: var(--panel-2); color: var(--texto);
-  border: 1px solid var(--borde); border-radius: 7px;
-  padding: 8px 10px; font-size: 14px; font-weight: 600;
+  background: var(--panel); color: var(--texto);
+  border: 1px solid var(--borde-fuerte); border-radius: 7px;
+  padding: 8px 10px; font: inherit; font-size: 13px; font-weight: 600;
 }
+.selectores select:hover { border-color: var(--acento); }
 
-.error { color: #ff6868; }
+.error { color: var(--mal); font-size: 13px; }
 
 .grilla { display: grid; gap: 3px; width: max-content; }
 .grilla-fila { display: grid; grid-template-columns: 28px repeat(13, 40px); gap: 3px; }
@@ -69,30 +114,35 @@ body {
 
 .barra-lateral {
   display: flex; flex-direction: column;
-  border-right: 1px solid var(--borde); background: #11161c;
-  padding: 18px 14px;
+  border-right: 1px solid var(--borde); background: var(--fondo);
+  padding: 20px 10px;
 }
-.marca { display: grid; gap: 2px; padding: 0 6px 18px; }
-.marca strong { font-size: 16px; letter-spacing: .02em; }
-.marca span { color: var(--apagado); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+.marca { display: grid; gap: 1px; padding: 0 10px 22px; }
+.marca strong { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+.marca span {
+  color: var(--tenue); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .16em;
+}
 
 .menu { display: grid; gap: 4px; }
+/*
+ * El activo se marca con una regla al costado, no con una pastilla rellena.
+ * Diez modulos con diez cajas de fondo hacen que el menu pese mas que la
+ * pantalla que abre.
+ */
 .menu-item {
-  display: grid; gap: 2px; text-align: left;
-  padding: 10px 12px; border-radius: 8px;
-  border: 1px solid transparent; background: transparent;
+  display: grid; gap: 1px; text-align: left;
+  padding: 8px 12px; border: none; background: transparent;
+  border-left: 2px solid transparent;
   color: var(--apagado); cursor: pointer; font: inherit;
 }
-.menu-item:hover:not(:disabled) { background: var(--panel); color: var(--texto); }
-.menu-item:disabled { opacity: .42; cursor: default; }
-.menu-item-activo {
-  background: var(--panel-2); color: var(--texto);
-  border-color: var(--borde);
-}
-.menu-etiqueta { font-size: 14px; font-weight: 700; }
-.menu-descripcion { font-size: 11px; color: var(--apagado); }
+.menu-item:hover:not(:disabled) { color: var(--texto); }
+.menu-item:disabled { opacity: .38; cursor: default; }
+.menu-item-activo { color: var(--texto); border-left-color: var(--acento); }
+.menu-etiqueta { font-size: 13px; font-weight: 600; letter-spacing: -.005em; }
+.menu-descripcion { font-size: 11px; color: var(--tenue); }
 
-.contenido { padding: 22px 26px; min-width: 0; }
+.contenido { padding: 26px 30px 40px; min-width: 0; }
 
 /* ---------- Control de voz ---------- */
 
@@ -113,13 +163,14 @@ body {
 .detalle-voz { margin: 6px 0 0; color: var(--apagado); font-size: 11px; }
 
 .boton-voz {
-  padding: 9px 12px; border-radius: 8px;
-  border: 1px solid var(--borde); background: var(--panel-2);
-  color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
+  padding: 8px 13px; border-radius: 7px;
+  border: 1px solid var(--borde-fuerte); background: transparent;
+  color: var(--apagado); font: inherit; font-weight: 600; cursor: pointer;
 }
-.boton-voz:hover:not(:disabled) { border-color: var(--acento); }
-.boton-voz:disabled { opacity: .45; cursor: default; }
-.boton-voz-activo { background: #123629; border-color: #2f6f4f; color: #b8f5d2; }
+.boton-voz:hover:not(:disabled) { color: var(--texto); border-color: var(--acento); }
+.boton-voz:disabled { opacity: .4; cursor: default; }
+/* Encendido se dice con contraste, no con verde. */
+.boton-voz-activo { background: var(--panel-2); border-color: var(--acento); color: var(--texto); }
 
 .aviso-voz {
   flex-basis: 100%; margin: 0;
@@ -129,11 +180,15 @@ body {
 /* ---------- Entrenamiento ---------- */
 
 .entrenamiento-cabecera {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 18px; flex-wrap: wrap; margin-bottom: 16px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 18px; flex-wrap: wrap;
+  padding-bottom: 14px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--borde);
 }
-.entrenamiento-cabecera h1 { margin: 0 0 3px; font-size: 21px; }
-.subtitulo { margin: 0; color: var(--apagado); font-size: 13px; }
+.entrenamiento-cabecera h1 {
+  margin: 0 0 2px; font-size: 22px; font-weight: 700; letter-spacing: -.02em;
+}
+.subtitulo { margin: 0; color: var(--tenue); font-size: 12.5px; }
 .cargando { color: var(--apagado); }
 
 .respuesta-actual {
@@ -772,12 +827,22 @@ body {
 .cifra b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .cifra span { font-size: 12px; color: var(--apagado); }
 
-.peores { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.peores { list-style: none; margin: 0; padding: 0; }
+/*
+ * Una sola caja con renglones divididos por una linea, en vez de diez cajas
+ * sueltas: lo que se compara es la columna de porcentajes, y diez bordes
+ * alrededor la parten.
+ */
+.peores {
+  border: 1px solid var(--borde); border-radius: 9px;
+  background: var(--panel); overflow: hidden;
+}
 .peores li {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  padding: 10px 14px; border-radius: 9px;
-  background: var(--panel); border: 1px solid var(--borde-suave, var(--borde));
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--borde);
 }
+.peores li:last-child { border-bottom: none; }
 .peor-porcentaje {
   min-width: 52px; font-size: 19px; font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -1083,13 +1148,18 @@ kbd {
 .ayuda-remate { margin: 0 !important; padding-top: 9px; border-top: 1px solid var(--borde); }
 
 .diario-acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+/*
+ * Claro sobre oscuro, sin color. Los unicos botones de color de la app son
+ * ALL-IN, CALL y FOLD: esos SI son vocabulario del juego, y competir con ellos
+ * desde el armazon era pelearle a lo que se esta memorizando.
+ */
 .boton-principal {
-  padding: 10px 18px; border-radius: 8px;
-  border: 1px solid #2f6f4f; background: #123629; color: #b8f5d2;
-  font: inherit; font-weight: 800; cursor: pointer;
+  padding: 9px 16px; border-radius: 7px;
+  border: 1px solid var(--acento); background: var(--acento); color: #0b0e13;
+  font: inherit; font-weight: 600; letter-spacing: -.005em; cursor: pointer;
 }
-.boton-principal:hover:not(:disabled) { border-color: #43bf55; }
-.boton-principal:disabled { opacity: .5; cursor: default; }
+.boton-principal:hover:not(:disabled) { background: #fff; border-color: #fff; }
+.boton-principal:disabled { opacity: .35; cursor: default; }
 .diario-sello { color: var(--apagado); font-size: 12px; }
 
 /* ---------- Resumen automatico e historial ---------- */
@@ -1287,12 +1357,14 @@ kbd {
 /* ---------- Repaso previo a la sesion ---------- */
 
 .cabecera-acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+/* El secundario de toda la app: contorno, sin relleno. */
 .boton-repaso {
-  padding: 9px 14px; border-radius: 8px;
-  border: 1px solid var(--borde); background: var(--panel-2);
-  color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
+  padding: 8px 14px; border-radius: 7px;
+  border: 1px solid var(--borde-fuerte); background: transparent;
+  color: var(--texto); font: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer;
 }
-.boton-repaso:hover { border-color: var(--acento); }
+.boton-repaso:hover { border-color: var(--acento); background: var(--panel-2); }
 
 .repaso { max-width: 860px; }
 .repaso-cabecera {

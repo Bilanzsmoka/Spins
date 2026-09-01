@@ -416,6 +416,26 @@ la tabla del hito: es lo que convierte el plan en algo que se hace y no que se
 mira. Como el entrenador, **no anda sin SQL Server**: sin base no hay progreso
 que medir, y eso se dice en pantalla en vez de mostrar un 0% que sería mentira.
 
+## Cómo se ve
+
+**El color de esta app ya está gastado, y no en la interfaz.** Las 169 casillas
+se pintan con los colores de `acciones.json` —verde el ALL-IN, ámbar el CALL,
+índigo las subidas— y ésa es la memoria visual que se está entrenando. Todo lo
+demás va en gris a propósito: si el armazón también grita, la grilla deja de ser
+lo único con color y se pierde la señal. Por eso `--acento` **no es un tono**,
+es un gris casi blanco: lo que resalta, resalta por contraste y por peso.
+
+Los únicos colores fuera de la grilla son de estado —`--bien`, `--medio`,
+`--mal`—, los mismos del semáforo de los perfiles de jugador. Y los únicos
+botones de color son ALL-IN, CALL y FOLD: ésos sí son vocabulario del juego.
+El primario de la app es claro sobre oscuro y va **uno por pantalla**; el resto
+son de contorno.
+
+Dos familias: **Archivo** para la interfaz y **IBM Plex Mono** para todo número
+y toda mano —stacks, ciegas, porcentajes, segundos y las 169 casillas—. Esa
+única regla tipográfica es lo que hace que se lea como un instrumento y no como
+una página.
+
 ## Agregar una tabla nueva
 
 1. Dejar el archivo JSON en `database/seed-data/`.
