@@ -1,0 +1,320 @@
+<title>Qué hace PokerProOS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /*
+    El encargo se ve como el producto: mismos tokens, mismas dos familias, y la
+    misma regla que ordena la app — el unico color saturado son las acciones de
+    poker. Asi el brief demuestra lo que pide en vez de solo describirlo.
+  */
+  :root {
+    --fondo: #0b0e13;
+    --panel: #12161d;
+    --panel-2: #181d26;
+    --borde: #222833;
+    --borde-fuerte: #2e3644;
+    --texto: #e9eef5;
+    --apagado: #8b95a5;
+    --tenue: #616c7d;
+    --acento: #dfe6f0;
+
+    --allin: #4CAF50;
+    --call: #FFB74D;
+    --raise: #7986CB;
+    --fold: #E0E0E0;
+
+    --sans: Archivo, "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hoja { max-width: 880px; margin: 0 auto; padding: 52px 26px 90px; display: grid; gap: 44px; }
+
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; letter-spacing: -.025em; line-height: 1.06; }
+  h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--tenue); padding-bottom: 10px; border-bottom: 1px solid var(--borde);
+  }
+  h3 { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+  p { margin: 0; max-width: 70ch; }
+  strong { font-weight: 600; }
+  em { font-style: normal; color: var(--acento); }
+  code, .dato { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  code { font-size: .88em; color: var(--acento); background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+
+  .seccion { display: grid; gap: 18px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--tenue); }
+  .bajada { font-size: 18px; color: var(--apagado); max-width: 62ch; }
+
+  /* El bloque para copiar y pegar: es lo que el encargo tiene que entregar. */
+  .copiar {
+    border: 1px solid var(--borde-fuerte); border-radius: 10px;
+    background: var(--panel); padding: 20px 22px;
+    display: grid; gap: 12px;
+  }
+  .copiar p { font-size: 15.5px; max-width: none; }
+
+  .pantalla {
+    border: 1px solid var(--borde); border-radius: 10px; background: var(--panel);
+    padding: 18px 20px; display: grid; gap: 10px;
+  }
+  .pantalla-cab { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .ruta { font-family: var(--mono); font-size: 11px; color: var(--tenue); letter-spacing: .04em; }
+  .pantalla ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; }
+  .pantalla li { font-size: 14.5px; color: var(--apagado); }
+  .pantalla li b { color: var(--texto); font-weight: 600; }
+
+  /* La paleta obligatoria, mostrada y no descrita. */
+  .paleta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .muestra {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 6px; border-radius: 999px;
+    background: var(--panel-2); border: 1px solid var(--borde);
+    font-family: var(--mono); font-size: 12px;
+  }
+  .muestra i { width: 16px; height: 16px; border-radius: 4px; }
+
+  .marco { overflow-x: auto; border: 1px solid var(--borde); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px; }
+  th, td { text-align: left; padding: 10px 15px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+  th {
+    font-size: 11px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--tenue); background: var(--panel-2);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td { background: var(--panel); color: var(--apagado); }
+  tbody td:first-child { color: var(--texto); font-weight: 600; white-space: nowrap; }
+
+  .regla {
+    border-left: 2px solid var(--acento); padding: 4px 0 4px 18px;
+    display: grid; gap: 8px;
+  }
+  .regla p { font-size: 16px; }
+
+  pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto;
+    background: var(--fondo); border: 1px solid var(--borde); border-radius: 9px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--apagado);
+  }
+
+  .cierre { border-top: 1px solid var(--borde); padding-top: 20px; color: var(--tenue); font-size: 13.5px; }
+
+  @media (max-width: 620px) { .hoja { padding: 36px 16px 70px; gap: 34px; } }
+</style>
+
+<div class="hoja">
+
+  <header class="seccion">
+    <p class="eyebrow">Encargo de mockup</p>
+    <h1>Qué hace PokerProOS</h1>
+    <p class="bajada">
+      Todo lo que la aplicación hace hoy, para que quien diseñe el mockup no
+      tenga que adivinar nada.
+    </p>
+  </header>
+
+  <section class="copiar">
+    <h2 style="border:0;padding:0">El encargo, en un párrafo</h2>
+    <p>
+      Diseñá el mockup de <strong>PokerProOS</strong>, una aplicación de
+      escritorio para estudiar póker <em>Spin &amp; Go</em>. La usa una sola
+      persona, todos los días, para memorizar tablas preflop hasta que la
+      decisión salga sola en la mesa. Tema oscuro, look de instrumento —no de
+      página web—, denso en datos pero silencioso: <strong>el único color
+      saturado de la pantalla son las acciones de póker</strong>. Tiene diez
+      módulos en un menú lateral fijo; los dos que importan son la
+      <strong>grilla de 169 manos</strong> y el <strong>entrenador con mesa
+      dibujada</strong>. Todo el texto va en castellano rioplatense.
+    </p>
+  </section>
+
+  <section class="seccion">
+    <h2>La regla que ordena todo</h2>
+    <div class="regla">
+      <p>
+        La grilla de 169 manos se pinta con los colores de las acciones, y ésa
+        es la memoria visual que el usuario está entrenando. <strong>Si el resto
+        de la interfaz también usa color, la grilla deja de ser lo único que
+        resalta y se pierde la señal.</strong>
+      </p>
+      <p>
+        Por eso el acento de la app no es un tono: es un gris casi blanco. Lo
+        que destaca, destaca por contraste y por peso. Los únicos botones de
+        color son ALL-IN, CALL y FOLD, porque ésos <em>son</em> el vocabulario
+        del juego.
+      </p>
+    </div>
+
+    <div class="paleta">
+      <span class="muestra"><i style="background:#4CAF50"></i>ALL-IN</span>
+      <span class="muestra"><i style="background:#FFB74D"></i>CALL / CHECK</span>
+      <span class="muestra"><i style="background:#7986CB"></i>RAISE</span>
+      <span class="muestra"><i style="background:#E0E0E0"></i>FOLD</span>
+    </div>
+
+    <div class="marco">
+      <table>
+        <thead><tr><th>Rol</th><th>Valor</th><th>Dónde</th></tr></thead>
+        <tbody>
+          <tr><td>Fondo</td><td class="dato">#0b0e13</td><td>toda la app</td></tr>
+          <tr><td>Panel</td><td class="dato">#12161d</td><td>tarjetas, listas, mesa</td></tr>
+          <tr><td>Línea</td><td class="dato">#222833</td><td>divide; casi nunca encierra</td></tr>
+          <tr><td>Texto</td><td class="dato">#e9eef5</td><td>—</td></tr>
+          <tr><td>Apagado</td><td class="dato">#8b95a5</td><td>gris con una pizca de azul</td></tr>
+          <tr><td>Acento</td><td class="dato">#dfe6f0</td><td>no es un color: es casi blanco</td></tr>
+          <tr><td>Estado</td><td class="dato">#22c55e · #f59e0b · #ef4444</td><td>bien / cuidado / mal, nada más</td></tr>
+          <tr><td>Paño</td><td class="dato">#16412f → #0f3023</td><td>sólo la mesa del entrenador</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Tipografía: <strong>Archivo</strong> para la interfaz e <strong>IBM Plex
+      Mono</strong> para <em>todo número y toda mano</em> —stacks, ciegas,
+      porcentajes, segundos y las 169 casillas—. Esa única regla es lo que hace
+      que se lea como un instrumento.
+    </p>
+  </section>
+
+  <section class="seccion">
+    <h2>El menú</h2>
+    <p>
+      Barra lateral fija de 232 px, agrupada por área. El módulo activo se marca
+      con una regla de 2 px al costado, no con una pastilla rellena. Cada ítem
+      tiene nombre y una línea de qué hace.
+    </p>
+    <pre>SPINS          Entrenamiento    Tablas preflop y copiloto
+               Entrenador       Te pregunta y te corrige
+               Cómo venís       Aciertos y lo que peor te sale
+               Diario           Tu día y tu evolución
+               Hábitos          Cumplimiento y efecto
+               Sesiones         Próximamente
+
+EL JUEGO       Diccionario      Qué significa cada palabra
+               Tipos de jugador Contra quién es cada tabla
+
+AJUSTES        Voz              Cómo decís vos cada cosa
+
+BANCA          Bankroll         Próximamente</pre>
+  </section>
+
+  <section class="seccion">
+    <h2>Las pantallas</h2>
+
+    <article class="pantalla">
+      <div class="pantalla-cab">
+        <h3>Entrenamiento</h3><span class="ruta">la pantalla de consulta</span>
+      </div>
+      <ul>
+        <li>Cuatro selectores en línea: <b>formato</b> (HU / 3-max), <b>situación</b>, <b>stack</b>, <b>spot</b>.</li>
+        <li>La <b>grilla de 13×13</b>: 169 manos, pares en la diagonal, suited arriba, offsuit abajo. Cada casilla pintada con el color de su acción. Debajo, la leyenda con cuántas manos toca cada acción.</li>
+        <li>Un <b>copiloto de voz</b>: el micrófono escucha siempre y se le dicta una mano hablando —«be be contra limp, as rey suited»—; contesta en voz alta y resalta la casilla.</li>
+        <li>Lista de <b>consultas</b> hechas, y otra de <b>frases que no entendió</b>, donde se le enseña cómo se dice cada cosa.</li>
+        <li>Al tocar una casilla se abre la <b>ficha de memoria</b> (ver abajo). Un modo <b>corregir tabla</b> permite cambiar una casilla y escribir el porqué del spot.</li>
+        <li>Un cartel rota cada 10 minutos con la <b>explicación</b> de una situación al azar.</li>
+      </ul>
+    </article>
+
+    <article class="pantalla">
+      <div class="pantalla-cab">
+        <h3>Entrenador</h3><span class="ruta">la pantalla más importante</span>
+      </div>
+      <ul>
+        <li><b>Dos columnas.</b> Izquierda: la mesa y los botones, fijos. Derecha: lo que aparece al contestar, con su propio scroll. <b>Nada de scroll en la página.</b></li>
+        <li><b>La mesa</b>: paño ovalado con riel, vos abajo y los rivales enfrente. Cada silla lleva posición, silueta con la figura de su tipo de jugador, qué hizo y su stack. El botón del dealer va pegado a su silla. En el paño, las fichas de cada uno con el monto en ciegas.</li>
+        <li>Tus <b>dos cartas</b> grandes, boca arriba, <b>sin decir el nombre de la mano</b>: en una mesa se leen las cartas.</li>
+        <li><b>Botones de acción</b> con el color de la tabla y su tecla escrita: <code>A</code> <code>S</code> <code>D</code> <code>W</code>.</li>
+        <li>Un <b>reloj</b> que cuenta hacia arriba y se pone ámbar a los 5 s y rojo a los 10.</li>
+        <li><b>Acertar no muestra nada</b>: la mesa se enmarca en verde y entra la mano siguiente sola.</li>
+        <li><b>Fallar</b> muestra, a la derecha: el veredicto, la grilla del spot con la mano resaltada, y la ficha de memoria. La voz dice qué era y la regla del grupo.</li>
+        <li>Debajo, <b>lo que va de la tanda</b>: cada mano con lo que contestaste, lo correcto y cuánto tardaste.</li>
+        <li>Antes de arrancar, <b>lo que más te cuesta</b>: los errores que repetís igual.</li>
+        <li>Filtro plegable: formato, situación, spot, rango de stack y cantidad de manos (5, 10, 20, 40 o sin límite).</li>
+      </ul>
+    </article>
+
+    <article class="pantalla">
+      <div class="pantalla-cab"><h3>Cómo venís</h3><span class="ruta">estadísticas</span></div>
+      <ul>
+        <li>Cuatro cifras grandes: <b>manos jugadas</b>, <b>% de aciertos</b>, <b>bien contestadas</b>, <b>tiempo por mano</b>.</li>
+        <li>Lista de <b>spots de peor a mejor</b>, con el porcentaje en verde/ámbar/rojo y un botón que abre el entrenador ya filtrado en ese spot.</li>
+      </ul>
+    </article>
+
+    <article class="pantalla">
+      <div class="pantalla-cab"><h3>Hábitos y Diario</h3><span class="ruta">la disciplina</span></div>
+      <ul>
+        <li><b>Panel de hoy</b>, arriba de todo: volumen jugado contra la meta, si estudiaste, el <b>hito activo</b> con su barra, y la semana en siete puntos con la regla «sin dos días seguidos».</li>
+        <li>Cuadro de hábitos por día, con el cruce contra cómo jugaste.</li>
+        <li>Diario: una entrada por día con intención, autocalificación A/B/C, disparador de tilt, mesas, minutos y notas.</li>
+      </ul>
+    </article>
+
+    <article class="pantalla">
+      <div class="pantalla-cab"><h3>Diccionario y Tipos de jugador</h3><span class="ruta">el vocabulario</span></div>
+      <ul>
+        <li>33 términos en cinco grupos, cada uno con un <b>play</b> que lo lee en voz alta.</li>
+        <li>Nueve <b>perfiles de rival</b> en fichas: círculo de color con su figura, etiqueta, dos o tres señales para reconocerlo y su explicación. Separados en dos ejes: qué tan fuerte es (semáforo: verde plata, ámbar cuidado, rojo peligro) y cómo juega (colores fríos, de cerrado a suelto).</li>
+      </ul>
+    </article>
+
+    <article class="pantalla">
+      <div class="pantalla-cab"><h3>Voz</h3><span class="ruta">ajustes</span></div>
+      <ul>
+        <li>Todas las categorías de vocabulario con sus formas habladas, y un botón <b>grabar</b> por entrada: se dice cómo se nombra cada cosa y queda aprendido.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="seccion">
+    <h2>La ficha de memoria</h2>
+    <p>
+      Aparece al tocar una casilla y al fallar en el entrenador. Es lo que
+      convierte un «incorrecto» en algo que se entiende, y conviene que el
+      mockup la trate como una pieza propia:
+    </p>
+    <div class="pantalla">
+      <ul>
+        <li><b>La mano ancla</b>: hasta dónde llega el bloque que comparte su acción.</li>
+        <li><b>En este spot</b>: hasta tres frases que resumen la tabla —«los Ax offsuit: todos ALL-IN», «los Kx offsuit: ALL-IN hasta K7o»—.</li>
+        <li><b>Según el stack</b>: la misma mano a través de todas las bandas.</li>
+        <li><b>Las familias emparentadas</b> y el <b>peso en combos</b> de cada acción del spot.</li>
+        <li><b>La línea</b>: los spots del stack en el orden en que ocurren.</li>
+        <li>El <b>tip</b> escrito a mano, si lo hay.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <h2>Lo que hay que respetar</h2>
+    <div class="marco">
+      <table>
+        <thead><tr><th>Qué</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Los colores de las acciones</td><td>son la memoria visual que se entrena; no se cambian ni se repiten en el resto de la interfaz</td></tr>
+          <tr><td>La mesa no dice el nombre de la mano</td><td>en una mesa se leen dos cartas, no un código</td></tr>
+          <tr><td>Todo monto va en ciegas, con número</td><td>en póker lo que se mira son las fichas</td></tr>
+          <tr><td>Sin scroll en el entrenador</td><td>lo que hay que leer rápido no puede estar a un scroll de distancia</td></tr>
+          <tr><td>Un botón relleno por pantalla</td><td>diez botones rellenos en fila dejan de destacar</td></tr>
+          <tr><td>Los números en mono</td><td>se comparan en columna: stacks, porcentajes, tiempos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="cierre">
+    Escala real: 17 tablas, 339 spots, 57.291 casillas. La app funciona hoy —esto
+    no es una idea, es lo que hay— y el mockup es para verla mejor, no para
+    inventarle funciones.
+  </p>
+
+</div>
