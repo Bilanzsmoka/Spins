@@ -6,6 +6,8 @@ import { PaginaDeDiccionario } from './features/glosario/PaginaDeDiccionario'
 import { PaginaDeTiposDeJugador } from './features/glosario/PaginaDeTiposDeJugador'
 import { PaginaDeHabitos } from './features/diario/PaginaDeHabitos'
 import { PaginaDeEntrenador } from './features/entrenador/PaginaDeEntrenador'
+import { PaginaDeRendimiento } from './features/entrenador/PaginaDeRendimiento'
+import type { FocoDeEntrenamiento } from './features/entrenador/foco'
 import { PaginaDeTablas } from './features/tablas/PaginaDeTablas'
 import { PaginaDeVocabulario } from './features/voz/PaginaDeVocabulario'
 import { Aplicacion, type GrupoDeModulos } from './shared/Aplicacion'
@@ -22,9 +24,9 @@ export default function App() {
     disponible, activo, escuchando, ultimoEvento, falla, fallaAlHablar, alternar, capturar,
   } = useVozDelNavegador(ultimo ?? null)
 
-  // La tabla del hito activo, anotada en Habitos y leida por el Entrenador.
-  // Vive aca porque es lo unico que los dos modulos comparten.
-  const [tablaDelPlan, setTablaDelPlan] = useState<string | null>(null)
+  // Que entrenar, anotado desde Habitos o desde "Como venis", y leido por el
+  // Entrenador. Vive aca porque es lo unico que esos modulos comparten.
+  const [foco, setFoco] = useState<FocoDeEntrenamiento | null>(null)
 
   const grupos: GrupoDeModulos[] = [
     {
@@ -68,7 +70,14 @@ export default function App() {
           // el entrenador abriera el suyo, el copiloto —que sigue vivo al
           // cambiar de módulo— oiría la respuesta hablada y la mandaría como
           // consulta.
-          contenido: <PaginaDeEntrenador onCapturar={capturar} situacionInicial={tablaDelPlan} />,
+          contenido: <PaginaDeEntrenador onCapturar={capturar} foco={foco} />,
+        },
+        {
+          clave: 'rendimiento',
+          etiqueta: 'Cómo venís',
+          descripcion: 'Aciertos y lo que peor te sale',
+          disponible: true,
+          contenido: <PaginaDeRendimiento onEntrenar={setFoco} />,
         },
         {
           clave: 'diario',
@@ -82,7 +91,7 @@ export default function App() {
           etiqueta: 'Hábitos',
           descripcion: 'Cumplimiento y efecto',
           disponible: true,
-          contenido: <PaginaDeHabitos onElegirTabla={setTablaDelPlan} />,
+          contenido: <PaginaDeHabitos onEntrenar={setFoco} />,
         },
         {
           clave: 'sesiones',

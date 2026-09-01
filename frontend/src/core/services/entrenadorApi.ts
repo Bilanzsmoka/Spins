@@ -1,5 +1,6 @@
 import type {
-  AccionDefinida, ErrorRepetido, PreguntaDeTanda, RespuestaEnviada, TandaPedida,
+  AccionDefinida, ErrorRepetido, PreguntaDeTanda, RendimientoTotal, RespuestaEnviada,
+  TandaPedida,
   VeredictoDeRespuesta,
 } from '../models/catalogo.model'
 
@@ -46,6 +47,10 @@ export const pedirTanda = (pedida: TandaPedida) =>
 
 export const responder = (respuesta: RespuestaEnviada) =>
   pedir<VeredictoDeRespuesta>('/api/entrenador/respuesta', 'POST', respuesta)
+
+/** Cuánto llevás jugado, cuánto acertás y qué spots te salen peor. */
+export const rendimiento = () =>
+  pedir<RendimientoTotal>('/api/entrenador/rendimiento', 'GET')
 
 /** Lo que más veces erraste igual. Vacío mientras no se repita nada. */
 export const erroresRepetidos = () =>

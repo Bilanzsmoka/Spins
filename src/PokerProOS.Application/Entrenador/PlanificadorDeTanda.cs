@@ -39,8 +39,11 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
         // juntas y la tanda salía siendo diez casillas del mismo spot. La
         // urgencia sigue mandando —las páginas entran en el orden de su casilla
         // más vencida—, pero se toma de a una por página, por vuelta.
+        // Lo más vencido primero; entre las que vencen el mismo día, al azar.
+        // Desempatar por el nombre de la mano ordenaba alfabéticamente, y en la
+        // matriz eso es siempre "AA" adelante.
         var porUrgencia = vencidas
-            .OrderBy(v => v.Vence).ThenBy(v => v.Mano)
+            .OrderBy(v => v.Vence).ThenBy(_ => Random.Shared.Next())
             .Select(v => Pregunta(v, filtro))
             .OfType<PreguntaDeTanda>()
             .ToList();
@@ -241,9 +244,22 @@ public sealed class PlanificadorDeTanda(ICatalogoDeTablas catalogo)
         // después no puede arreglar una selección que ya es toda de la misma
         // página. El índice es la posición dentro de su propia página, así que
         // ordenar por él reparte de a una por página, por vuelta.
+        //
+        // Y dentro de cada página va al azar. Recorrer la matriz en su orden
+        // natural hacía que la primera casilla de TODAS las páginas fuera "AA":
+        // rotando entre páginas, la tanda salía siendo el mismo as repetido en
+        // cinco tablas. Un patrón así se aprende antes que las tablas —
+        // contestás de memoria la secuencia, no la mano— y es justo lo que la
+        // recuperación activa necesita que no pase.
+        //
+        // No rompe la cobertura: lo ya contestado deja de ser material nuevo,
+        // así que el recorrido igual avanza hasta agotar el catálogo. Lo único
+        // que cambia es en qué orden.
         return candidatas
-            .GroupBy(c => Pagina(c.Pregunta))
-            .SelectMany(pagina => pagina.Select((c, indice) => (c.Borde, Indice: indice, c.Pregunta)))
+            .GroupBy(c => (Pagina(c.Pregunta), c.Borde))
+            .SelectMany(grupo => grupo
+                .OrderBy(_ => Random.Shared.Next())
+                .Select((c, indice) => (c.Borde, Indice: indice, c.Pregunta)))
             .OrderByDescending(c => c.Borde)
             .ThenBy(c => c.Indice)
             .Select(c => c.Pregunta);

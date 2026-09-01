@@ -424,24 +424,29 @@ body {
 .blind-centro { left: 43%; top: 26%; }
 .blind-abajo { left: 43%; top: 73%; }
 
+/*
+ * Apagadas a proposito. Con el azul brillante la vista se iba a las fichas, y
+ * lo que hay que mirar para decidir son las cartas: una ficha tiene que
+ * informar, no llamar.
+ */
 .chip {
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   border-radius: 50%;
-  background: #4f8cff;
-  border: 2px solid rgba(255, 255, 255, .35);
-  box-shadow:
-    0 3px 6px rgba(0, 0, 0, .35),
-    inset 0 1px 2px rgba(255, 255, 255, .22);
+  background: #5c6b7a;
+  border: 2px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
 }
 .blind-label {
-  background: rgba(8, 18, 15, .76);
+  background: rgba(8, 18, 15, .7);
   border-radius: 999px;
-  padding: 3px 7px;
-  font-size: 12px;
-  font-weight: 800;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b8c6bf;
   white-space: nowrap;
 }
-.blind-todo { color: #ffb4b4; }
+/* El all-in si se marca: es lo unico de la mesa que cambia la decision entera. */
+.blind-todo { color: #ff8f8f; border: 1px solid rgba(239, 68, 68, .5); }
 
 .dealer {
   width: 28px; height: 28px;
@@ -722,6 +727,36 @@ body {
   margin-left: 7px; padding: 1px 6px; border-radius: 4px;
   background: rgba(0, 0, 0, .28);
   font-size: 10px; font-weight: 800; letter-spacing: .04em;
+}
+
+/* ---------- Como venis ---------- */
+
+.rendimiento { display: grid; gap: 22px; max-width: 900px; }
+/* Los numeros grandes arriba: lo primero que se mira es como vas. */
+.cifras {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px; background: var(--borde); border: 1px solid var(--borde);
+  border-radius: 10px; overflow: hidden;
+}
+.cifra { background: var(--panel); padding: 14px 16px; display: grid; gap: 3px; }
+.cifra b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cifra span { font-size: 12px; color: var(--apagado); }
+
+.peores { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.peores li {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 9px;
+  background: var(--panel); border: 1px solid var(--borde-suave, var(--borde));
+}
+.peor-porcentaje {
+  min-width: 52px; font-size: 19px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.peor-donde { flex: 1; display: grid; gap: 1px; min-width: 200px; }
+.peor-donde strong { font-size: 14px; }
+.peor-donde em { font-style: normal; color: var(--apagado); font-size: 12px; }
+.peor-cuentas {
+  color: var(--apagado); font-size: 12px; font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Lo que mas te cuesta ---------- */

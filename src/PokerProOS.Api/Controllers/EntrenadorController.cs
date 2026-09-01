@@ -91,6 +91,24 @@ public sealed class EntrenadorController(
         }
     }
 
+    /// <summary>
+    /// Cuánto llevás jugado, cuánto acertás y qué spots te salen peor.
+    /// </summary>
+    [HttpGet("rendimiento")]
+    public async Task<IActionResult> Rendimiento(
+        [FromQuery] int spots = 12, [FromQuery] int minimo = 5, CancellationToken ct = default)
+    {
+        try
+        {
+            return Ok(await bitacora.RendimientoAsync(
+                UsuarioActual, Math.Clamp(spots, 1, 60), Math.Clamp(minimo, 1, 100), ct));
+        }
+        catch (Exception ex) when (EsFalloDeBase(ex))
+        {
+            return BaseCaida(ex, "no se pudo leer tu rendimiento");
+        }
+    }
+
     [HttpPost("respuesta")]
     public async Task<IActionResult> Responder(
         [FromBody] RespuestaEnviada respuesta, CancellationToken ct)

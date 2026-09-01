@@ -75,12 +75,14 @@ function Fichas({
   const todo = esAllIn(hizo)
   if (!todo && !puso && !conBoton) return null
 
+  // En un all-in se ve igual la ciega que ya tenía puesta: esconderla dejaba la
+  // mesa sin decir de cuánto eran las ciegas justo en el spot donde más
+  // importa. El ALL-IN va aparte, no en lugar del número.
   return (
     <div className={`blind blind-${silla}`}>
       {(todo || puso) && <span className="chip" />}
-      {todo
-        ? <span className="blind-label blind-todo">ALL-IN</span>
-        : puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
+      {puso ? <span className="blind-label">{bb(puso)} BB</span> : null}
+      {todo && <span className="blind-label blind-todo">ALL-IN</span>}
       {conBoton && <span className="dealer">D</span>}
     </div>
   )

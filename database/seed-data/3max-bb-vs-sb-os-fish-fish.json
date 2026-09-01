@@ -19,7 +19,7 @@
           "posicion": "SB",
           "tipo": "Fish",
           "hizo": "all-in",
-          "puso": null
+          "puso": 0.5
         }
       ],
       "boton": "BTN",

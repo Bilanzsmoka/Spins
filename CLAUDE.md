@@ -263,9 +263,19 @@ actuar» azul—. La clase sale del dato (`accion-${hizo}`), no de una lista en
 código: un estado nuevo en el JSON estrena color agregando una regla de CSS, y
 sin ella cae al estilo neutro en vez de romperse.
 
-**Se entrena con el teclado.** Las teclas 1..9 son las acciones del spot —en
-el orden del registro, así que la 1 es la primera acción *de ese spot*— y con
-la explicación en pantalla, Enter o espacio siguen. **Al acertar no hay botón:
+**Cómo venís** (`GET /api/entrenador/rendimiento`) es la otra mitad de la
+bitácora: manos jugadas, porcentaje de aciertos, tiempo por mano, y los spots
+de peor a mejor. Por **spot** y no por casilla —una mano suelta que fallaste no
+dice nada; un spot con 60% sobre cuarenta manos es una tabla que no sabés— y
+con un mínimo de cinco respuestas, porque con dos un fallo da 50% y encabezaría
+la lista sin significar nada. Cada renglón lleva su botón **Entrenar**, que abre
+el entrenador filtrado en ese spot: una estadística que no te lleva a
+arreglarla es mirar el problema, no resolverlo.
+
+**Se entrena con el teclado.** **A · S · D · W** son las acciones del spot, en el
+orden en que están los botones —cada uno lleva su letra escrita, así que no hay
+nada que memorizar; los números siguen andando como alias— y con la explicación
+en pantalla, Enter o espacio siguen. **Al acertar no hay botón:
 la mano siguiente entra sola** después de 650 ms, los que se tarda en ver el
 «Bien» y el tiempo. Al fallar no avanza solo: ahí sí hay algo que leer, y
 apurarlo sería perder el momento en que más entra.

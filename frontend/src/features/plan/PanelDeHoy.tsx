@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react'
 import type { EstadoDeHito, EstadoDelDia } from '../../core/models/catalogo.model'
 import { obtenerPlanDeHoy } from '../../core/services/tablasApi'
+import type { FocoDeEntrenamiento } from '../entrenador/foco'
 import { IrAlModulo } from '../../shared/IrAlModulo'
 
 interface Props {
-  /** Deja anotada la tabla que toca, para que el entrenador arranque filtrado en ella. */
-  onElegirTabla: (situacion: string) => void
+  /** Deja anotada la tabla que toca, para que el entrenador arranque en ella. */
+  onEntrenar: (foco: FocoDeEntrenamiento) => void
 }
 
 const DIAS = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
@@ -43,7 +44,7 @@ function Barra({ porcentaje, apagada = false }: { porcentaje: number; apagada?: 
  * que el resto del cuadro: cosas que se miran una vez por día. Si necesita
  * scroll para leerse, falló.
  */
-export function PanelDeHoy({ onElegirTabla }: Props) {
+export function PanelDeHoy({ onEntrenar }: Props) {
   const irA = useContext(IrAlModulo)
   const [estado, setEstado] = useState<EstadoDelDia | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -71,7 +72,7 @@ export function PanelDeHoy({ onElegirTabla }: Props) {
     : 0
 
   const entrenar = () => {
-    if (estado.situacionQueToca) onElegirTabla(estado.situacionQueToca)
+    if (estado.situacionQueToca) onEntrenar({ situacion: estado.situacionQueToca })
     irA('entrenador')
   }
 

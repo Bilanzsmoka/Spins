@@ -3,6 +3,7 @@ import type { HabitoDefinido, ProgresoDeHabitos } from '../../core/models/catalo
 import { obtenerHabitos, obtenerProgreso } from '../../core/services/tablasApi'
 import { CruceDeHabitos } from './CruceDeHabitos'
 import { GrillaDeHabitos } from './GrillaDeHabitos'
+import type { FocoDeEntrenamiento } from '../entrenador/foco'
 import { PanelDeHoy } from '../plan/PanelDeHoy'
 
 const PERIODOS = [
@@ -12,11 +13,11 @@ const PERIODOS = [
 ]
 
 interface Props {
-  /** Deja anotada la tabla que toca, para que el entrenador arranque en ella. */
-  onElegirTabla: (situacion: string) => void
+  /** Deja anotado qué entrenar, para que el entrenador arranque ahí. */
+  onEntrenar: (foco: FocoDeEntrenamiento) => void
 }
 
-export function PaginaDeHabitos({ onElegirTabla }: Props) {
+export function PaginaDeHabitos({ onEntrenar }: Props) {
   const [dias, setDias] = useState(30)
   const [progreso, setProgreso] = useState<ProgresoDeHabitos | null>(null)
   const [habitos, setHabitos] = useState<HabitoDefinido[]>([])
@@ -53,7 +54,7 @@ export function PaginaDeHabitos({ onElegirTabla }: Props) {
         </div>
       </header>
 
-      <PanelDeHoy onElegirTabla={onElegirTabla} />
+      <PanelDeHoy onEntrenar={onEntrenar} />
 
       {error && <p className="error">{error}</p>}
 

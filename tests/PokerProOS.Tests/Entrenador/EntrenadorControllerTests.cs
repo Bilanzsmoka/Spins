@@ -78,6 +78,10 @@ public class EntrenadorControllerTests
         public Task<IReadOnlyList<ErrorRepetido>> ErroresRepetidosAsync(
             int usuarioId, int cuantos, CancellationToken ct)
             => Task.FromResult<IReadOnlyList<ErrorRepetido>>([]);
+
+        public Task<RendimientoTotal> RendimientoAsync(
+            int usuarioId, int cuantosSpots, int minimo, CancellationToken ct)
+            => Task.FromResult(new RendimientoTotal(0, 0, 0, []));
     }
 
     private static EntrenadorController Armar()

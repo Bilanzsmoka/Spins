@@ -11,6 +11,7 @@ import { obtenerGlosario } from '../../core/services/tablasApi'
 import { BotonesDeAccion } from './BotonesDeAccion'
 import { FiltroDeTanda } from './FiltroDeTanda'
 import { HistorialDeTanda, type ManoContestada } from './HistorialDeTanda'
+import type { FocoDeEntrenamiento } from './foco'
 import { MapaDeErrores } from './MapaDeErrores'
 import { MesaSimulada } from './MesaSimulada'
 import { useCantarElFallo } from './useCantarElFallo'
@@ -27,8 +28,11 @@ interface Props {
    */
   onCapturar: () => Promise<ResultadoDeCaptura>
 
-  /** La tabla del hito activo, cuando se llega desde el panel del día. */
-  situacionInicial?: string | null
+  /**
+   * Qué entrenar cuando se llega desde otra pantalla: la tabla del hito
+   * activo, o el spot que peor te sale.
+   */
+  foco?: FocoDeEntrenamiento | null
 }
 
 /**
@@ -76,17 +80,31 @@ const claveDeCasilla = (p: PreguntaDeTanda) =>
  * el error se muestra en pantalla en lugar de tragarse, que es lo que hacen la
  * bitácora y el diario.
  */
-export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
+export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
   const { catalogo, error: errorDeCatalogo } = useCatalogo()
 
   // Si venís del panel del día, la tanda arranca ya filtrada en la tabla del
   // hito activo: el módulo se monta de nuevo al cambiar, así que alcanza con
   // el valor inicial.
-  const [pedida, setPedida] = useState<TandaPedida>(
-    { ...PEDIDA_INICIAL, situacion: situacionInicial ?? null })
+  const [pedida, setPedida] = useState<TandaPedida>({
+    ...PEDIDA_INICIAL,
+    situacion: foco?.situacion ?? null,
+    spot: foco?.spot ?? null,
+  })
   const [tanda, setTanda] = useState<PreguntaDeTanda[] | null>(null)
   const [indice, setIndice] = useState(0)
-  const [acciones, setAcciones] = useState<AccionDefinida[]>([])
+  /**
+   * Las acciones del spot, junto con la casilla a la que pertenecen.
+   *
+   * Van juntas y no en dos estados porque al pasar de mano las acciones nuevas
+   * se piden al servidor: en ese instante los botones —y los atajos— seguían
+   * vivos con la lista del spot ANTERIOR. Apretabas 1 esperando ALL-IN y se
+   * mandaba lo que estuviera primero en la lista vieja, contra la casilla
+   * nueva. No se ve, no falla, y te ensucia el progreso con respuestas que
+   * nunca diste.
+   */
+  const [acciones, setAcciones] = useState<{ de: string; lista: AccionDefinida[] }>(
+    { de: '', lista: [] })
   const [veredicto, setVeredicto] = useState<VeredictoDeRespuesta | null>(null)
   // Lo que tardaste en la que acabás de contestar, para mostrarlo. Verlo es lo
   // que hace que empieces a contestar más rápido; guardarlo en silencio no
@@ -134,7 +152,10 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   const desdeQueAparecio = useRef<number>(0)
   // La voz se enciende a mano. Entrenando en silencio —de noche, o al lado de
   // alguien— cantar cada pregunta es peor que no tenerla.
-  const [conVoz, setConVoz] = useState(false)
+  // Encendida por defecto: es el modo en que esta app se usa —estudiar sin
+  // mirar la pantalla— y dejarla apagada hacía que la mitad de lo que hace
+  // pareciera no existir.
+  const [conVoz, setConVoz] = useState(true)
   // El reloj es información, no castigo: cuenta hacia arriba y no reprueba
   // nada. Verlo es lo que empieza a cambiar cómo contestás; que además decida
   // si sabés una casilla es otra etapa.
@@ -183,11 +204,12 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   useEffect(() => {
     if (!pregunta) return
     let cancelado = false
+    const clave = claveDeCasilla(pregunta)
     accionesDelSpot(pregunta.situacion, pregunta.claveDeStack, pregunta.spot)
-      .then((a) => { if (!cancelado) setAcciones(a) })
+      .then((a) => { if (!cancelado) setAcciones({ de: clave, lista: a }) })
       .catch((e: unknown) => {
         if (cancelado) return
-        setAcciones([])
+        setAcciones({ de: clave, lista: [] })
         // Sin esto, un fallo acá deja la mano en pantalla sin botones y sin
         // ninguna explicación: parece que la app se colgó. El entrenador es
         // el único módulo que no puede fallar en silencio.
@@ -195,6 +217,11 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
       })
     return () => { cancelado = true }
   }, [pregunta])
+
+  // Las acciones sirven sólo si son las de la mano que está en pantalla.
+  const accionesDeEstaMano = pregunta !== null && acciones.de === claveDeCasilla(pregunta)
+    ? acciones.lista
+    : []
 
   const sinLimite = pedida.tamano === SIN_LIMITE
 
@@ -401,7 +428,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
   // explicación. Y al fallar la voz dice qué era y la regla del grupo, que es
   // justo el momento en que antes se quedaba callada.
   useCantarPregunta(veredicto ? null : pregunta, conVoz)
-  useCantarElFallo(veredicto, acciones, conVoz)
+  useCantarElFallo(veredicto, accionesDeEstaMano, conVoz, pregunta?.mano ?? null)
 
   const seguir = () => {
     setVeredicto(null)
@@ -561,7 +588,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
               milisegundos={conReloj ? transcurrido : 0}
             />
             <BotonesDeAccion
-              acciones={acciones}
+              acciones={accionesDeEstaMano}
               deshabilitado={veredicto !== null || contestando}
               onElegir={(clave) => void elegir(clave)}
             />
@@ -571,7 +598,7 @@ export function PaginaDeEntrenador({ onCapturar, situacionInicial }: Props) {
             {veredicto && (
               <Veredicto
                 veredicto={veredicto}
-                acciones={acciones}
+                acciones={accionesDeEstaMano}
                 milisegundos={tardo}
                 pregunta={pregunta}
                 onSeguir={seguir}

@@ -361,6 +361,24 @@ export interface ErrorRepetido {
   ultima: string
 }
 
+export interface RendimientoDeSpot {
+  situacion: string
+  claveDeStack: string
+  spot: string
+  respondidas: number
+  aciertos: number
+  milisegundosPromedio: number
+  porcentaje: number
+}
+
+export interface RendimientoTotal {
+  respondidas: number
+  aciertos: number
+  milisegundosPromedio: number
+  porcentaje: number
+  peoresSpots: RendimientoDeSpot[]
+}
+
 /* ---------- El plan ---------- */
 
 export interface EstadoDeHito {

@@ -8,6 +8,16 @@ interface Props {
 }
 
 /**
+ * Las teclas, en el orden en que están los botones: A, S y D son las tres de
+ * la fila de casa, izquierda a derecha, y W queda arriba para el cuarto. Es un
+ * mapa de teclado, no dato del dominio — no sale de un registro porque no
+ * describe el póker, describe dónde tenés los dedos.
+ *
+ * Los números siguen andando como alias: ya estaban y no molestan.
+ */
+const TECLAS = ['a', 's', 'd', 'w', 'f', 'g', 'h', 'j', 'k']
+
+/**
  * Los botones del spot, con el color del registro de acciones.
  *
  * El color no es decorativo: es la misma memoria visual que se entrenó
@@ -15,10 +25,11 @@ interface Props {
  * cosas distintas.
  *
  * El atajo es la posición del botón: los del spot vienen ordenados por el
- * campo `orden` del registro, así que la tecla 1 es la primera acción DE ESE
+ * campo `orden` del registro, así que la tecla A es la primera acción DE ESE
  * SPOT — no la misma en toda la app. Un spot que no usa la acción de menor
- * orden le da otra acción a la tecla 1; lo que sí se sostiene es que el orden
- * relativo entre acciones nunca cambia de pantalla en pantalla.
+ * orden le da otra acción a la tecla A; lo que sí se sostiene es que el orden
+ * relativo entre acciones nunca cambia de pantalla en pantalla. Por eso cada
+ * botón lleva su letra escrita: no hay nada que memorizar.
  */
 export function BotonesDeAccion({ acciones, deshabilitado, onElegir }: Props) {
   useEffect(() => {
@@ -34,7 +45,8 @@ export function BotonesDeAccion({ acciones, deshabilitado, onElegir }: Props) {
           || ['input', 'textarea', 'select'].includes(donde.tagName.toLowerCase()))
       if (editando || evento.ctrlKey || evento.altKey || evento.metaKey) return
 
-      const indice = Number(evento.key) - 1
+      const porLetra = TECLAS.indexOf(evento.key.toLowerCase())
+      const indice = porLetra >= 0 ? porLetra : Number(evento.key) - 1
       const accion = acciones[indice]
       if (!Number.isNaN(indice) && accion) onElegir(accion.clave)
     }
@@ -53,7 +65,9 @@ export function BotonesDeAccion({ acciones, deshabilitado, onElegir }: Props) {
           style={{ background: accion.color, color: accion.colorTexto }}
           onClick={() => onElegir(accion.clave)}
         >
-          <span className="boton-accion-tecla">{indice + 1}</span>
+          <span className="boton-accion-tecla">
+            {(TECLAS[indice] ?? String(indice + 1)).toUpperCase()}
+          </span>
           {accion.etiqueta}
         </button>
       ))}
