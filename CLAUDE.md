@@ -317,6 +317,19 @@ y qué hizo el rival, y eso pisa lo de la situación. Sin esto un 3-bet se
 dibujaba igual que una primera decisión —sin tus fichas delante— y se leía como
 si nunca hubieras actuado.
 
+Cada jugador muestra un **stack concreto** —12 BB— y no la banda de la tabla
+—9-14bb—: en una mesa nadie tiene "nueve a catorce ciegas". El número sale de
+la casilla, no de un azar, así que no baila mientras pensás, y es el **mismo
+para todos** porque la tabla está construida para un stack efectivo: darle a
+cada uno el suyo cambiaría el spot que se pregunta.
+
+**Hablar y escuchar son dos interruptores.** La voz —que ahora sólo suena al
+fallar— sirve siempre; contestar hablando sólo si estás lejos del teclado, y
+arranca apagado. Con las dos en el mismo botón, encender la voz abría el
+micrófono y un permiso denegado llenaba la pantalla de «No pude escuchar» sin
+que nadie hubiera pedido hablar. La voz elige la mejor del navegador —las
+«Natural» y «Online» de Edge son neuronales— en vez de la robótica del sistema.
+
 En la mesa **manda el monto, no la palabra**: en una mesa de verdad no ves
 "MIN-RAISE", ves dos ciegas delante de alguien y de ahí sacás que subió. Un
 all-in muestra **el stack** —que es lo que empuja—, no la ciega que ya tenía

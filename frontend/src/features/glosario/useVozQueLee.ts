@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { prepararFrase, useMejorVoz } from '../../core/voz/useMejorVoz'
 
 /**
  * Un texto que se puede escuchar, con un botón que además lo calla.
@@ -10,6 +11,7 @@ import { useEffect, useState } from 'react'
  */
 export function useVozQueLee(texto: string) {
   const [hablando, setHablando] = useState(false)
+  const voz = useMejorVoz()
 
   // Al desmontar hay que callar: si no, cambiás de página y la voz sigue
   // leyendo un término que ya no está en pantalla.
@@ -27,8 +29,7 @@ export function useVozQueLee(texto: string) {
     }
 
     window.speechSynthesis.cancel()
-    const frase = new SpeechSynthesisUtterance(texto)
-    frase.lang = 'es-ES'
+    const frase = prepararFrase(texto, voz)
     frase.onend = () => setHablando(false)
     frase.onerror = () => setHablando(false)
     setHablando(true)

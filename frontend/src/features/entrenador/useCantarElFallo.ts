@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { AccionDefinida, VeredictoDeRespuesta } from '../../core/models/catalogo.model'
+import { prepararFrase, useMejorVoz } from '../../core/voz/useMejorVoz'
 import { useManoHablada } from './useManoHablada'
 
 /**
@@ -25,6 +26,7 @@ export function useCantarElFallo(
   mano: string | null,
 ) {
   const deletrear = useManoHablada()
+  const voz = useMejorVoz()
 
   useEffect(() => {
     if (!veredicto || veredicto.acerto || !activo) return
@@ -46,8 +48,7 @@ export function useCantarElFallo(
         ? `${regla.grupo}: ${etiqueta(regla.accion)} hasta ${regla.hasta}.`
         : `${regla.grupo}: todos ${etiqueta(regla.accion)}.`)
 
-    const frase = new SpeechSynthesisUtterance(partes.join(' '))
-    frase.lang = 'es-ES'
+    const frase = prepararFrase(partes.join(' '), voz)
 
     // Cancelar antes: si no, esto se encola detrás de la pregunta que se
     // estaba cantando y llega cuando ya pasaste a la siguiente mano.
@@ -56,5 +57,5 @@ export function useCantarElFallo(
 
     return () => window.speechSynthesis.cancel()
     // oxlint-disable-next-line exhaustive-deps
-  }, [veredicto, acciones, activo, mano])
+  }, [veredicto, acciones, activo, mano, voz])
 }

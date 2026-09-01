@@ -15,7 +15,6 @@ import type { FocoDeEntrenamiento } from './foco'
 import { MapaDeErrores } from './MapaDeErrores'
 import { MesaSimulada } from './MesaSimulada'
 import { useCantarElFallo } from './useCantarElFallo'
-import { useCantarPregunta } from './useCantarPregunta'
 import { Veredicto } from './Veredicto'
 
 interface Props {
@@ -156,6 +155,16 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
   // mirar la pantalla— y dejarla apagada hacía que la mitad de lo que hace
   // pareciera no existir.
   const [conVoz, setConVoz] = useState(true)
+  /**
+   * Contestar hablando. Va aparte de la voz y arranca apagado.
+   *
+   * Que la app te hable y que te escuche son dos cosas distintas: la primera
+   * sirve siempre, la segunda sólo si estás lejos del teclado. Con las dos en
+   * el mismo interruptor, encender la voz abría el micrófono, y si Chrome no
+   * lo daba la pantalla se llenaba de "No pude escuchar" sin que nadie hubiera
+   * pedido hablar.
+   */
+  const [contestarConVoz, setContestarConVoz] = useState(false)
   // El reloj es información, no castigo: cuenta hacia arriba y no reprueba
   // nada. Verlo es lo que empieza a cambiar cómo contestás; que además decida
   // si sabés una casilla es otra etapa.
@@ -391,7 +400,7 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
   // re-arma tras un silencio: un error (permiso, micrófono ocupado) se muestra
   // y se para, o el bucle giraría contra la misma falla para siempre.
   useEffect(() => {
-    if (!pregunta || veredicto || !conVoz) return
+    if (!pregunta || veredicto || !contestarConVoz) return
     let cancelado = false
 
     const escuchar = async () => {
@@ -422,12 +431,11 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
     void escuchar()
     return () => { cancelado = true }
     // oxlint-disable-next-line exhaustive-deps
-  }, [pregunta, veredicto, conVoz, onCapturar])
+  }, [pregunta, veredicto, contestarConVoz, onCapturar])
 
-  // Mientras hay veredicto no se canta la pregunta: se está leyendo la
-  // explicación. Y al fallar la voz dice qué era y la regla del grupo, que es
-  // justo el momento en que antes se quedaba callada.
-  useCantarPregunta(veredicto ? null : pregunta, conVoz)
+  // La voz habla SOLO cuando errás. Cantar cada pregunta llenaba de ruido las
+  // siete de cada diez manos que salen bien, y encima leía en voz alta lo que
+  // ya tenés en pantalla; lo que hace falta escuchar es la corrección.
   useCantarElFallo(veredicto, accionesDeEstaMano, conVoz, pregunta?.mano ?? null)
 
   const seguir = () => {
@@ -504,6 +512,13 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
           onClick={() => setConVoz((previo) => !previo)}
         >
           {conVoz ? 'Voz encendida' : 'Voz apagada'}
+        </button>
+        <button
+          type="button"
+          className={contestarConVoz ? 'boton-principal' : 'boton-tenue'}
+          onClick={() => setContestarConVoz((previo) => !previo)}
+        >
+          {contestarConVoz ? 'Contesto hablando' : 'Contesto con teclas'}
         </button>
         <button
           type="button"
