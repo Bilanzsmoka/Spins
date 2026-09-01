@@ -586,6 +586,7 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
               situacion={catalogo?.situaciones.find((s) => s.clave === pregunta.situacion) ?? null}
               perfiles={perfiles}
               milisegundos={conReloj ? transcurrido : 0}
+              acerto={veredicto?.acerto ?? false}
             />
             <BotonesDeAccion
               acciones={accionesDeEstaMano}
@@ -595,7 +596,11 @@ export function PaginaDeEntrenador({ onCapturar, foco }: Props) {
           </div>
 
           <aside className="entrenador-costado">
-            {veredicto && (
+            {/*
+              Sólo al fallar. Acertar se dice con el marco verde de la mesa y
+              la mano siguiente: no hay nada que leer.
+            */}
+            {veredicto && !veredicto.acerto && (
               <Veredicto
                 veredicto={veredicto}
                 acciones={accionesDeEstaMano}

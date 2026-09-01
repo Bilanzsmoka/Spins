@@ -10,6 +10,14 @@ interface Props {
   perfiles: TerminoDelGlosario[]
   /** Cuánto llevás pensando esta mano. Cero cuando el reloj está apagado. */
   milisegundos: number
+  /**
+   * Acertaste, y la mano siguiente ya viene en camino.
+   *
+   * La mesa se enmarca en verde y no se muestra nada más: acertar no tiene
+   * nada que leer, y un cartel en las siete de cada diez manos que salen bien
+   * es ruido que tapa la mesa justo cuando conviene mirarla.
+   */
+  acerto?: boolean
 }
 
 /**
@@ -150,7 +158,7 @@ function Jugador({
  * que leer. Mostrar la etiqueta convertía el ejercicio en reconocer un código,
  * y eso no se transfiere al juego.
  */
-export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Props) {
+export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos, acerto }: Props) {
   const base: MesaDeSituacion | null = situacion?.mesa ?? null
   const stack = situacion?.stacks.find((s) => s.clave === pregunta.claveDeStack) ?? null
 
@@ -185,7 +193,7 @@ export function MesaSimulada({ pregunta, situacion, perfiles, milisegundos }: Pr
   const sillas = rivales.length === 1 ? SILLAS.uno : SILLAS.dos
 
   return (
-    <section className="mesa">
+    <section className={`mesa${acerto ? ' mesa-bien' : ''}`}>
       <p className="mesa-donde">
         {pregunta.etiquetaDeSpot}
         {pregunta.esNueva && <span className="mesa-nueva">nueva</span>}

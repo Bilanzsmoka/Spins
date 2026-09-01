@@ -276,6 +276,16 @@ body {
 }
 
 /* ---------- La mesa ---------- */
+/* Acertar no se lee: se ve. Marco verde y la siguiente. */
+.mesa-bien {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px #22c55e, 0 0 26px rgba(34, 197, 94, .25);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mesa-bien { transition: border-color .12s ease, box-shadow .12s ease; }
+}
+
+
 
 /*
  * El diseno es el que paso Brayan —sus medidas, sus colores y sus posiciones—;
